@@ -1,13 +1,13 @@
 #include <iostream>
-#include "hmac.h"
+#include "sntp.h"
 using namespace std;
 
 int main() {
 	cout << "Hello, CMake" << endl;
 
-	HMAC hmac;
-	hmac.setHashAlgorithm(AlgorithmName::SHA_1);
-	cout << hmac.getHashMessage("YWJjZGVmZ2hpamts", 2, "YWJjZGVmZ2hpamts") << endl;
+	SNTPClient sntp;
+	int64_t timestamp = sntp.getSNTPTimestamp("time.windows.com", 123);
+	cout << "Timestamp: " << timestamp << endl;
 	//SHA1 sha1;
 	/*sha1.messageByBase32("MFRGGZDFMZTWQ2LK");*/
 	

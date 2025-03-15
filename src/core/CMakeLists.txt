@@ -4,6 +4,7 @@
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(crypto)
-
 add_subdirectory(digit_convert)
+add_subdirectory(otp)
+add_subdirectory(sntp)
 

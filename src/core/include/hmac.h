@@ -2,6 +2,7 @@
 #include "common.h"
 #include "hash.h"
 enum AlgorithmName {
+	UNKNOWN,
 	SHA_1,
 };
 class HMAC {
@@ -24,6 +25,8 @@ public:
 	*/
 	string getHashMessage(string message,int input_type, string key);
 
+	vector<uint32_t> getHashMessage(vector<uint32_t> message, vector<uint32_t>key,size_t key_len);
+
 	void setHashAlgorithm(AlgorithmName algorithmName);
 private:
 	
@@ -32,6 +35,7 @@ private:
 	vector<uint32_t> key;
 	vector<uint32_t> result;
 	size_t message_len;
+	size_t key_len;
 
 	void init(string message, int input_type, string key);
 	void fillkey();

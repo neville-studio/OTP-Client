@@ -120,6 +120,23 @@ void HMAC::init(string message, int input_type, string key) {
 	}
 }
 
+vector<uint32_t> HMAC::getHashMessage(vector<uint32_t> message, vector<uint32_t>key,size_t key_len) {
+	this->message_len = key_len * 8;
+	this->message = message;
+	int size_of_key_block = this->hash_algorithm->getBlockLength();
+
+	if (key_len > size_of_key_block) {
+		this->key = this->hash_algorithm->getHashMessageByuint32(key, key_len*8);
+	}
+	else
+	{
+		key.resize(size_of_key_block / 4);
+		this->key = key;
+	}
+	calculate();
+	return result;
+}
+
 
 //void HMAC::setHashAlgorithm(int hash) {
 //	this->hash_algorithm = hash_algorithm;
