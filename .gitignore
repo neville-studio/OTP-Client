@@ -122,3 +122,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/out/build/x64-debug/.ninja_deps
+/out/build/x64-debug/.ninja_log
+/out/build/x64-debug/build.ninja
