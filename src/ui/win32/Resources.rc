@@ -1,0 +1,340 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+//#include "afxres.h"
+#include "windows.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE 0x04, 0x02
+#pragma code_page(936)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICONMAIN            ICON                    "./client.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OTP DIALOGEX 0, 0, 311, 161
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "配置令牌"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,199,140,50,14
+    PUSHBUTTON      "取消",IDCANCEL,254,140,50,14
+    EDITTEXT        IDC_OTPNAME,82,23,192,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_OTPSECRET,82,40,192,12,ES_AUTOHSCROLL
+    LTEXT           "令牌名称",IDC_STATIC,22,25,35,8
+    LTEXT           "令牌密钥",IDC_STATIC,22,42,35,8
+    LTEXT           "间隔时间（秒）", IDC_HOTPTOTPADDSTATIC,25,105,61,8
+    EDITTEXT        IDC_ADDITIONEDIT,86,103,62,12,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "高级选项 <<",IDC_ADVANCEDBUTTON,18,81,60,14
+    LTEXT           "密钥算法",IDC_STATIC,157,105,35,8
+    COMBOBOX        IDC_ALGORITHM,195,103,84,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "密码是计数的",IDC_CHECKISHOTP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,60,67,10
+    LTEXT           "生成密码长度",IDC_STATIC,26,122,52,8
+    CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,86,118,100,15
+END
+
+IDD_SNTP DIALOGEX 0, 0, 311, 110
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "时钟同步服务设置"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,199,89,50,14
+    PUSHBUTTON      "取消",IDCANCEL,254,89,50,14
+    CONTROL         "始终使用网络时钟",IDC_ALWAYSNETTIME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,16,85,10
+    EDITTEXT        IDC_EDIT2,81,30,170,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4,81,47,170,14,ES_AUTOHSCROLL
+    LTEXT           "主时钟服务器",IDC_STATIC,22,34,52,8
+    LTEXT           "辅时钟服务器",IDC_STATIC,23,49,52,8
+    LTEXT           "上次同步：xxxx分钟前",IDC_STATIC,23,68,182,8
+    PUSHBUTTON      "应用并重新同步",IDC_BUTTON2,104,89,72,14
+END
+
+IDD_HOTP DIALOGEX 0, 0, 310, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "你当前的密码"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,253,156,50,14
+    LTEXT           "******",IDC_PASSWORD,117,71,28,8
+    LTEXT           "注意，关闭此对话框后，您的HOTP计数器会更新",IDC_STATIC,22,135,182,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_OTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_SNTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_HOTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 303
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_OTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SNTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_HOTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_OTP DLGINIT
+BEGIN
+    IDC_ALGORITHM, 0x403, 5, 0
+0x4853, 0x3141, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_HOTPADDITION        "计数器次数"
+    IDS_TOTPADDITION        "间隔时间（秒）"
+END
+
+#endif    // 中文(简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// 英语(美国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_OTP DIALOGEX 0, 0, 311, 161
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_CHILD | WS_CAPTION | WS_SYSMENU
+CAPTION "Configure this OTP Token"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,199,140,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,254,140,50,14
+    EDITTEXT        IDC_OTPNAME,82,23,192,12,ES_AUTOHSCROLL
+    EDITTEXT        IDC_OTPSECRET,82,40,192,12,ES_AUTOHSCROLL
+    LTEXT           "OTP Name",IDC_STATIC,22,25,36,8
+    LTEXT           "OTP Secrets",IDC_STATIC,22,42,42,8
+    CONTROL         "This Password has counter.",IDC_CHECKISHOTP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,60,106,10
+    PUSHBUTTON      "Advanced Options <<",IDC_ADVANCEDBUTTON,18,81,86,14
+    LTEXT           "Algorithm",IDC_STATIC,157,105,32,8
+    COMBOBOX        IDC_ALGORITHM,195,103,84,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_ADDITIONEDIT,86,103,62,12,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,100,119,100,15
+    LTEXT           "Generated key length",IDC_STATIC,26,122,70,8
+    LTEXT           "Intervals (Sec)",IDC_HOTPTOTPADDSTATIC,25,105,49,8
+END
+
+IDD_SNTP DIALOGEX 0, 0, 311, 110
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "SNTP Service Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,199,89,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,254,89,50,14
+    CONTROL         "Always using network Clock",IDC_ALWAYSNETTIME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,16,106,10
+    EDITTEXT        IDC_EDIT2,121,30,170,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4,121,47,170,14,ES_AUTOHSCROLL
+    LTEXT           "Main Clock Server",IDC_STATIC,22,34,60,8
+    LTEXT           "Secondary Clock Server",IDC_STATIC,23,49,79,8
+    LTEXT           "Last Sync: xxxx minutes ago.",IDC_STATIC,23,68,182,8
+    PUSHBUTTON      "Apply && Resync",IDC_BUTTON1,96,89,87,14
+END
+
+IDD_HOTP DIALOGEX 0, 0, 310, 177
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Your Current Password"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,253,156,50,14
+    LTEXT           "******",IDC_PASSWORD,117,71,28,8
+    LTEXT           "WARNING!!! After close this dialog, the counter will updated.",-1,22,135,198,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_OTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 154
+    END
+
+    IDD_SNTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 304
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_HOTP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 303
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 170
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_OTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_SNTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_HOTP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_OTP DLGINIT
+BEGIN
+    IDC_ALGORITHM, 0x403, 5, 0
+0x4853, 0x3141, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_HOTPADDITION        "Counter"
+    IDS_TOTPADDITION        "Interval(s)"
+END
+
+#endif    // 英语(美国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

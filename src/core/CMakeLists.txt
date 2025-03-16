@@ -7,4 +7,6 @@ add_subdirectory(crypto)
 add_subdirectory(digit_convert)
 add_subdirectory(otp)
 add_subdirectory(sntp)
+add_subdirectory(data)
+add_subdirectory(i18n)
 

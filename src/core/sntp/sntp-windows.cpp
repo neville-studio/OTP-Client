@@ -62,7 +62,7 @@ int64_t SNTPClient::getSNTPTimestamp(const char* server, uint16_t port, bool ena
 	SOCKET connectSocket = INVALID_SOCKET;
 	BYTE recvBuf[DEFAULT_NTP_PACKET_SIZE] = {};
 	int recvBufLen = DEFAULT_NTP_PACKET_SIZE;
-	struct sockaddr_in serverAddr;
+	//struct sockaddr_in serverAddr;
 	int iResult;
 
     struct addrinfo* result = NULL,
@@ -99,7 +99,7 @@ int64_t SNTPClient::getSNTPTimestamp(const char* server, uint16_t port, bool ena
 	std::chrono::time_point send_time = std::chrono::system_clock::now();
 
 
-	iResult = sendto(connectSocket, (const char*)sendBuf, sizeof(sendBuf), 0, ptr->ai_addr, ptr->ai_addrlen);
+	iResult = sendto(connectSocket, (const char*)sendBuf, (int)sizeof(sendBuf), 0, ptr->ai_addr, ptr->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		closesocket(connectSocket);
 		connectSocket = INVALID_SOCKET;

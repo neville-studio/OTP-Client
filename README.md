@@ -17,6 +17,12 @@ The app is only for Windows currently.
 
 
 
-# Thanks to the following repositories for the inspiration:
+# Thanks
 
+## Thanks the repositorys and projects
 - [nlohmann-json](https://github.com/nlohmann/json), for using JSON Library. this library is used MIT License. [@nlohmann](https://github.com/nlohmann) this project is using version 3.13.3 to process JSON data.
+
+## Thanks the AI Generator
+- **Github Copilot**, by *Github*, for providing the code suggestion. this project is using the AI code suggestion to generate the code.
+- **Qwen**, *by Aliyun*, for providing the suggestion of the project.
+- **Deepseek**, by *Deepseek*, for providing the core suggestion of the project.
