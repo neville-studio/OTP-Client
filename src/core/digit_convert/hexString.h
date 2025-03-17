@@ -4,13 +4,13 @@
 * @brief to decode the hex String
 * @param in the string to decode
 **/
-vector<byte> hexStringDecode(string in);
+vector<std::byte> hexStringDecode(string in);
 
 /**
 * @brief to encode the hex String
 * @param in the array to encode
 **/
-string hexStringEncode(vector<byte>& in);
+string hexStringEncode(vector<std::byte>& in);
 
 /**
 * @brief to encode the hex String

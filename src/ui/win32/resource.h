@@ -7,6 +7,10 @@
 #define IDD_HOTP                        109
 #define IDS_HOTPADDITION                114
 #define IDS_TOTPADDITION                115
+#define IDS_ERROR                       116
+#define IDS_ERROR_NOSECRET              117
+#define IDS_ERROR_ERRORENCODE_BASE32    118
+#define IDS_ERROR_TIMEEQUALS_ZERO		119
 #define IDC_OPTNAME                     1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT4                       1002
@@ -25,6 +29,7 @@
 #define IDI_ICONMAIN                    10001
 #define ID_BUTTON2                      40001
 #define IDC_STATIC                      -1
+
 
 
 // Next default values for new objects

@@ -5,13 +5,13 @@
 * @brief Decode a base64 string to a byte vector
 * @param base64String The base64 string to decode
 */
-vector<byte> base64Decode(string base64String);
+vector<std::byte> base64Decode(string base64String);
 
 /**
 * @brief Encode a byte vector to a base64 string
 * @param input The byte vector to encode
 */
-string base64Encode(vector<byte>& input);
+string base64Encode(vector<std::byte>& input);
 
 /**
 * @brief Convert a vector of uint32_t to a base64 string

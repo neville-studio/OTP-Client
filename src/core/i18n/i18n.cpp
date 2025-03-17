@@ -44,7 +44,7 @@ i18nClient::i18nClient() {
 		{"windowTitle" , L"单次密码验证查看客户端"},
 		{"currentVersion" , L"当前版本"},
 		{"oncePassword" , L"当前密码"},
-		{"remainTime" , L"剩余次数"},
+		{"remainTime" , L"过期时间"},
 		{"remainTimeTip" , L"%lld秒"}
 	};
 }

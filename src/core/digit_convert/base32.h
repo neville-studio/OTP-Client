@@ -5,7 +5,7 @@
 /** @brief to convert base32 encoding.
 * @param input the string input
 */
-vector<byte> base32Decode(const string& input);
+vector<std::byte> base32Decode(const string& input);
 
 /*
 * @brief to convert data from uint_8

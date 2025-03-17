@@ -51,8 +51,8 @@ string OTP::generateOTP(string secret, int secret_type,int digits, int addition_
 	vector<uint32_t> result = hmac.getHashMessage(message, converted_key, 8);
 
 	uint32_t offset = result[result.size() - 1] & 0x0f;
-	//  11 2,3 3,0 3,1 3,2
-	uint32_t bin_code = (((result[offset / 4] & ((1ULL << ((4 - offset % 4) * 8)) -1 ))) << ((offset % 4) * 8)) | (result[offset / 4 + 1] >> ((4 -(offset % 4)) * 8));
+	//  0 0
+	uint32_t bin_code = (((result[offset / 4] & ((1ULL << ((4 - offset % 4) * 8)) - 1 ))) << ((offset % 4) * 8)) | (offset%4? (result[offset / 4 + 1] >> ((4 -(offset % 4)) * 8)):0);
 	bin_code = bin_code & 0x7fffffff;
 
 

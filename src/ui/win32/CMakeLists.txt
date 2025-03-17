@@ -6,7 +6,7 @@ add_definitions(-D_UNICODE -DUNICODE)
 
     
 
-add_library(win32form MainWinForm.cpp Resources.rc)
+add_library(win32form MainWinForm.cpp Resources.rc  )
 
 
 
@@ -16,5 +16,6 @@ target_link_libraries(win32form PRIVATE
             comctl32.lib
             i18n
             global_datastore
+            otp-core
 )
 

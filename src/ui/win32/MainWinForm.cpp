@@ -5,19 +5,25 @@
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#define MAX_LOADSTRING 100
+#define MAX_LOADSTRING 200
 HINSTANCE hInst;
 HWND buttonImport, buttonExport, buttonAdd, buttonEdit, buttonDelete, buttonNetworkTime;
 HWND hListView;
 WCHAR interval[MAX_LOADSTRING];
 WCHAR counter[MAX_LOADSTRING];
+WCHAR error[MAX_LOADSTRING];
+WCHAR errorNoSecret[MAX_LOADSTRING];
+WCHAR errorErrorEncodeBase32[MAX_LOADSTRING];
+WCHAR errorTimeEqualsZero[MAX_LOADSTRING];
 
+wstring s2ws(const string& s);
+string ws2s(std::wstring s);
 GlobalConfiguration *globalConfig = GlobalConfiguration :: getInstance();
 vector<OTPInfo> otpInfos = globalConfig->getOTPConfig();
 vector<string> sntpServers = globalConfig->getSNTPServers();
 INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT isOTPDIALOGEDIT = -2;
-
+std::map<int, int64_t> CurrentKeys;
 void setLangTextFromi18n(HWND hWnd) {
 	i18nClient* i18n = i18nClient::getInstence();
 	SetWindowText(hWnd, i18n->get("windowTitle").c_str());
@@ -53,6 +59,20 @@ void setLangTextFromi18n(HWND hWnd) {
 }
 
 
+int64_t getCurrentMillSecond(bool usingNetTime = false) {
+    if (!usingNetTime) {
+		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
+    return 0;
+}
+
+
+
+wstring padZero(wstring str, int length) {
+	
+    str = wstring(L"00000000").substr(0,length-str.size()) + str;
+	return str;
+}
 
 void setLangFromi18n()
 {
@@ -76,6 +96,11 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
     
 	LoadString(hInstance, IDS_HOTPADDITION, counter, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_TOTPADDITION, interval, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR, error, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR_NOSECRET, errorNoSecret, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR_ERRORENCODE_BASE32, errorErrorEncodeBase32, MAX_LOADSTRING);
+    LoadString(hInstance, IDS_ERROR_TIMEEQUALS_ZERO, errorTimeEqualsZero, MAX_LOADSTRING);
+
     
     INITCOMMONCONTROLSEX icex;
     icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -103,9 +128,10 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
     {
 		SetProcessDPIAware();
     }
-    HWND hWnd = CreateWindow(L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX,
+    HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED,L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
+        | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         CW_USEDEFAULT, 0, 650,400, NULL, NULL, hInstance, NULL);
-
+    
     if (!hWnd)
         return FALSE;
 
@@ -124,52 +150,168 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
     return (int)msg.wParam;
 }
 
+DWORD WINAPI ThreadProc(LPVOID lpParameter) {
+	HWND hListView = (HWND)lpParameter;
+	
+	while (true) {
+		Sleep(100);
+        PostMessage(hListView, WM_USER + 1, NULL, NULL);
+            
+        for (auto key_value : CurrentKeys)
+        {
+                
+			int i = key_value.first;
+			OTPInfo otpInfo = otpInfos[i];
+            if (otpInfo.type == 0 && getCurrentMillSecond() / 1000 / otpInfo.addition_param != key_value.second)
+            {
+                PostMessage(hListView, WM_USER + 2, NULL, NULL);
+                break;
+            };
+        }
+	}
+	return 0;
+}
+struct ListViewItemData {
+    wstring friendlyName;
+    wstring password;
+};
+void addItem(HWND hListView, OTPInfo otpInfo) {
+    
+    
+	LVITEM lvi;
+	lvi.mask = LVIF_TEXT | LVIF_PARAM;
+	lvi.iItem = ListView_GetItemCount(hListView);
+	lvi.iSubItem = 0;
+	std::unique_ptr<wchar_t[]> name(new wchar_t[32]);
+	wcscpy_s(name.get(), 32 , s2ws(otpInfo.friendly_name).c_str());
+	lvi.pszText = name.get();
+	//lvi.lParam = otpInfo;
+	
+	wstring wPassword = L"";
+    if (otpInfo.type == TOTP)
+    {
+        OTP otp;
+        string password = otp.generateOTP(otpInfo.secret, 1, otpInfo.digits, otpInfo.addition_param);
+       wPassword= padZero(s2ws(password), otpInfo.digits);
+    }
+    else
+    {
+		wPassword = L"计次验证，双击查看";
+	}
+    ListViewItemData* pItemData = new ListViewItemData{ s2ws(otpInfo.friendly_name), wPassword };
+    lvi.lParam = reinterpret_cast<LPARAM>(pItemData);
+	//ListView_SetItemText(hListView, lvi.iItem, 1, (LPWSTR)wPassword.c_str());
+    ListView_InsertItem(hListView, &lvi);
+	ListView_SetItemText(hListView, lvi.iItem, 1, (LPWSTR)wPassword.c_str());
+    ListView_SetItemText(hListView, lvi.iItem, 2, (LPWSTR)wPassword.c_str());
+    //InvalidateRect(hListView, NULL, TRUE);
+
+}
+
+
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message) {
     case WM_CREATE:
-        AddControls(hWnd);
+        
+		AddControls(hWnd);
 		setLangTextFromi18n(hWnd);
+		CreateThread(NULL, 0, ThreadProc, hWnd, 0, NULL);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-	case WM_NOTIFY:
-        if (((LPNMHDR)lParam)->idFrom == 0 && ((LPNMHDR)lParam)->code == NM_CUSTOMDRAW) {
+	case WM_NOTIFY:{
+        LPNMLISTVIEW  pnm = (LPNMLISTVIEW)lParam;
+        if (pnm->hdr.code == NM_CUSTOMDRAW)
+        {
             LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-
-            switch (lplvcd->nmcd.dwDrawStage) {
+            
+            
+            switch (lplvcd->nmcd.dwDrawStage)
+            {
             case CDDS_PREPAINT:
-                return CDRF_NOTIFYITEMDRAW;
-
+				//OutputDebugString(L"PrePaint\n");
+                return CDRF_NOTIFYITEMDRAW; // 请求每项绘制前的通知
             case CDDS_ITEMPREPAINT:
-                return CDRF_NOTIFYSUBITEMDRAW;
-
-            case CDDS_SUBITEM | CDDS_ITEMPREPAINT:
-                if (lplvcd->iSubItem == 2) { // 第三列（过期时间）
-                    RECT rect;
-                    ListView_GetSubItemRect(lplvcd->nmcd.hdr.hwndFrom, lplvcd->nmcd.dwItemSpec, 2, LVIR_BOUNDS, &rect);
-                    HDC hdc = lplvcd->nmcd.hdc;
-
-                    int progressWidth = ( time(NULL) % 30) / 30;
-                    HBRUSH hBrush = CreateSolidBrush(RGB(0, 128, 0)); // 绿色
-                    FillRect(hdc, &rect, hBrush);
-                    DeleteObject(hBrush);
-
-                    HPEN hPen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-                    SelectObject(hdc, hPen);
-                    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
-                    DeleteObject(hPen);
-
-                    char buffer[32];
-                    sprintf_s(buffer,32, "%d", int(time(NULL) % 30));
-                    DrawTextA(hdc, buffer, -1, &rect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-
-                    return CDRF_SKIPDEFAULT;
+                //OutputDebugString(L"ItemPrePaint\n");
+                {
+                    int a = ListView_GetItemCount(hListView);
+                    int b = a;
                 }
+                return CDRF_NOTIFYSUBITEMDRAW; // 请求子项绘制通知
+            case  CDDS_ITEMPREPAINT | CDDS_SUBITEM:
+                /*OutputDebugString(L"SubItem\n")*/;
+                if (lplvcd->iSubItem == 2) // 假设这是进度条列
+                {
+                    int nItem = static_cast<int>(lplvcd->nmcd.dwItemSpec);
+                    // 获取或计算当前项目的进度值
+                    if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
+                        return CDRF_DODEFAULT;
+					int64_t interval = otpInfos[nItem].addition_param;
+                    int64_t now = getCurrentMillSecond();
+                    int64_t usedTime = (getCurrentMillSecond() % (interval * 1000));
+                    int64_t remainTime = interval*1000 - usedTime;
+                    int fProgress = usedTime / interval / 10; // 假设进度为50%
+
+                    RECT rc;
+                    
+                    ListView_GetSubItemRect(hListView, nItem, lplvcd->iSubItem, LVIR_BOUNDS, &rc);
+                    //HDC memDC = CreateCompatibleDC(lplvcd->nmcd.hdc);
+                    //HBITMAP memBM = CreateCompatibleBitmap(lplvcd->nmcd.hdc, rc.right - rc.left, rc.bottom - rc.top);
+                    //HBITMAP oldBM = (HBITMAP)SelectObject(memDC, memBM);
+                    //HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW)); // 使用系统窗口背景色
+                    //FillRect(memDC, &rc, hBrush);
+                    //DeleteObject(hBrush);
+                    RECT progressBarRc = {};
+                    progressBarRc.left = rc.left+4;
+                    progressBarRc.right = rc.right - 50;
+                    progressBarRc.top = rc.top+4;
+                    progressBarRc.bottom = rc.bottom-4;
+
+                    FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
+                    
+
+                    // 计算并绘制进度条
+                    progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left)/100);
+                    
+                    int g = fProgress > 50 ? 255-fProgress * 255 / 50 : 255;
+                    int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
+                    HBRUSH hbrush = CreateSolidBrush(RGB(r,g,0));
+                    
+                    FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
+                    DeleteObject(hbrush);
+                    progressBarRc.left = rc.right-50;
+                    progressBarRc.right = rc.right;
+
+                    // 在进度条上绘制文本
+                    wchar_t szText[64];
+                    
+                    swprintf_s(szText, L"%.1f", static_cast<float>((double)remainTime / 1000.0));
+                    
+                    DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+                    
+                    //BitBlt(lplvcd->nmcd.hdc, rc.left, rc.top, rc.right - rc.left, rc.bottom-rc.top, memDC, rc.left, rc.top, SRCCOPY);
+
+                    // 清理
+                    /*SelectObject(memDC, oldBM);
+                    DeleteObject(memBM);
+                    DeleteDC(memDC);*/
+                    return CDRF_SKIPDEFAULT;
+				}
+				
+                
+				return CDRF_DODEFAULT;
+            default:
                 break;
             }
-
+ 
         }
+       
+            return CDRF_DODEFAULT;
+        }
+
         break;
     case WM_COMMAND: {
 		int wmId = LOWORD(wParam);
@@ -194,7 +336,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			break;
 		}
     }
-				  break;
+	break;
 	case WM_DPICHANGED:
 	{
 		RECT* const prcNewWindow = (RECT*)lParam;
@@ -212,8 +354,43 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
             (lParam != NULL && std::wstring((LPCWSTR)lParam) == L"intl")) {
 			setLangFromi18n();
 			setLangTextFromi18n(hWnd);
-        }
+        }   
         break;
+    }
+    case WM_USER + 1:
+        RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+		/*InvalidateRect(hListView, NULL, TRUE);*/
+		//UpdateListViewProgress();
+		break;
+    case WM_USER + 2: {
+        for (int i = 0;i<otpInfos.size();i++)
+        {
+			OTPInfo o = otpInfos[i];
+			wstring wPassword = L"";
+			
+            if (o.type == 0)
+            {
+                OTP otp(HOTP);
+
+				int64_t times = getCurrentMillSecond(false) / o.addition_param / 1000;
+
+                string password = otp.generateOTP(o.secret, 1, o.digits, times);
+				wPassword = padZero(s2ws(password), o.digits); 
+                
+				CurrentKeys[i] = times;
+
+				//set new generated password to listview
+				LVITEM lvi;
+				lvi.iItem = i;
+				lvi.iSubItem = 1;
+				std::shared_ptr<WCHAR[]> wPassword_to_show(new WCHAR[32]);
+                wcscpy_s(wPassword_to_show.get(),32, wPassword.c_str());
+				lvi.pszText = wPassword_to_show.get();
+				ListView_SetItemText(hListView, i,1, wPassword_to_show.get());
+
+            }
+            
+        }
     }
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
@@ -224,24 +401,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 void AddControls(HWND hWnd) {
     // 创建ListView
     DWORD dwStyle = //WS_TABSTOP |
-        WS_CHILD | WS_CLIPCHILDREN |
-        WS_BORDER |
-        WS_VISIBLE |
-        LVS_SINGLESEL | 
+        WS_CHILD | 
+		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS|
         LVS_REPORT;
-    hListView = CreateWindowEx(LVS_EX_DOUBLEBUFFER,  // ex style
-        WC_LISTVIEW,                     // class name - defined in commctrl.h
-        TEXT(""),                        // dummy text
-        dwStyle,                         // style
-        10,                              // x position
-        10,                             // y position
-        600,                             // width
-        300,                             // height
-        hWnd,                            // parent
-        (HMENU)110,                       // ID
-        hInst,                           // instance
-        NULL);
-
+    hListView = CreateWindow(WC_LISTVIEW, L"",
+        dwStyle,
+        10, 10, 600, 300,
+        hWnd, NULL, hInst, NULL); 
+    ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
+	
     LVCOLUMN lvc;
     lvc.mask = LVCF_TEXT | LVCF_WIDTH;
     lvc.cx = 200;
@@ -285,7 +453,8 @@ void AddControls(HWND hWnd) {
     SendMessage(buttonImport, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
     SendMessage(buttonNetworkTime, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 
-
+    ListView_SetExtendedListViewStyle(hListView,
+        LVS_EX_FULLROWSELECT | LVS_EX_SUBITEMIMAGES);
     //// 解决双缓冲问题
     //SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_COMPOSITED);
 }
@@ -294,14 +463,14 @@ void AddControls(HWND hWnd) {
 
 wstring s2ws(const string& s)
 {
-	int len;
-	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-	wstring r(buf);
-	delete[] buf;
-	return r;
+    int len;
+    int slength = (int)s.length() + 1;
+    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+    wchar_t* buf = new wchar_t[len];
+    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+    wstring r(buf);
+    delete[] buf;
+    return r;
 }
 
 void AlignButtons(HWND hwnd, HWND hRefButton, HWND hButtonToAlign1, HWND hButtonToAlign2) {
@@ -309,31 +478,31 @@ void AlignButtons(HWND hwnd, HWND hRefButton, HWND hButtonToAlign1, HWND hButton
     RECT rectButtonToAlign1;
     RECT rectButtonToAlign2;
 
-    // 获取参考按钮的矩形
+    
     if (GetWindowRect(hRefButton, &rectRefButton)) {
-        // 将屏幕坐标转换为客户区坐标
+    
         ScreenToClient(hwnd, (LPPOINT)&rectRefButton.left);
         ScreenToClient(hwnd, (LPPOINT)&rectRefButton.right);
 
-        // 获取需要对齐的按钮1的矩形
+    
         if (GetWindowRect(hButtonToAlign1, &rectButtonToAlign1)) {
-            // 将屏幕坐标转换为客户区坐标
+    
             ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.left);
             ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.right);
 
-            // 使用SetWindowPos设置按钮1的新位置，保持其宽度和高度不变
+    
             SetWindowPos(hButtonToAlign1, NULL, 
                          rectButtonToAlign1.left, rectRefButton.top, 0,0,
                          SWP_NOZORDER| SWP_NOSIZE);
         }
 
-        // 获取需要对齐的按钮2的矩形
+    
         if (GetWindowRect(hButtonToAlign2, &rectButtonToAlign2)) {
-            // 将屏幕坐标转换为客户区坐标
+    
             ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.left);
             ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.right);
 
-            // 使用SetWindowPos设置按钮2的新位置，保持其宽度和高度不变
+    
             SetWindowPos(hButtonToAlign2, NULL, 
                          rectButtonToAlign2.left, rectRefButton.top, 0,0,
                          SWP_NOZORDER | SWP_NOSIZE);
@@ -356,17 +525,17 @@ void MoveButtonToBottomOfDialog(HWND hDlg, HWND hButton) {
 	ScreenToClient(hDlg, &pt2);
 
 
-    // 计算按钮的新 Y 坐标
+    
     int buttonHeight = buttonRect.bottom - buttonRect.top;
 
-    // 对话框的高度减去按钮的高度，作为按钮的 Y 坐标
+    
     int newY = dlgRect.bottom - buttonHeight;
 
-    // 为了美观，可以留一些边距（例如5像素）
+    
     int margin = 10;
     newY -= margin;
 
-    // 设置按钮的新位置，保持 X 坐标、宽度和高度不变
+    
     SetWindowPos(hButton, NULL,
         pt.x, // 保持原来的 X 坐标
         newY,
@@ -389,6 +558,11 @@ string ws2s(std::wstring s)
 	
 }
 
+
+/**
+* OTP Client Dialog Procedure
+* This Function is for OTP Client Dialog Event Handling
+*/
 INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static BOOL adv = false;
@@ -576,13 +750,41 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			otpinfo.addition_param = _wtoi(edit3Text);
 			otpinfo.type = checkBoxState == BST_CHECKED;
 
+			if (otpinfo.type == 0 && otpinfo.addition_param == 0)
+			{
+				MessageBox(hDlg, errorTimeEqualsZero, error, MB_ICONWARNING | MB_OK);
+				otpinfo.addition_param = 30;
+			}
+
+
+
+			if (otpinfo.secret.empty())
+			{
+				MessageBox(hDlg, errorNoSecret, error, MB_ICONERROR | MB_OK);
+				return (INT_PTR)TRUE;
+			}
+
+			for (wchar_t i : otpinfo.secret)
+			{
+                if (!(i >= '2' && i <= '7' || i>='A' && i<='Z'))
+				{
+					MessageBox(hDlg, errorErrorEncodeBase32, error, MB_ICONERROR | MB_OK);
+					
+					return (INT_PTR)TRUE;
+				}
+			}
+
             if (isOTPDIALOGEDIT >= 0)
             {
 				otpInfos[isOTPDIALOGEDIT] = otpinfo;
+				
 			}
 			else
 			{
 				otpInfos.push_back(otpinfo);
+				CurrentKeys.emplace(otpInfos.size() - 1, getCurrentMillSecond(true) / otpinfo.addition_param / 1000);
+                EnableWindow(buttonEdit, TRUE);
+                addItem(hListView, otpinfo);
             }
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;

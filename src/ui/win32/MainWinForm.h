@@ -8,6 +8,7 @@
 #include "i18n.h"
 #include "resource.h"
 #include "globaldata.h"
+#include "otp.h"
 
 #pragma comment(lib, "comctl32.lib")
 

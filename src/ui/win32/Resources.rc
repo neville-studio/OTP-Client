@@ -177,6 +177,10 @@ STRINGTABLE
 BEGIN
     IDS_HOTPADDITION        "计数器次数"
     IDS_TOTPADDITION        "间隔时间（秒）"
+    IDS_ERROR               "错误"
+	IDS_ERROR_NOSECRET      "密钥不能为空"
+	IDS_ERROR_ERRORENCODE_BASE32   "错误的编码，仅支持大写字母A-Z、数字2-7"
+    IDS_ERROR_TIMEEQUALS_ZERO   "间隔时长等于0，将采用默认设置（30秒）"
 END
 
 #endif    // 中文(简体，中国) resources
@@ -321,6 +325,10 @@ STRINGTABLE
 BEGIN
     IDS_HOTPADDITION        "Counter"
     IDS_TOTPADDITION        "Interval(s)"
+    IDS_ERROR               "Error"
+    IDS_ERROR_NOSECRET      "Secrets should not be empty."
+    IDS_ERROR_ERRORENCODE_BASE32   "The encoding is Incorrect, please use Upper case A-Z or digit 2-7"
+    IDS_ERROR_TIMEEQUALS_ZERO   "The Intervals equals 0, we will use default value (30s)"
 END
 
 #endif    // 英语(美国) resources
