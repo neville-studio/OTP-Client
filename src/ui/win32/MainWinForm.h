@@ -9,6 +9,8 @@
 #include "resource.h"
 #include "globaldata.h"
 #include "otp.h"
+#include "DataHandler.h"
+#include "encode.h"
 
 #pragma comment(lib, "comctl32.lib")
 

@@ -18,12 +18,56 @@ WCHAR errorTimeEqualsZero[MAX_LOADSTRING];
 
 wstring s2ws(const string& s);
 string ws2s(std::wstring s);
-GlobalConfiguration *globalConfig = GlobalConfiguration :: getInstance();
+GlobalConfiguration* globalConfig = GlobalConfiguration::getInstance();
 vector<OTPInfo> otpInfos = globalConfig->getOTPConfig();
 vector<string> sntpServers = globalConfig->getSNTPServers();
 INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT isOTPDIALOGEDIT = -2;
-std::map<int, int64_t> CurrentKeys;
+std::map<std::string, int64_t> CurrentKeys;
+std::map<std::string, vector<BYTE>> EncryptedDataMap;
+
+void ReadDataFromFile() {
+	vector<BYTE> data = ReadDataFromFile("data.dat");
+	if (data.size() == 0) return;
+	string dataStr = DecryptData(data);
+	globalConfig->setConfig(dataStr);
+	otpInfos = globalConfig->getOTPConfig();
+	sntpServers = globalConfig->getSNTPServers();
+	for (int i = 0;i<otpInfos.size();i++)
+	{
+		
+		//otpInfo.secret = encodeBase64FromBYTE(EncryptData(otpInfo.secret));
+		GUID guid;
+		HRESULT r1 =CoCreateGuid(&guid);
+		TCHAR r[48];
+		r1 = StringFromGUID2(guid, r, 48);
+		string guidStr = ws2s(r);
+
+		EncryptedDataMap[guidStr] = decodeBase64ToBYTE(otpInfos[i].secret);
+		CurrentKeys[guidStr] = otpInfos[i].addition_param;
+		otpInfos[i].secret = guidStr;
+	}
+}
+
+void saveDataToFile()
+{
+	vector<OTPInfo> p = otpInfos;
+	for (int i = 0; i < p.size(); i++)
+	{
+		p[i].secret = encodeBase64FromBYTE(EncryptedDataMap[p[i].secret]);
+	}
+	globalConfig->setOTPConfig(p);
+	globalConfig->setSNTP_servers(sntpServers);
+
+	
+	vector<BYTE> writeDATA = EncryptData(globalConfig->getConfig());
+
+	BOOL writeResult = WriteBytesToFile("data.dat", writeDATA);
+}
+
+
+
+
 void setLangTextFromi18n(HWND hWnd) {
 	i18nClient* i18n = i18nClient::getInstence();
 	SetWindowText(hWnd, i18n->get("windowTitle").c_str());
@@ -33,7 +77,7 @@ void setLangTextFromi18n(HWND hWnd) {
 	SetWindowText(buttonEdit, i18n->get("edit").c_str());
 	SetWindowText(buttonDelete, i18n->get("delete").c_str());
 	SetWindowText(buttonNetworkTime, i18n->get("networkTime").c_str());
-    
+
 
 
 	LVCOLUMN lvc;
@@ -51,32 +95,32 @@ void setLangTextFromi18n(HWND hWnd) {
 
 	lvc.pszText = name.get();
 	ListView_SetColumn(hListView, 0, &lvc);
-    lvc.pszText = pwd.get();
+	lvc.pszText = pwd.get();
 	ListView_SetColumn(hListView, 1, &lvc);
-    lvc.pszText = expire.get();
+	lvc.pszText = expire.get();
 	ListView_SetColumn(hListView, 2, &lvc);
 
 }
 
 
 int64_t getCurrentMillSecond(bool usingNetTime = false) {
-    if (!usingNetTime) {
+	if (!usingNetTime) {
 		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-    }
-    return 0;
+	}
+	return 0;
 }
 
 
 
 wstring padZero(wstring str, int length) {
-	
-    str = wstring(L"00000000").substr(0,length-str.size()) + str;
+
+	str = wstring(L"00000000").substr(0, length - str.size()) + str;
 	return str;
 }
 
 void setLangFromi18n()
 {
-    LANGID lang = GetUserDefaultUILanguage();
+	LANGID lang = GetUserDefaultUILanguage();
 	i18nLangSupported langSupported;
 	switch (lang) {
 	case 0x0804: // zh-CN
@@ -90,230 +134,250 @@ void setLangFromi18n()
 }
 
 int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-    hInst = hInstance;
-    i18nClient* i18n = i18nClient::getInstence();
-    
-    
+	hInst = hInstance;
+	i18nClient* i18n = i18nClient::getInstence();
+
+
 	LoadString(hInstance, IDS_HOTPADDITION, counter, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_TOTPADDITION, interval, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR, error, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR_NOSECRET, errorNoSecret, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR_ERRORENCODE_BASE32, errorErrorEncodeBase32, MAX_LOADSTRING);
-    LoadString(hInstance, IDS_ERROR_TIMEEQUALS_ZERO, errorTimeEqualsZero, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR_TIMEEQUALS_ZERO, errorTimeEqualsZero, MAX_LOADSTRING);
 
-    
-    INITCOMMONCONTROLSEX icex;
-    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
-    icex.dwICC = ICC_LISTVIEW_CLASSES | ICC_PROGRESS_CLASS;
-    InitCommonControlsEx(&icex);
 
-    WNDCLASSEX wcex;
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICONMAIN));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = L"MainWinForm";
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICONMAIN));
+	INITCOMMONCONTROLSEX icex;
+	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+	icex.dwICC = ICC_LISTVIEW_CLASSES | ICC_PROGRESS_CLASS;
+	InitCommonControlsEx(&icex);
 
-    RegisterClassEx(&wcex);
+	WNDCLASSEX wcex;
+	wcex.cbSize = sizeof(WNDCLASSEX);
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICONMAIN));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = NULL;
+	wcex.lpszClassName = L"MainWinForm";
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_ICONMAIN));
+
+	RegisterClassEx(&wcex);
 	setLangFromi18n();
-    
-    if (IsWindowsVistaOrGreater())
-    {
+	ReadDataFromFile();
+	if (IsWindowsVistaOrGreater())
+	{
 		SetProcessDPIAware();
-    }
-    HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED,L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
-        | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-        CW_USEDEFAULT, 0, 650,400, NULL, NULL, hInstance, NULL);
-    
-    if (!hWnd)
-        return FALSE;
+	}
+	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
+		| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+		CW_USEDEFAULT, 0, 650, 400, NULL, NULL, hInstance, NULL);
 
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
-    
-   
+	if (!hWnd)
+		return FALSE;
 
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
 
 
-    return (int)msg.wParam;
+
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+
+	return (int)msg.wParam;
 }
 
 DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	HWND hListView = (HWND)lpParameter;
-	
+
 	while (true) {
 		Sleep(100);
-        PostMessage(hListView, WM_USER + 1, NULL, NULL);
-            
-        for (auto key_value : CurrentKeys)
-        {
-                
-			int i = key_value.first;
-			OTPInfo otpInfo = otpInfos[i];
-            if (otpInfo.type == 0 && getCurrentMillSecond() / 1000 / otpInfo.addition_param != key_value.second)
-            {
-                PostMessage(hListView, WM_USER + 2, NULL, NULL);
-                break;
-            };
-        }
+		PostMessage(hListView, WM_USER + 1, NULL, NULL);
+
+		for (auto key_value : CurrentKeys)
+		{
+
+			string i = key_value.first;
+			OTPInfo otpInfo;
+			int j = 0;
+			for (j = 0;j < otpInfos.size(); j++)
+			{
+				if (otpInfos[j].secret == i)
+				{
+					otpInfo = otpInfos[j];
+					break;
+				}
+			}
+			if (j >= otpInfos.size()) continue;
+
+			if (otpInfo.type == 0 && getCurrentMillSecond() / 1000 / otpInfo.addition_param != key_value.second)
+			{
+				PostMessage(hListView, WM_USER + 2, NULL, NULL);
+				break;
+			};
+		}
 	}
 	return 0;
 }
 struct ListViewItemData {
-    wstring friendlyName;
-    wstring password;
+	wstring friendlyName;
+	wstring password;
 };
 void addItem(HWND hListView, OTPInfo otpInfo) {
-    
-    
+
+
 	LVITEM lvi;
 	lvi.mask = LVIF_TEXT | LVIF_PARAM;
 	lvi.iItem = ListView_GetItemCount(hListView);
 	lvi.iSubItem = 0;
 	std::unique_ptr<wchar_t[]> name(new wchar_t[32]);
-	wcscpy_s(name.get(), 32 , s2ws(otpInfo.friendly_name).c_str());
+	wcscpy_s(name.get(), 32, s2ws(otpInfo.friendly_name).c_str());
 	lvi.pszText = name.get();
 	//lvi.lParam = otpInfo;
-	
+
 	wstring wPassword = L"";
-    if (otpInfo.type == TOTP)
-    {
-        OTP otp;
-        string password = otp.generateOTP(otpInfo.secret, 1, otpInfo.digits, otpInfo.addition_param);
-       wPassword= padZero(s2ws(password), otpInfo.digits);
-    }
-    else
-    {
+	if (otpInfo.type == TOTP)
+	{
+		string secret = DecryptData(EncryptedDataMap[otpInfo.secret]);
+		OTP otp(HOTP);
+		int64_t times = getCurrentMillSecond(false) / otpInfo.addition_param / 1000;
+		string password = otp.generateOTP(secret, 1, otpInfo.digits, times);
+		//lvi.iItem = ListView_GetItemCount(hListView);
+		//lvi.iSubItem = 1;
+		wPassword = padZero(s2ws(password), otpInfo.digits);
+
+		//wPassword = padZero(s2ws(password), otpInfo.digits);
+
+	}
+	else
+	{
 		wPassword = L"计次验证，双击查看";
 	}
-    ListViewItemData* pItemData = new ListViewItemData{ s2ws(otpInfo.friendly_name), wPassword };
-    lvi.lParam = reinterpret_cast<LPARAM>(pItemData);
+	ListViewItemData* pItemData = new ListViewItemData{ s2ws(otpInfo.friendly_name), wPassword };
+	lvi.lParam = reinterpret_cast<LPARAM>(pItemData);
 	//ListView_SetItemText(hListView, lvi.iItem, 1, (LPWSTR)wPassword.c_str());
-    ListView_InsertItem(hListView, &lvi);
+	ListView_InsertItem(hListView, &lvi);
 	ListView_SetItemText(hListView, lvi.iItem, 1, (LPWSTR)wPassword.c_str());
-    ListView_SetItemText(hListView, lvi.iItem, 2, (LPWSTR)wPassword.c_str());
-    //InvalidateRect(hListView, NULL, TRUE);
+	//ListView_SetItemText(hListView, lvi.iItem, 2, (LPWSTR)wPassword.c_str());
+	//InvalidateRect(hListView, NULL, TRUE);
 
 }
 
 
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message) {
-    case WM_CREATE:
-        
+	switch (message) {
+	case WM_CREATE:
+
 		AddControls(hWnd);
 		setLangTextFromi18n(hWnd);
 		CreateThread(NULL, 0, ThreadProc, hWnd, 0, NULL);
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-	case WM_NOTIFY:{
-        LPNMLISTVIEW  pnm = (LPNMLISTVIEW)lParam;
-        if (pnm->hdr.code == NM_CUSTOMDRAW)
-        {
-            LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-            
-            
-            switch (lplvcd->nmcd.dwDrawStage)
-            {
-            case CDDS_PREPAINT:
+		break;
+	case WM_DESTROY:
+		saveDataToFile();
+		PostQuitMessage(0);
+		break;
+	case WM_NOTIFY: {
+		LPNMLISTVIEW  pnm = (LPNMLISTVIEW)lParam;
+		if (pnm->hdr.code == NM_CUSTOMDRAW)
+		{
+			LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
+
+
+			switch (lplvcd->nmcd.dwDrawStage)
+			{
+			case CDDS_PREPAINT:
 				//OutputDebugString(L"PrePaint\n");
-                return CDRF_NOTIFYITEMDRAW; // 请求每项绘制前的通知
-            case CDDS_ITEMPREPAINT:
-                //OutputDebugString(L"ItemPrePaint\n");
-                {
-                    int a = ListView_GetItemCount(hListView);
-                    int b = a;
-                }
-                return CDRF_NOTIFYSUBITEMDRAW; // 请求子项绘制通知
-            case  CDDS_ITEMPREPAINT | CDDS_SUBITEM:
-                /*OutputDebugString(L"SubItem\n")*/;
-                if (lplvcd->iSubItem == 2) // 假设这是进度条列
-                {
-                    int nItem = static_cast<int>(lplvcd->nmcd.dwItemSpec);
-                    // 获取或计算当前项目的进度值
-                    if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
-                        return CDRF_DODEFAULT;
+				return CDRF_NOTIFYITEMDRAW; // 请求每项绘制前的通知
+			case CDDS_ITEMPREPAINT:
+				//OutputDebugString(L"ItemPrePaint\n");
+			{
+				int a = ListView_GetItemCount(hListView);
+				int b = a;
+			}
+			return CDRF_NOTIFYSUBITEMDRAW; // 请求子项绘制通知
+			case  CDDS_ITEMPREPAINT | CDDS_SUBITEM:
+				/*OutputDebugString(L"SubItem\n")*/;
+				if (lplvcd->iSubItem == 2) // 假设这是进度条列
+				{
+					int nItem = static_cast<int>(lplvcd->nmcd.dwItemSpec);
+					// 获取或计算当前项目的进度值
+					if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
+						return CDRF_DODEFAULT;
 					int64_t interval = otpInfos[nItem].addition_param;
-                    int64_t now = getCurrentMillSecond();
-                    int64_t usedTime = (getCurrentMillSecond() % (interval * 1000));
-                    int64_t remainTime = interval*1000 - usedTime;
-                    int fProgress = usedTime / interval / 10; // 假设进度为50%
+					int64_t now = getCurrentMillSecond();
+					int64_t usedTime = (getCurrentMillSecond() % (interval * 1000));
+					int64_t remainTime = interval * 1000 - usedTime;
+					int fProgress = usedTime / interval / 10; // 假设进度为50%
 
-                    RECT rc;
-                    
-                    ListView_GetSubItemRect(hListView, nItem, lplvcd->iSubItem, LVIR_BOUNDS, &rc);
-                    //HDC memDC = CreateCompatibleDC(lplvcd->nmcd.hdc);
-                    //HBITMAP memBM = CreateCompatibleBitmap(lplvcd->nmcd.hdc, rc.right - rc.left, rc.bottom - rc.top);
-                    //HBITMAP oldBM = (HBITMAP)SelectObject(memDC, memBM);
-                    //HBRUSH hBrush = CreateSolidBrush(GetSysColor(COLOR_WINDOW)); // 使用系统窗口背景色
-                    //FillRect(memDC, &rc, hBrush);
-                    //DeleteObject(hBrush);
-                    RECT progressBarRc = {};
-                    progressBarRc.left = rc.left+4;
-                    progressBarRc.right = rc.right - 50;
-                    progressBarRc.top = rc.top+4;
-                    progressBarRc.bottom = rc.bottom-4;
+					RECT rc;
 
-                    FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
-                    
+					ListView_GetSubItemRect(hListView, nItem, lplvcd->iSubItem, LVIR_BOUNDS, &rc);
 
-                    // 计算并绘制进度条
-                    progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left)/100);
-                    
-                    int g = fProgress > 50 ? 255-fProgress * 255 / 50 : 255;
-                    int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
-                    HBRUSH hbrush = CreateSolidBrush(RGB(r,g,0));
-                    
-                    FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
-                    DeleteObject(hbrush);
-                    progressBarRc.left = rc.right-50;
-                    progressBarRc.right = rc.right;
+					RECT progressBarRc = {};
+					progressBarRc.left = rc.left + 4;
+					progressBarRc.right = rc.right - 50;
+					progressBarRc.top = rc.top + 4;
+					progressBarRc.bottom = rc.bottom - 4;
 
-                    // 在进度条上绘制文本
-                    wchar_t szText[64];
-                    
-                    swprintf_s(szText, L"%.1f", static_cast<float>((double)remainTime / 1000.0));
-                    
-                    DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
 
-                    
-                    //BitBlt(lplvcd->nmcd.hdc, rc.left, rc.top, rc.right - rc.left, rc.bottom-rc.top, memDC, rc.left, rc.top, SRCCOPY);
 
-                    // 清理
-                    /*SelectObject(memDC, oldBM);
-                    DeleteObject(memBM);
-                    DeleteDC(memDC);*/
-                    return CDRF_SKIPDEFAULT;
+					// 计算并绘制进度条
+					progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left) / 100);
+
+					int g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
+					int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
+					HBRUSH hbrush = CreateSolidBrush(RGB(r, g, 0));
+
+					FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
+					DeleteObject(hbrush);
+					progressBarRc.left = rc.right - 50;
+					progressBarRc.right = rc.right;
+
+					// 在进度条上绘制文本
+					wchar_t szText[64];
+
+					swprintf_s(szText, L"%.1f", static_cast<float>((double)remainTime / 1000.0));
+
+					DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					return CDRF_SKIPDEFAULT;
 				}
-				
-                
-				return CDRF_DODEFAULT;
-            default:
-                break;
-            }
- 
-        }
-       
-            return CDRF_DODEFAULT;
-        }
 
-        break;
-    case WM_COMMAND: {
+
+				return CDRF_DODEFAULT;
+			default:
+				break;
+			}
+			return CDRF_DODEFAULT;
+
+		}
+		else if (pnm->hdr.code == NM_CLICK)
+		{
+			LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE)lParam;
+			int i = lpnmitem->iItem;
+			isOTPDIALOGEDIT = i;
+			if (i >= 0) {
+				EnableWindow(buttonEdit, TRUE);
+				EnableWindow(buttonDelete, TRUE);
+			}
+			else {
+				EnableWindow(buttonEdit, FALSE);
+				EnableWindow(buttonDelete, FALSE);
+			}
+		}
+		
+		
+	}
+	break;
+	case WM_COMMAND: {
 		int wmId = LOWORD(wParam);
 		switch (wmId) {
 		case IDC_BUTTON_IMPORT:
@@ -329,14 +393,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_OTP), hWnd, OTP_Client);
 			break;
 		case IDC_BUTTON_DELETE:
+		{
+			if (isOTPDIALOGEDIT < 0) return FALSE;
+			int MessageResult = MessageBox(hWnd, L"确定删除吗？", L"删除", MB_ICONQUESTION  |MB_YESNO);
+			if (MessageResult == IDYES)
+			{
+				int i = ListView_GetNextItem(hListView, -1, LVNI_SELECTED);
+				ListView_DeleteItem(hListView, i);
+				string guid = otpInfos[i].secret;
+				otpInfos.erase(otpInfos.begin() + i);
+				CurrentKeys.erase(guid);
+				EncryptedDataMap.erase(guid);
+				if (otpInfos.size() == 0) {
+					EnableWindow(buttonEdit, FALSE);
+					EnableWindow(buttonDelete, FALSE);
+				}
+			}
+		}
 			break;
 		case IDC_BUTTON_NETWORK_TIME:
 			break;
 		default:
 			break;
 		}
-    }
-	break;
+	}
+				   break;
 	case WM_DPICHANGED:
 	{
 		RECT* const prcNewWindow = (RECT*)lParam;
@@ -348,205 +429,208 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			prcNewWindow->bottom - prcNewWindow->top,
 			SWP_NOZORDER | SWP_NOACTIVATE);
 	}
-		break;
-    case WM_SETTINGCHANGE: {
-        if (wParam == SPI_SETNONCLIENTMETRICS ||
-            (lParam != NULL && std::wstring((LPCWSTR)lParam) == L"intl")) {
+	break;
+	case WM_SETTINGCHANGE: {
+		if (wParam == SPI_SETNONCLIENTMETRICS ||
+			(lParam != NULL && std::wstring((LPCWSTR)lParam) == L"intl")) {
 			setLangFromi18n();
 			setLangTextFromi18n(hWnd);
-        }   
-        break;
-    }
-    case WM_USER + 1:
-        RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+		}
+		break;
+	}
+	case WM_USER + 1:
+		RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
 		/*InvalidateRect(hListView, NULL, TRUE);*/
 		//UpdateListViewProgress();
 		break;
-    case WM_USER + 2: {
-        for (int i = 0;i<otpInfos.size();i++)
-        {
+	case WM_USER + 2: {
+		for (int i = 0; i < otpInfos.size(); i++)
+		{
 			OTPInfo o = otpInfos[i];
 			wstring wPassword = L"";
-			
-            if (o.type == 0)
-            {
-                OTP otp(HOTP);
+
+			if (o.type == 0)
+			{
+				OTP otp(HOTP);
 
 				int64_t times = getCurrentMillSecond(false) / o.addition_param / 1000;
+				string guid = o.secret;
+				string password = otp.generateOTP(DecryptData(EncryptedDataMap[guid]), 1, o.digits, times);
+				wPassword = padZero(s2ws(password), o.digits);
 
-                string password = otp.generateOTP(o.secret, 1, o.digits, times);
-				wPassword = padZero(s2ws(password), o.digits); 
-                
-				CurrentKeys[i] = times;
+				CurrentKeys[guid] = times;
 
 				//set new generated password to listview
 				LVITEM lvi;
 				lvi.iItem = i;
 				lvi.iSubItem = 1;
 				std::shared_ptr<WCHAR[]> wPassword_to_show(new WCHAR[32]);
-                wcscpy_s(wPassword_to_show.get(),32, wPassword.c_str());
+				wcscpy_s(wPassword_to_show.get(), 32, wPassword.c_str());
 				lvi.pszText = wPassword_to_show.get();
-				ListView_SetItemText(hListView, i,1, wPassword_to_show.get());
+				ListView_SetItemText(hListView, i, 1, wPassword_to_show.get());
 
-            }
-            
-        }
-    }
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
+			}
+
+		}
+	}
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
 }
 
 void AddControls(HWND hWnd) {
-    // 创建ListView
-    DWORD dwStyle = //WS_TABSTOP |
-        WS_CHILD | 
-		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS|
-        LVS_REPORT;
-    hListView = CreateWindow(WC_LISTVIEW, L"",
-        dwStyle,
-        10, 10, 600, 300,
-        hWnd, NULL, hInst, NULL); 
-    ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
+	// 创建ListView
+	DWORD dwStyle = //WS_TABSTOP |
+		WS_CHILD |
+		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+		LVS_REPORT;
+	hListView = CreateWindow(WC_LISTVIEW, L"",
+		dwStyle,
+		10, 10, 600, 300,
+		hWnd, NULL, hInst, NULL);
+	ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
+
+	LVCOLUMN lvc;
+	lvc.mask = LVCF_TEXT | LVCF_WIDTH;
+	lvc.cx = 200;
+	lvc.pszText = L"名称";
+	ListView_InsertColumn(hListView, 0, &lvc);
+	lvc.pszText = L"数字密钥";
+	ListView_InsertColumn(hListView, 1, &lvc);
+	lvc.pszText = L"过期时间";
+	ListView_InsertColumn(hListView, 2, &lvc);
+
+	// 添加按钮
+	buttonAdd = CreateWindow(L"BUTTON", L"新增", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		190, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_ADD, hInst, NULL);
+	buttonEdit = CreateWindow(L"BUTTON", L"修改", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		280, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_EDIT, hInst, NULL);
 	
-    LVCOLUMN lvc;
-    lvc.mask = LVCF_TEXT | LVCF_WIDTH;
-    lvc.cx = 200;
-    lvc.pszText = L"名称";
-    ListView_InsertColumn(hListView, 0, &lvc);
-    lvc.pszText = L"数字密钥";
-    ListView_InsertColumn(hListView, 1, &lvc);
-    lvc.pszText = L"过期时间";
-    ListView_InsertColumn(hListView, 2, &lvc);
 
-    // 添加按钮
-    buttonImport = CreateWindow(L"BUTTON", L"导入", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        10, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_IMPORT, hInst, NULL);
-    buttonExport = CreateWindow(L"BUTTON", L"导出", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        100, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_EXPORT, hInst, NULL);
-    buttonAdd = CreateWindow(L"BUTTON", L"新增", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        190, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_ADD, hInst, NULL);
-    buttonEdit = CreateWindow(L"BUTTON", L"修改", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        280, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_EDIT, hInst, NULL);
-	if (otpInfos.size() == 0)
+	buttonDelete = CreateWindow(L"BUTTON", L"删除", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		370, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_DELETE, hInst, NULL);
+	buttonNetworkTime = CreateWindow(L"BUTTON", L"是否使用网络时间", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+		460, 320, 150, 30, hWnd, (HMENU)IDC_BUTTON_NETWORK_TIME, hInst, NULL);
+	
 		EnableWindow(buttonEdit, FALSE);
+		EnableWindow(buttonDelete, FALSE);
+	
+	for (OTPInfo o : otpInfos)
+	{
+		addItem(hListView, o);
+	}
+	
+	// 设置默认字体为微软雅黑
+	LOGFONT lf;
+	memset(&lf, 0, sizeof(LOGFONT));
+	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
+	wcscpy_s(lf.lfFaceName, L"Microsoft YaHei");
+	HFONT font = CreateFontIndirect(&lf);
+	SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 
-    buttonDelete = CreateWindow(L"BUTTON", L"删除", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        370, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_DELETE, hInst, NULL);
-    buttonNetworkTime = CreateWindow(L"BUTTON", L"是否使用网络时间", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-        460, 320, 150, 30, hWnd, (HMENU)IDC_BUTTON_NETWORK_TIME, hInst, NULL);
+	SendMessage(buttonAdd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	SendMessage(buttonDelete, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	SendMessage(buttonEdit, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	SendMessage(buttonNetworkTime, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 
-    // 设置默认字体为微软雅黑
-    LOGFONT lf;
-    memset(&lf, 0, sizeof(LOGFONT));
-    lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
-    wcscpy_s(lf.lfFaceName, L"Microsoft YaHei");
-    HFONT font = CreateFontIndirect(&lf);
-    SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-
-    SendMessage(buttonAdd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(buttonDelete, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(buttonEdit, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(buttonExport, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(buttonImport, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-    SendMessage(buttonNetworkTime, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
-
-    ListView_SetExtendedListViewStyle(hListView,
-        LVS_EX_FULLROWSELECT | LVS_EX_SUBITEMIMAGES);
-    //// 解决双缓冲问题
-    //SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_COMPOSITED);
+	ListView_SetExtendedListViewStyle(hListView,
+		LVS_EX_FULLROWSELECT | LVS_EX_SUBITEMIMAGES);
+	//// 解决双缓冲问题
+	//SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_COMPOSITED);
 }
 
 //OTP Client IDD_OTP logics:
 
 wstring s2ws(const string& s)
 {
-    int len;
-    int slength = (int)s.length() + 1;
-    len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
-    wchar_t* buf = new wchar_t[len];
-    MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
-    wstring r(buf);
-    delete[] buf;
-    return r;
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	wstring r(buf);
+	delete[] buf;
+	return r;
 }
 
 void AlignButtons(HWND hwnd, HWND hRefButton, HWND hButtonToAlign1, HWND hButtonToAlign2) {
-    RECT rectRefButton;
-    RECT rectButtonToAlign1;
-    RECT rectButtonToAlign2;
+	RECT rectRefButton;
+	RECT rectButtonToAlign1;
+	RECT rectButtonToAlign2;
 
-    
-    if (GetWindowRect(hRefButton, &rectRefButton)) {
-    
-        ScreenToClient(hwnd, (LPPOINT)&rectRefButton.left);
-        ScreenToClient(hwnd, (LPPOINT)&rectRefButton.right);
 
-    
-        if (GetWindowRect(hButtonToAlign1, &rectButtonToAlign1)) {
-    
-            ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.left);
-            ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.right);
+	if (GetWindowRect(hRefButton, &rectRefButton)) {
 
-    
-            SetWindowPos(hButtonToAlign1, NULL, 
-                         rectButtonToAlign1.left, rectRefButton.top, 0,0,
-                         SWP_NOZORDER| SWP_NOSIZE);
-        }
+		ScreenToClient(hwnd, (LPPOINT)&rectRefButton.left);
+		ScreenToClient(hwnd, (LPPOINT)&rectRefButton.right);
 
-    
-        if (GetWindowRect(hButtonToAlign2, &rectButtonToAlign2)) {
-    
-            ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.left);
-            ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.right);
 
-    
-            SetWindowPos(hButtonToAlign2, NULL, 
-                         rectButtonToAlign2.left, rectRefButton.top, 0,0,
-                         SWP_NOZORDER | SWP_NOSIZE);
-        }
-    }
+		if (GetWindowRect(hButtonToAlign1, &rectButtonToAlign1)) {
+
+			ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.left);
+			ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign1.right);
+
+
+			SetWindowPos(hButtonToAlign1, NULL,
+				rectButtonToAlign1.left, rectRefButton.top, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE);
+		}
+
+
+		if (GetWindowRect(hButtonToAlign2, &rectButtonToAlign2)) {
+
+			ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.left);
+			ScreenToClient(hwnd, (LPPOINT)&rectButtonToAlign2.right);
+
+
+			SetWindowPos(hButtonToAlign2, NULL,
+				rectButtonToAlign2.left, rectRefButton.top, 0, 0,
+				SWP_NOZORDER | SWP_NOSIZE);
+		}
+	}
 }
 
 
 void MoveButtonToBottomOfDialog(HWND hDlg, HWND hButton) {
-    // 获取对话框的客户区矩形
-    RECT dlgRect;
-    GetClientRect(hDlg, &dlgRect);
+	// 获取对话框的客户区矩形
+	RECT dlgRect;
+	GetClientRect(hDlg, &dlgRect);
 
-    // 获取按钮的矩形
-    RECT buttonRect;
-    GetWindowRect(hButton, &buttonRect);
+	// 获取按钮的矩形
+	RECT buttonRect;
+	GetWindowRect(hButton, &buttonRect);
 	POINT pt = { buttonRect.left, buttonRect.top };
 	POINT pt2 = { buttonRect.right, buttonRect.bottom };
-    ScreenToClient(hDlg, &pt);
+	ScreenToClient(hDlg, &pt);
 	ScreenToClient(hDlg, &pt2);
 
 
-    
-    int buttonHeight = buttonRect.bottom - buttonRect.top;
 
-    
-    int newY = dlgRect.bottom - buttonHeight;
+	int buttonHeight = buttonRect.bottom - buttonRect.top;
 
-    
-    int margin = 10;
-    newY -= margin;
 
-    
-    SetWindowPos(hButton, NULL,
-        pt.x, // 保持原来的 X 坐标
-        newY,
-        0,0,
-        SWP_NOZORDER | SWP_NOSIZE);
+	int newY = dlgRect.bottom - buttonHeight;
+
+
+	int margin = 10;
+	newY -= margin;
+
+
+	SetWindowPos(hButton, NULL,
+		pt.x, // 保持原来的 X 坐标
+		newY,
+		0, 0,
+		SWP_NOZORDER | SWP_NOSIZE);
 }
 
-
+/**
+* wide string to string
+*/
 string ws2s(std::wstring s)
 {
-    string result;
+	string result;
 	int slength = (int)s.length() + 2;
 	int len;
 	len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0);
@@ -555,7 +639,7 @@ string ws2s(std::wstring s)
 	result = buf;
 	delete[] buf;
 	return result;
-	
+
 }
 
 
@@ -565,35 +649,46 @@ string ws2s(std::wstring s)
 */
 INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static BOOL adv = false;
+	static BOOL adv = false;
 	UNREFERENCED_PARAMETER(lParam);
 	switch (message)
 	{
-    case WM_INITDIALOG:
-    {
-        adv = false;
-        HWND hName = GetDlgItem(hDlg, IDC_OTPNAME);
-        HWND hSecret = GetDlgItem(hDlg, IDC_OTPSECRET);
-        HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
-        HWND hIsHOTP = GetDlgItem(hDlg, IDC_CHECKISHOTP);
-        HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
-        HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+	case WM_INITDIALOG:
+	{
+		adv = false;
+		HWND hName = GetDlgItem(hDlg, IDC_OTPNAME);
+		HWND hSecret = GetDlgItem(hDlg, IDC_OTPSECRET);
+		HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
+		HWND hIsHOTP = GetDlgItem(hDlg, IDC_CHECKISHOTP);
+		HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
+		HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+		HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
 		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA1");
-        SendMessage(hDigitLength, TBM_SETRANGE, NULL, 0x00080004);
+		SendMessage(hDigitLength, TBM_SETRANGE, NULL, 0x00080004);
+		wchar_t buffer[50];
+		GetWindowText(hAdVancedButton, buffer, 50);
+		wstring str = buffer;
+		str[str.size() - 2] = L'>';
+		str[str.size() - 1] = L'>';
+		SetWindowTextW(hAdVancedButton, str.c_str());
+		SendMessage(hAdditionEdit, EM_LIMITTEXT, (WPARAM)3, 0);
+		HWND hDialogOK = GetDlgItem(hDlg, IDOK);
+		HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
+		AlignButtons(hDlg, hAdVancedButton, hDialogOK, hDialogCancel);
+		if (isOTPDIALOGEDIT >= 0)
+		{
 
-        if (isOTPDIALOGEDIT>0)
-        {
-			
 			SetWindowText(hName, s2ws(otpInfos[isOTPDIALOGEDIT].friendly_name).c_str());
-			SetWindowText(hSecret, s2ws(otpInfos[isOTPDIALOGEDIT].friendly_name).c_str());
+
+			SetWindowText(hSecret, s2ws(DecryptData(EncryptedDataMap[otpInfos[isOTPDIALOGEDIT].secret])).c_str());
 			SetWindowText(hAdditionEdit, to_wstring(otpInfos[isOTPDIALOGEDIT].addition_param).c_str());
 			SendMessage(hDigitLength, TBM_SETPOS, TRUE, otpInfos[isOTPDIALOGEDIT].digits);
-            int res = 0x00040008;
-			
+			int res = 0x00040008;
+
 			SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
 			
 
-            RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(140, GetDpiForWindow(hDlg), 96) };
+			RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(160, GetDpiForWindow(hDlg), 96) };
 			/*MulDiv(311, GetDpiForWindow(hDlg), 96);*/
 			AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, FALSE);
 
@@ -601,62 +696,56 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		}
 		else
 		{
-            RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(160, GetDpiForWindow(hDlg), 96) };
-            AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, FALSE);
-            SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
-            //HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
-			HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
+			RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(160, GetDpiForWindow(hDlg), 96) };
+			AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, FALSE);
+			SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+			//HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
+			
 			//GetWindowRect(hAdVancedButton, &rect);
-			HWND hDialogOK = GetDlgItem(hDlg, IDOK);
-			HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
+			
 
-			wchar_t buffer[50];
-            GetWindowText(hAdVancedButton, buffer, 50);
-			wstring str = buffer;
-			str[str.size() - 2] = L'>';
-            str[str.size() - 1] = L'>';
-			SetWindowTextW(hAdVancedButton, str.c_str());
-            
+			
+
 
 			RECT OKRect, CancelRect;
-            ShowWindow(hAlgorithm, FALSE);
+			ShowWindow(hAlgorithm, FALSE);
 			ShowWindow(hDigitLength, FALSE);
-            ShowWindow(hAdditionEdit, FALSE);
-            SendMessage(hDigitLength, TBM_SETPOS, TRUE, 6);
+			ShowWindow(hAdditionEdit, FALSE);
+			SendMessage(hDigitLength, TBM_SETPOS, TRUE, 6);
 			SendMessageW(hAlgorithm, CB_SETCURSEL, 0, 0);
 			SetWindowText(hAdditionEdit, L"30");
-            AlignButtons(hDlg, hAdVancedButton,hDialogOK, hDialogCancel);
-            SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
-        }
+			
+			SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
+		}
 
-    }
-		return (INT_PTR)TRUE;
+	}
+	return (INT_PTR)TRUE;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDCANCEL)
 		{
 			EndDialog(hDlg, LOWORD(wParam));
 			return (INT_PTR)TRUE;
 		}
-        switch LOWORD(wParam)
-        {
-        case IDC_ADVANCEDBUTTON:
-        {
-            HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
-            HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
-            HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+		switch LOWORD(wParam)
+		{
+		case IDC_ADVANCEDBUTTON:
+		{
+			HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
+			HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
+			HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
 			HWND hAdvancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
 
-            wchar_t buffer[50];
-            GetWindowText(hAdvancedButton, buffer, 50);
-            wstring str = buffer;
-            HWND hDialogOK = GetDlgItem(hDlg, IDOK);
-            HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
+			wchar_t buffer[50];
+			GetWindowText(hAdvancedButton, buffer, 50);
+			wstring str = buffer;
+			HWND hDialogOK = GetDlgItem(hDlg, IDOK);
+			HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
 
 			if (str[str.size() - 2] == L'>')
 			{
 				str[str.size() - 2] = L'<';
 				str[str.size() - 1] = L'<';
-                RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(250, GetDpiForWindow(hDlg), 96) };
+				RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(250, GetDpiForWindow(hDlg), 96) };
 				AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, TRUE);
 				SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
 
@@ -664,84 +753,84 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				MoveButtonToBottomOfDialog(hDlg, hDialogOK);
 				MoveButtonToBottomOfDialog(hDlg, hDialogCancel);
 
-                ShowWindow(hAlgorithm, TRUE);
-                ShowWindow(hDigitLength, TRUE);
-                adv = true;
-                ShowWindow(hAdditionEdit, TRUE);
+				ShowWindow(hAlgorithm, TRUE);
+				ShowWindow(hDigitLength, TRUE);
+				adv = true;
+				ShowWindow(hAdditionEdit, TRUE);
 			}
-            else
-            {
-                str[str.size() - 2] = L'>';
-                str[str.size() - 1] = L'>';
-                RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(140, GetDpiForWindow(hDlg), 96) };
-                AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, TRUE);
-				
-                AlignButtons(hDlg, hAdvancedButton, hDialogOK, hDialogCancel);
-                SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
-                ShowWindow(hAlgorithm, FALSE);
-                ShowWindow(hDigitLength, FALSE);
-                ShowWindow(hAdditionEdit, FALSE);
-            }
-            SetWindowTextW(hAdvancedButton, str.c_str());
-        }
+			else
+			{
+				str[str.size() - 2] = L'>';
+				str[str.size() - 1] = L'>';
+				RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(140, GetDpiForWindow(hDlg), 96) };
+				AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, TRUE);
 
-            break;
-        case IDC_CHECKISHOTP: 
-        {
-            if (!adv && isOTPDIALOGEDIT <= 0 && HIWORD(wParam) == BN_CLICKED)
-            {
-                HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
-                if (IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP) == BST_CHECKED)
-                {
-                    SetWindowText(hAdditionEdit, L"0");
-                }
-                else
-                {
-                    SetWindowText(hAdditionEdit, L"30");
-                }
-            }
-            HWND hStatic = GetDlgItem(hDlg, IDC_HOTPTOTPADDSTATIC);
-            if (IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP) == BST_CHECKED)
-            {
-                SetWindowText(hStatic, counter);
-            }
-            else
-            {
-                SetWindowText(hStatic, interval);
-            }
-            break;
-        }
-			//if()
-        case IDOK:
-        {
-            HWND hName = GetDlgItem(hDlg, IDC_OTPNAME);
-            HWND hSecret = GetDlgItem(hDlg, IDC_OTPSECRET);
-            HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
-            HWND hIsHOTP = GetDlgItem(hDlg, IDC_CHECKISHOTP);
-            HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
-            HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+				AlignButtons(hDlg, hAdvancedButton, hDialogOK, hDialogCancel);
+				SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+				ShowWindow(hAlgorithm, FALSE);
+				ShowWindow(hDigitLength, FALSE);
+				ShowWindow(hAdditionEdit, FALSE);
+			}
+			SetWindowTextW(hAdvancedButton, str.c_str());
+		}
 
-            OTPInfo otpinfo;
-            int trackBarValue = SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
+		break;
+		case IDC_CHECKISHOTP:
+		{
+			if (!adv && isOTPDIALOGEDIT <= 0 && HIWORD(wParam) == BN_CLICKED)
+			{
+				HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+				if (IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP) == BST_CHECKED)
+				{
+					SetWindowText(hAdditionEdit, L"0");
+				}
+				else
+				{
+					SetWindowText(hAdditionEdit, L"30");
+				}
+			}
+			HWND hStatic = GetDlgItem(hDlg, IDC_HOTPTOTPADDSTATIC);
+			if (IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP) == BST_CHECKED)
+			{
+				SetWindowText(hStatic, counter);
+			}
+			else
+			{
+				SetWindowText(hStatic, interval);
+			}
+			break;
+		}
+		//if()
+		case IDOK:
+		{
+			HWND hName = GetDlgItem(hDlg, IDC_OTPNAME);
+			HWND hSecret = GetDlgItem(hDlg, IDC_OTPSECRET);
+			HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
+			HWND hIsHOTP = GetDlgItem(hDlg, IDC_CHECKISHOTP);
+			HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
+			HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
 
-            // 获取 Edit 控件的当前值
-            TCHAR edit1Text[1024];
-            GetWindowText(hName, edit1Text, sizeof(edit1Text) / sizeof(TCHAR));
+			OTPInfo otpinfo;
+			int trackBarValue = SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
+			
+			// 获取 Edit 控件的当前值
+			TCHAR edit1Text[1024];
+			GetWindowText(hName, edit1Text, sizeof(edit1Text) / sizeof(TCHAR));
 
-            TCHAR edit2Text[1024];
-            GetWindowText(hSecret, edit2Text, sizeof(edit2Text) / sizeof(TCHAR));
+			TCHAR edit2Text[1024];
+			GetWindowText(hSecret, edit2Text, sizeof(edit2Text) / sizeof(TCHAR));
 
-            TCHAR edit3Text[1024];
-            GetWindowText(hAdditionEdit, edit3Text, sizeof(edit3Text) / sizeof(TCHAR));
+			TCHAR edit3Text[1024];
+			GetWindowText(hAdditionEdit, edit3Text, sizeof(edit3Text) / sizeof(TCHAR));
 
-            // 获取 CheckBox 的当前状态
-            int checkBoxState = IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP);
+			// 获取 CheckBox 的当前状态
+			int checkBoxState = IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP);
 
 
-            // 获取 ComboBox 的当前选择项
-            int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0);
-            TCHAR comboBoxText[100]=L"";
-            SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
+			// 获取 ComboBox 的当前选择项
+			int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0);
+			TCHAR comboBoxText[100] = L"";
+			SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
 
 			otpinfo.algorithm = ws2s(comboBoxText);
 			otpinfo.digits = trackBarValue;
@@ -766,31 +855,47 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 			for (wchar_t i : otpinfo.secret)
 			{
-                if (!(i >= '2' && i <= '7' || i>='A' && i<='Z'))
+				if (!(i >= '2' && i <= '7' || i >= 'A' && i <= 'Z'))
 				{
 					MessageBox(hDlg, errorErrorEncodeBase32, error, MB_ICONERROR | MB_OK);
-					
+
 					return (INT_PTR)TRUE;
 				}
 			}
-
-            if (isOTPDIALOGEDIT >= 0)
-            {
-				otpInfos[isOTPDIALOGEDIT] = otpinfo;
+			
+			if (isOTPDIALOGEDIT >= 0)
+			{
 				
+				otpInfos[isOTPDIALOGEDIT] = otpinfo;
+				string s = otpinfo.secret;
+
+				CurrentKeys[s] = getCurrentMillSecond(true) / otpinfo.addition_param / 1000;
+				EncryptedDataMap[s] = EncryptData(otpinfo.secret);
 			}
 			else
 			{
+				GUID guid;
+				HRESULT hr = CoCreateGuid(&guid);
+				TCHAR guidTEXT[96];
+				hr = StringFromGUID2(guid, guidTEXT, 96);
+				string s = ws2s(guidTEXT);
+				if(otpinfo.type){ CurrentKeys.emplace(s, 0); }
+				else {
+					CurrentKeys.emplace(s, getCurrentMillSecond(true) / otpinfo.addition_param / 1000);
+				}
+				EncryptedDataMap[s] = EncryptData(otpinfo.secret);
+				otpinfo.secret = s;
 				otpInfos.push_back(otpinfo);
-				CurrentKeys.emplace(otpInfos.size() - 1, getCurrentMillSecond(true) / otpinfo.addition_param / 1000);
-                EnableWindow(buttonEdit, TRUE);
-                addItem(hListView, otpinfo);
-            }
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        }
-       
+				
+				
+				//EnableWindow(buttonEdit, TRUE);
+				addItem(hListView, otpinfo);
+			}
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		}
+
 		break;
 	}
 	return (INT_PTR)FALSE;

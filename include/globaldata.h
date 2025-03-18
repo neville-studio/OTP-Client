@@ -6,10 +6,10 @@
 
 struct OTPInfo
 {
-	int type;			// 0: TOTP, 1: HOTP
-	string algorithm;   // SHA1
-	int digits;			// 6
-	int addition_param; // 30
+	int type = 0;			// 0: TOTP, 1: HOTP
+	string algorithm = "SHA1";   // SHA1
+	int digits = 6;			// 6
+	int addition_param = 30; // 30
 	string friendly_name;
 	string secret;
 };
@@ -27,6 +27,9 @@ public:
 	    return config;
 	};
 	void setConfig(string config);
+	void setConfig(wstring config);
+	void setSNTP_servers(vector<string> servers) { sntp_servers = servers; };
+	void setOTPConfig(vector<OTPInfo> otp_config) { this->otp_config = otp_config; };
 	string getConfig();
 	vector<string> getSNTPServers() { return sntp_servers; };
 	vector<OTPInfo> getOTPConfig() { return otp_config; };

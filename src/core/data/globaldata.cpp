@@ -18,6 +18,25 @@ void GlobalConfiguration::setConfig(string config)
 		this->otp_config.push_back(otp_info);
 	}
 }
+
+void GlobalConfiguration::setConfig(wstring config)
+{
+	nlohmann::json j = nlohmann::json::parse(config);
+	this->sntp_servers = j["time_servers"].get<vector<string>>();
+	this->otp_config.clear();
+
+	for (auto& item : j["otps"])
+	{
+		OTPInfo otp_info = {};
+		otp_info.type = item["type"];
+		otp_info.algorithm = item["algorithm"];
+		otp_info.digits = item["digits"];
+		otp_info.addition_param = item["addition_param"];
+		otp_info.friendly_name = item["friendly_name"];
+		otp_info.secret = item["secret"];
+		this->otp_config.push_back(otp_info);
+	}
+}
 GlobalConfiguration *GlobalConfiguration:: config = nullptr;
 string GlobalConfiguration::getConfig()
 {
