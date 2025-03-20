@@ -38,7 +38,7 @@ i18nClient::i18nClient() {
 		{"delete" , L"删除"},
 		{"import" , L"导入"},
 		{"export" , L"导出"},
-		{"networkTime" , L"使用网络时间"},
+		{"networkTime" , L"管理时钟服务"},
 		{"localTime" , L"使用本地时间"},
 		{"name" , L"名称"},
 		{"windowTitle" , L"单次密码验证查看客户端"},

@@ -6,7 +6,7 @@ add_definitions(-D_UNICODE -DUNICODE)
 
     
 
-add_library(win32form MainWinForm.cpp Resources.rc   "DataHandler.cpp")
+add_library(win32form MainWinForm.cpp   "DataHandler.cpp"  )
 
 
 

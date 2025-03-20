@@ -29,7 +29,7 @@ private:
 	std::map<std::string, std::wstring> zh_cn;
 	std::map<std::string, std::wstring> en_us;
 	
-	i18nLangSupported lang;
+	i18nLangSupported lang=ZH_CN;
 	i18nClient(const i18nClient&) = delete;
 	i18nClient& operator=(const i18nClient&) = delete;
 	i18nClient();

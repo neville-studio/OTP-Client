@@ -11,6 +11,10 @@
 #define IDS_ERROR_NOSECRET              117
 #define IDS_ERROR_ERRORENCODE_BASE32    118
 #define IDS_ERROR_TIMEEQUALS_ZERO		119
+#define IDS_CONFIRM_HOTPVIEW			120
+#define IDS_HOTP_INFO					121
+#define IDS_CONFIRM						122
+#define IDS_LASTSYNC					123
 #define IDC_OPTNAME                     1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT4                       1002
@@ -26,6 +30,8 @@
 #define IDC_ALGORITHM                   1022
 #define IDC_DIGITLENGTH                 1023
 #define IDC_HOTPTOTPADDSTATIC           1024
+#define IDC_PRIMARYSERVER               1025
+#define IDC_SECONDARYSERVER             1026
 #define IDI_ICONMAIN                    10001
 #define ID_BUTTON2                      40001
 #define IDC_STATIC                      -1

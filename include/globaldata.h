@@ -12,6 +12,7 @@ struct OTPInfo
 	int addition_param = 30; // 30
 	string friendly_name;
 	string secret;
+	int secret_type = 1; // 1: base32, 2: base64, 3: hex
 };
 
 
@@ -28,14 +29,18 @@ public:
 	};
 	void setConfig(string config);
 	void setConfig(wstring config);
+	void setUseNetworkTime(bool use_network_time) { this->use_network_time = use_network_time; };
 	void setSNTP_servers(vector<string> servers) { sntp_servers = servers; };
 	void setOTPConfig(vector<OTPInfo> otp_config) { this->otp_config = otp_config; };
+	void setUseNetworkTime(bool use_network_time) { this->use_network_time = use_network_time; };
 	string getConfig();
 	vector<string> getSNTPServers() { return sntp_servers; };
 	vector<OTPInfo> getOTPConfig() { return otp_config; };
+	bool getUseNetworkTime() { return use_network_time; };
 private:
 	static GlobalConfiguration *config;
 	
+	bool use_network_time = false;
 
 	vector<string> sntp_servers;
 	vector<OTPInfo> otp_config;
