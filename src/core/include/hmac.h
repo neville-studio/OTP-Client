@@ -1,9 +1,10 @@
 #pragma once
 #include "common.h"
 #include "hash.h"
+//#include "sha1.h"
 enum AlgorithmName {
 	UNKNOWN,
-	SHA_1,
+	SHA_1
 };
 class HMAC {
 public:

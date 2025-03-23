@@ -8,6 +8,7 @@
 #include "common.h"
 #include "encode.h"
 #include "hash.h"
+using namespace std;
 /**
 * @class SHA1
 * @brief SHA-1 implementation

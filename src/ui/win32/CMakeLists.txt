@@ -6,7 +6,7 @@ add_definitions(-D_UNICODE -DUNICODE)
 
     
 
-add_library(win32form MainWinForm.cpp   "DataHandler.cpp"  )
+add_library(win32form MainWinForm.cpp "DataHandler.cpp")
 
 
 
@@ -18,5 +18,6 @@ target_link_libraries(win32form PRIVATE
             i18n
             global_datastore
             otp-core
+            #sntp-client
 )
 

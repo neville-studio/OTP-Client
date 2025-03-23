@@ -1,6 +1,6 @@
+
+#include <windows.h>
 #include "MainWinForm.h"
-
-
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -18,6 +18,8 @@ WCHAR errorTimeEqualsZero[MAX_LOADSTRING];
 WCHAR viewConfirm[MAX_LOADSTRING];
 WCHAR viewTip[MAX_LOADSTRING];
 WCHAR confirm[MAX_LOADSTRING];
+WCHAR lastSync[MAX_LOADSTRING];
+WCHAR lastSyncFailed[MAX_LOADSTRING];
 
 wstring s2ws(const string& s);
 string ws2s(std::wstring s);
@@ -32,7 +34,7 @@ bool alwaysUseNetTime = false;
 
 INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
-
+SNTPClient sntpClient;
 void ReadDataFromFile() {
 	vector<BYTE> data = ReadDataFromFile("data.dat");
 	if (data.size() == 0) return;
@@ -41,12 +43,12 @@ void ReadDataFromFile() {
 	otpInfos = globalConfig->getOTPConfig();
 	sntpServers = globalConfig->getSNTPServers();
 	alwaysUseNetTime = globalConfig->getUseNetworkTime();
-	for (int i = 0;i<otpInfos.size();i++)
+	for (int i = 0; i < otpInfos.size(); i++)
 	{
-		
+
 		//otpInfo.secret = encodeBase64FromBYTE(EncryptData(otpInfo.secret));
 		GUID guid;
-		HRESULT r1 =CoCreateGuid(&guid);
+		HRESULT r1 = CoCreateGuid(&guid);
 		TCHAR r[48];
 		r1 = StringFromGUID2(guid, r, 48);
 		string guidStr = ws2s(r);
@@ -67,7 +69,7 @@ void saveDataToFile()
 	globalConfig->setOTPConfig(p);
 	globalConfig->setSNTP_servers(sntpServers);
 	globalConfig->setUseNetworkTime(alwaysUseNetTime);
-	
+
 	vector<BYTE> writeDATA = EncryptData(globalConfig->getConfig());
 
 	BOOL writeResult = WriteBytesToFile("data.dat", writeDATA);
@@ -113,6 +115,14 @@ int64_t getCurrentMillSecond(bool usingNetTime = false) {
 	if (!usingNetTime) {
 		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
+	else {
+		int64_t resultTimeStamp = sntpClient.getResultTimestamp() + std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - sntpClient.getLastUpdate();
+		if (resultTimeStamp < 0)
+		{
+			OutputDebugString(L"获取时钟失败");
+		}
+		return resultTimeStamp >= 0? resultTimeStamp : std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
 	return 0;
 }
 
@@ -153,6 +163,8 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	LoadString(hInstance, IDS_CONFIRM_HOTPVIEW, viewConfirm, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_HOTP_INFO, viewTip, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_CONFIRM, confirm, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_LASTSYNC, lastSync, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_LASTSYNCFAILED, lastSyncFailed, MAX_LOADSTRING);
 
 	INITCOMMONCONTROLSEX icex;
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -182,7 +194,7 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	}
 	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
 		| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		CW_USEDEFAULT, 0, 650, 400, NULL, NULL, hInstance, NULL);
+		CW_USEDEFAULT, 0, 650, 450, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 		return FALSE;
@@ -202,6 +214,29 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	return (int)msg.wParam;
 }
 
+DWORD WINAPI SNTPClientUpdateThreadProc(LPVOID lpParameter)
+{
+	while (true)
+	{
+
+		if (getCurrentMillSecond() - sntpClient.getLastUpdate() > 600000)
+		{
+
+			if (sntpServers.size() > 0)
+				if (sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, false) < 0 && sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, true) < 0)
+				{
+					if (sntpServers.size() > 1)
+					{
+						if (sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, false) < 0 && sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, true) < 0)
+						{
+						}
+					}
+				}
+		}
+		Sleep(60000);
+	}
+}
+
 DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	HWND hListView = (HWND)lpParameter;
 
@@ -215,7 +250,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 			string i = key_value.first;
 			OTPInfo otpInfo;
 			int j = 0;
-			for (j = 0;j < otpInfos.size(); j++)
+			for (j = 0; j < otpInfos.size(); j++)
 			{
 				if (otpInfos[j].secret == i)
 				{
@@ -225,7 +260,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 			}
 			if (j >= otpInfos.size()) continue;
 
-			if (otpInfo.type == 0 && getCurrentMillSecond() / 1000 / otpInfo.addition_param != key_value.second)
+			if (otpInfo.type == 0 && getCurrentMillSecond(alwaysUseNetTime) / 1000 / otpInfo.addition_param != key_value.second)
 			{
 				PostMessage(hListView, WM_USER + 2, NULL, NULL);
 				break;
@@ -255,7 +290,8 @@ void addItem(HWND hListView, OTPInfo otpInfo) {
 	{
 		string secret = DecryptData(EncryptedDataMap[otpInfo.secret]);
 		OTP otp(HOTP);
-		int64_t times = getCurrentMillSecond(false) / otpInfo.addition_param / 1000;
+		otp.setAlgorithm(otpInfo.algorithm);
+		int64_t times = getCurrentMillSecond(alwaysUseNetTime) / otpInfo.addition_param / 1000;
 		string password = otp.generateOTP(secret, 1, otpInfo.digits, times);
 		//lvi.iItem = ListView_GetItemCount(hListView);
 		//lvi.iSubItem = 1;
@@ -284,6 +320,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		AddControls(hWnd);
 		setLangTextFromi18n(hWnd);
 		CreateThread(NULL, 0, ThreadProc, hWnd, 0, NULL);
+		CreateThread(NULL, 0, SNTPClientUpdateThreadProc, hWnd, 0, NULL);
 		break;
 	case WM_DESTROY:
 		saveDataToFile();
@@ -294,8 +331,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		if (pnm->hdr.code == NM_CUSTOMDRAW)
 		{
 			LPNMLVCUSTOMDRAW lplvcd = (LPNMLVCUSTOMDRAW)lParam;
-
-
 			switch (lplvcd->nmcd.dwDrawStage)
 			{
 			case CDDS_PREPAINT:
@@ -316,16 +351,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					// 获取或计算当前项目的进度值
 					if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
 						return CDRF_DODEFAULT;
-					
+
 					int64_t interval = otpInfos[nItem].addition_param;
-					int64_t now = getCurrentMillSecond();
-					int64_t usedTime = (getCurrentMillSecond() % (interval * 1000));
+					int64_t now = getCurrentMillSecond(alwaysUseNetTime);
+					int64_t usedTime = (now % (interval * 1000));
 					int64_t remainTime = interval * 1000 - usedTime;
 					int fProgress = usedTime / interval / 10; // 假设进度为50%
 
 					RECT rc;
 					RECT progressBarRc = {};
-					    
+
 					ListView_GetSubItemRect(hListView, nItem, lplvcd->iSubItem, LVIR_BOUNDS, &rc);
 					if (rc.right - rc.left < 58) {
 						return CDRF_DODEFAULT;
@@ -334,23 +369,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					progressBarRc.right = rc.right - 50;
 					progressBarRc.top = rc.top + 4;
 					progressBarRc.bottom = rc.bottom - 4;
-					
-						
-
-						FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
 
 
-						// 计算并绘制进度条
-						progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left) / 100);
 
-						int g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
-						int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
-						HBRUSH hbrush = CreateSolidBrush(RGB(r, g, 0));
+					FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
 
-						FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
-						DeleteObject(hbrush);
-						
-					
+
+					// 计算并绘制进度条
+					progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left) / 100);
+
+					int g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
+					int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
+					HBRUSH hbrush = CreateSolidBrush(RGB(r, g, 0));
+
+					FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
+					DeleteObject(hbrush);
+
+
 					// 在进度条上绘制文本
 					wchar_t szText[64];
 					progressBarRc.left = rc.right - 50;
@@ -392,20 +427,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				if (o.type == HOTP)
 				{
 					//DialogBox(hInst, MAKEINTRESOURCE(IDD_HOTP), hWnd, HotpClientViewerProc);
-					int hresult = MessageBox(hWnd, viewConfirm, confirm, MB_ICONQUESTION |MB_OKCANCEL);
+					int hresult = MessageBox(hWnd, viewConfirm, confirm, MB_ICONQUESTION | MB_OKCANCEL);
 					if (hresult == IDOK) {
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_HOTP), hWnd, HotpClientViewerProc);
 					}
 					//MessageBox(hWnd, L"计次验证，无法查看密码", L"提示", MB_ICONINFORMATION);
-					
+
 				}
-				
+
 			}
 		}
-		
-		
+
+
 	}
-	break;
+				  break;
 	case WM_COMMAND: {
 		int wmId = LOWORD(wParam);
 		switch (wmId) {
@@ -424,7 +459,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		case IDC_BUTTON_DELETE:
 		{
 			if (isOTPDIALOGEDIT < 0) return FALSE;
-			int MessageResult = MessageBox(hWnd, L"确定删除吗？", L"删除", MB_ICONQUESTION  |MB_YESNO);
+			int MessageResult = MessageBox(hWnd, L"确定删除吗？", L"删除", MB_ICONQUESTION | MB_YESNO);
 			if (MessageResult == IDYES)
 			{
 				int i = ListView_GetNextItem(hListView, -1, LVNI_SELECTED);
@@ -439,7 +474,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				}
 			}
 		}
-			break;
+		break;
 		case IDC_BUTTON_NETWORK_TIME:
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_SNTP), hWnd, timeServerManager);
 			break;
@@ -463,8 +498,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	case WM_SIZE:
 		if (wParam == SIZE_RESTORED)
 		{
-			RedrawWindow(hListView, NULL,NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-			RedrawWindow(hWnd, NULL,NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+			RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+			RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
 		}
 		return TRUE;
 	case WM_SETTINGCHANGE: {
@@ -475,10 +510,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 		break;
 	}
+	case WM_CTLCOLORSTATIC:
+	{
+		HDC hdc = (HDC)wParam;
+		SetTextColor(hdc, RGB(0, 0, 0));
+		SetBkMode(hdc, TRANSPARENT);
+		return (INT_PTR)GetStockObject(NULL_BRUSH);
+	}
 	case WM_USER + 1:
-		if(!IsIconic(hWnd))
-		RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-		/*InvalidateRect(hListView, NULL, TRUE);*/
+		if (!IsIconic(hWnd))
+			RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+		//InvalidateRect(hListView, NULL, TRUE);
 		//UpdateListViewProgress();
 		break;
 	case WM_USER + 2: {
@@ -490,8 +532,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			if (o.type == 0)
 			{
 				OTP otp(HOTP);
-
-				int64_t times = getCurrentMillSecond(false) / o.addition_param / 1000;
+				otp.setAlgorithm(o.algorithm);
+				int64_t times = getCurrentMillSecond(alwaysUseNetTime) / o.addition_param / 1000;
 				string guid = o.secret;
 				string password = otp.generateOTP(DecryptData(EncryptedDataMap[guid]), 1, o.digits, times);
 				wPassword = padZero(s2ws(password), o.digits);
@@ -516,38 +558,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 		return TRUE;
 	}
-	//case WM_PAINT:   // just to solve the flicker problem
-	//{
-	//	PAINTSTRUCT ps;
-	//	HDC hdc = BeginPaint(hWnd, &ps);
-
-	//	 //创建内存 DC
-	//	HDC hdcMem = CreateCompatibleDC(hdc);
-	//	int width = ps.rcPaint.right - ps.rcPaint.left;
-	//	int height = ps.rcPaint.bottom - ps.rcPaint.top;
-	//	HBITMAP hbmMem = CreateCompatibleBitmap(hdc, width, height);
-	//	SelectObject(hdcMem, hbmMem);
-
-	//	 //用背景色填充内存 DC
-	//	HBRUSH hBrush = (HBRUSH)GetClassLongPtr(hWnd, GCLP_HBRBACKGROUND);
-	//	FillRect(hdcMem, &ps.rcPaint, hBrush);
-
-	//	 调用默认的绘制逻辑
-	//	DefWindowProc(hWnd, WM_PAINT, (WPARAM)hdcMem, 0);
-
-	//	 将内存 DC 的内容复制到窗口 DC
-	//	BitBlt(hdc, ps.rcPaint.left, ps.rcPaint.top, width, height, hdcMem, 0, 0, SRCCOPY);
-
-	//	 清理资源
-	//	DeleteObject(hbmMem);
-	//	DeleteDC(hdcMem);
-
-	//	EndPaint(hWnd, &ps);
-	//	break;
-	//}
-	//case WM_ERASEBKGND:
-	//	return 1;
-	//	break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -557,7 +567,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 void AddControls(HWND hWnd) {
 	// 创建ListView
 	DWORD dwStyle = //WS_TABSTOP |
-		WS_CHILD  | LVS_SINGLESEL|
+		WS_CHILD | LVS_SINGLESEL |
 		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 		LVS_REPORT;
 	hListView = CreateWindow(WC_LISTVIEW, L"",
@@ -581,21 +591,24 @@ void AddControls(HWND hWnd) {
 		190, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_ADD, hInst, NULL);
 	buttonEdit = CreateWindow(L"BUTTON", L"修改", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		280, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_EDIT, hInst, NULL);
-	
+
 
 	buttonDelete = CreateWindow(L"BUTTON", L"删除", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		370, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_DELETE, hInst, NULL);
 	buttonNetworkTime = CreateWindow(L"BUTTON", L"是否使用网络时间", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		460, 320, 150, 30, hWnd, (HMENU)IDC_BUTTON_NETWORK_TIME, hInst, NULL);
-	
-		EnableWindow(buttonEdit, FALSE);
-		EnableWindow(buttonDelete, FALSE);
-	
+
+	HWND CopyrightStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("copyright")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT,
+		30, 360, 450, 25, hWnd, NULL, hInst, NULL);
+
+	EnableWindow(buttonEdit, FALSE);
+	EnableWindow(buttonDelete, FALSE);
+
 	for (OTPInfo o : otpInfos)
 	{
 		addItem(hListView, o);
 	}
-	
+
 	// 设置默认字体为微软雅黑
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));
@@ -609,6 +622,7 @@ void AddControls(HWND hWnd) {
 	SendMessage(buttonDelete, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(buttonEdit, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(buttonNetworkTime, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
+	SendMessage(CopyrightStatic, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 
 	ListView_SetExtendedListViewStyle(hListView,
 		LVS_EX_FULLROWSELECT | LVS_EX_SUBITEMIMAGES);
@@ -768,7 +782,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 			int res = 0x00040008;
 
-			
+
 			if (!adv && isOTPDIALOGEDIT <= 0 && HIWORD(wParam) == BN_CLICKED)
 			{
 				HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
@@ -812,7 +826,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			SendMessage(hDigitLength, TBM_SETPOS, TRUE, 6);
 			SendMessageW(hAlgorithm, CB_SETCURSEL, 0, 0);
 			SetWindowText(hAdditionEdit, L"30");
-			
+
 			SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
 		}
 
@@ -908,17 +922,17 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
 			HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
 
-			
+
 			OTPInfo otpinfo;
 			int trackBarValue = SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
-			
+
 			// 获取 Edit 控件的当前值
 			TCHAR edit1Text[1024];
 			GetWindowText(hName, edit1Text, sizeof(edit1Text) / sizeof(TCHAR));
 
 			TCHAR edit2Text[1024];
 			GetWindowText(hSecret, edit2Text, sizeof(edit2Text) / sizeof(TCHAR));
-			
+
 			TCHAR edit3Text[1024];
 			GetWindowText(hAdditionEdit, edit3Text, sizeof(edit3Text) / sizeof(TCHAR));
 
@@ -927,11 +941,11 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 
 			// 获取 ComboBox 的当前选择项
-			int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0);
-			TCHAR comboBoxText[100] = L"";
-			SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
+			int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0)+1;
+			//TCHAR comboBoxText[100] = L"";
+			//SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
 
-			otpinfo.algorithm = ws2s(comboBoxText);
+			otpinfo.algorithm = comboBoxIndex;
 			otpinfo.digits = trackBarValue;
 			otpinfo.friendly_name = ws2s(edit1Text);
 			otpinfo.secret = ws2s(edit2Text);
@@ -959,12 +973,12 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 					return (INT_PTR)TRUE;
 				}
 			}
-			
+
 			if (isOTPDIALOGEDIT >= 0)
 			{
-				
+
 				string guidText = otpInfos[isOTPDIALOGEDIT].secret;
-				
+
 				//string s = otpinfo.secret;
 				CurrentKeys[guidText] = 0;
 				EncryptedDataMap[guidText] = EncryptData(otpinfo.secret);
@@ -982,15 +996,15 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				TCHAR guidTEXT[96];
 				hr = StringFromGUID2(guid, guidTEXT, 96);
 				string s = ws2s(guidTEXT);
-				
-				CurrentKeys.emplace(s, 0); 
-				
-				
+
+				CurrentKeys.emplace(s, 0);
+
+
 				EncryptedDataMap[s] = EncryptData(otpinfo.secret);
 				otpinfo.secret = s;
 				otpInfos.push_back(otpinfo);
-				
-				
+
+
 				//EnableWindow(buttonEdit, TRUE);
 				addItem(hListView, otpinfo);
 			}
@@ -1018,15 +1032,16 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Consolas");
 		SendMessage(GetDlgItem(hDlg, IDC_PASSWORD), WM_SETFONT, (WPARAM)hfont, TRUE);
 		OTP otp(HOTP);
-		otp.setAlgorithm(SHA_1);
+		otp.setAlgorithm(otpInfos[isOTPDIALOGEDIT].algorithm);
 		string guidText = otpInfos[isOTPDIALOGEDIT].secret;
 		string currentSecret = DecryptData(EncryptedDataMap[guidText]);
+
 		string digitalPassword = otp.generateOTP(currentSecret, 1, otpInfos[isOTPDIALOGEDIT].digits, otpInfos[isOTPDIALOGEDIT].addition_param);
 
 		wstring convertedStr = padZero(s2ws(digitalPassword), otpInfos[isOTPDIALOGEDIT].digits);
 		convertedStr.insert(convertedStr.begin() + convertedStr.size() / 2, L' ');
-		
-		SetWindowText(GetDlgItem(hDlg, IDC_PASSWORD),convertedStr.c_str());
+
+		SetWindowText(GetDlgItem(hDlg, IDC_PASSWORD), convertedStr.c_str());
 		otpInfos[isOTPDIALOGEDIT].addition_param++;
 		currentSecret.clear();
 	}
@@ -1038,7 +1053,7 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 		{
 		case IDOK:
 		{
-			
+
 			EndDialog(hDlg, LOWORD(wParam));
 			//otpInfos[isOTPDIALOGEDIT].addition_param++;
 			EnableWindow(buttonEdit, FALSE);
@@ -1048,9 +1063,9 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 		}
 		case IDCANCEL:
 		{
-			
+
 			EndDialog(hDlg, LOWORD(wParam));
-			
+
 			EnableWindow(buttonEdit, FALSE);
 			EnableWindow(buttonDelete, FALSE);
 			isOTPDIALOGEDIT = -1;
@@ -1063,23 +1078,54 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	return (INT_PTR)FALSE;
 }
 
+int stopThisResyncThread = 0;
+/**
+* SNTP Resync Procedure
+* This Function is for SNTP Resync Procedure, it will update the time from the server
+**/
+DWORD WINAPI sntpResyncProc(LPVOID lpParameter)
+{
+	HWND hWnd = (HWND)lpParameter;
+	stopThisResyncThread = 0;
+	if (sntpServers.size() > 0)
+		if (sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, false) >= 0 || sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, true) >= 0)
+		{
+			if(hWnd!=NULL && !stopThisResyncThread)
+			    PostMessage(hWnd, WM_USER, NULL, NULL);
+			return 0;
+		}
+		else if (sntpServers.size() > 1)
+		{
+			if (sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, false) >= 0 || sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, true) >= 0)
+			{
+				if (hWnd != NULL && !stopThisResyncThread)
+				    PostMessage(hWnd, WM_USER, NULL, NULL);
+				return 0;
+			}
+		}
+	if (hWnd != NULL)
+		PostMessage(hWnd, WM_USER, NULL, NULL);
+	return 0;
+
+}
+
 INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
+	static HANDLE miniThread;
 	HWND primaryServer = GetDlgItem(hDlg, IDC_PRIMARYSERVER);
 	HWND secondaryServer = GetDlgItem(hDlg, IDC_SECONDARYSERVER);
 	HWND alwaysUseNetworkTime = GetDlgItem(hDlg, IDC_ALWAYSNETTIME);
+	HWND IDCSNTPSTATUS = GetDlgItem(hDlg, IDC_STATICSYNC);
 	switch (message)
 	{
 	case WM_INITDIALOG:
 	{
-		
-
-
-		SetWindowText(primaryServer, s2ws(sntpServers[0]).c_str());
-		SetWindowText(secondaryServer, s2ws(sntpServers[1]).c_str());
+		if (sntpServers.size() > 0)SetWindowText(primaryServer, s2ws(sntpServers[0]).c_str());
+		if (sntpServers.size() > 1)SetWindowText(secondaryServer, s2ws(sntpServers[1]).c_str());
 
 		SendMessage(alwaysUseNetworkTime, BM_SETCHECK, alwaysUseNetTime, NULL);
+
 		//otpInfos[isOTPDIALOGEDIT].addition_param++;
 		/*RECT rect = { 0,0,MulDiv(310, GetDpiForWindow(hDlg), 96) ,MulDiv(177, GetDpiForWindow(hDlg), 96) };
 		SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);*/
@@ -1090,9 +1136,10 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	{
 		switch LOWORD(wParam)
 		{
-		
+
 		case IDOK:
 		{
+			sntpServers.resize(2);
 			WCHAR buffer[256];
 			GetWindowText(primaryServer, buffer, 256);
 			sntpServers[0] = ws2s(buffer);
@@ -1100,6 +1147,17 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			sntpServers[1] = ws2s(buffer);
 			alwaysUseNetTime = IsDlgButtonChecked(hDlg, IDC_ALWAYSNETTIME) == BST_CHECKED;
 
+			int8_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+			if (sntpClient.getStatus() > 0 && lastUpdateTime < 1200000) {
+				swprintf_s(buffer, lastSync, lastUpdateTime);
+				SetWindowText(IDCSNTPSTATUS, buffer);
+
+			}
+			else
+			{
+				SetWindowText(IDCSNTPSTATUS, lastSyncFailed);
+			}
+			stopThisResyncThread = 1;
 			EndDialog(hDlg, LOWORD(wParam));
 			//otpInfos[isOTPDIALOGEDIT].addition_param++;
 			EnableWindow(buttonEdit, FALSE);
@@ -1109,7 +1167,7 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 		}
 		case IDCANCEL:
 		{
-
+			stopThisResyncThread = 1;
 			EndDialog(hDlg, LOWORD(wParam));
 
 			EnableWindow(buttonEdit, FALSE);
@@ -1117,7 +1175,43 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			isOTPDIALOGEDIT = -1;
 			return (INT_PTR)TRUE;
 		}
+		case IDC_RESYNC:
+		{
+			//otpInfos[isOTPDIALOGEDIT].addition_param++;
+			HWND reSync = GetDlgItem(hDlg, IDC_RESYNC);
+			EnableWindow(reSync, FALSE);
+			sntpServers.resize(2);
+			WCHAR buffer[256];
+			GetWindowText(primaryServer, buffer, 256);
+			sntpServers[0] = ws2s(buffer);
+			GetWindowText(secondaryServer, buffer, 256);
+			sntpServers[1] = ws2s(buffer);
+			miniThread = CreateThread(NULL, 0, sntpResyncProc, hDlg, 0, NULL);
+			alwaysUseNetTime = IsDlgButtonChecked(hDlg, IDC_ALWAYSNETTIME) == BST_CHECKED;
+
+			return (INT_PTR)TRUE;
 		}
+		default:
+			return (INT_PTR)TRUE;
+
+		}
+		break;
+	case WM_USER:
+	{
+		HWND reSync = GetDlgItem(hDlg, IDC_RESYNC);
+		WCHAR buffer[256];
+		int8_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+		if (sntpClient.getStatus() >= 0 && lastUpdateTime < 1200000) {
+
+			swprintf_s(buffer, lastSync, lastUpdateTime);
+			SetWindowText(IDCSNTPSTATUS, buffer);
+		}
+		else
+		{
+			SetWindowText(IDCSNTPSTATUS, lastSyncFailed);
+		}
+		EnableWindow(reSync, TRUE);
+	}
 	}
 	return (INT_PTR)TRUE;
 	}

@@ -15,6 +15,7 @@
 #define IDS_HOTP_INFO					121
 #define IDS_CONFIRM						122
 #define IDS_LASTSYNC					123
+#define IDS_LASTSYNCFAILED				124
 #define IDC_OPTNAME                     1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT4                       1002
@@ -32,6 +33,8 @@
 #define IDC_HOTPTOTPADDSTATIC           1024
 #define IDC_PRIMARYSERVER               1025
 #define IDC_SECONDARYSERVER             1026
+#define IDC_RESYNC                      1027
+#define IDC_STATICSYNC				    1028
 #define IDI_ICONMAIN                    10001
 #define ID_BUTTON2                      40001
 #define IDC_STATIC                      -1

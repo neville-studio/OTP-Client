@@ -1,5 +1,5 @@
 #include "common.h"
-
+using namespace std;
 
 /*
 * @brief Decode a base64 string to a byte vector

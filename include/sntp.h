@@ -21,14 +21,12 @@
 
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-
+//#define WIN32_LEAN_AND_MEAN
+//#include <winsock2.h>
+//#include <ws2tcpip.h>
+// 
 #include <Windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Mswsock.lib")
-#pragma comment(lib, "AdvApi32.lib")
+
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -43,7 +41,8 @@ public:
 	SNTPClient();
 	~SNTPClient();
 	
-	int64_t getSNTPTimestamp(const char* server, uint16_t port = DEFAULT_NTP_PORT, bool EnableIpV6 = false);
+	int64_t getSNTPTimestamp();
+	int64_t updateSNTPTimeStamp(const char* server, uint16_t port = DEFAULT_NTP_PORT, bool enableIpV6 = false);
 
 	int64_t getLastUpdate() const { return last_update; }
 	std::string getResultSource() const { return resultSource; }
@@ -53,13 +52,14 @@ public:
 	int32_t getDelay() const { return delay; }
 	int32_t getDispersion() const { return dispersion; }
 	int32_t getStratum() const { return stratum; }
-
+	int8_t getStatus() const { return status; }
 
 private:
 	int64_t last_update = 0;
 	std::string resultSource = "";
 	int64_t resultTimestamp = 0;
-	int64_t lastError;
+	int64_t lastError = 0;
+	int8_t status = 0;
 	int32_t precision = 0;
 	int32_t delay = 0;
 	int32_t dispersion = 0;
@@ -69,8 +69,8 @@ private:
 	const bool flag_of_sign = true;
 	
 #ifdef WIN32
-	SOCKET m_socket;
-	WSAData m_wsaData;
+	/*SOCKET m_socket;
+	WSAData m_wsaData;*/
 	void transformNTPPackage(BYTE *recvBuf, int recvBufLen, int64_t send, int64_t recv);
 #endif
 };

@@ -1,5 +1,6 @@
 #pragma once
-#include <windows.h>
+
+
 #include <commctrl.h>
 #include <string>
 #include <time.h>
@@ -11,6 +12,8 @@
 #include "otp.h"
 #include "DataHandler.h"
 #include "encode.h"
+#include "sntp.h"
+
 
 #pragma comment(lib, "comctl32.lib")
 

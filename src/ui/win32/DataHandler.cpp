@@ -148,7 +148,7 @@ std::string DecryptData(std::vector<BYTE> data) {
 	DATA_BLOB DataIn, dataOut;
 
 	DataIn.pbData = const_cast<BYTE *>(data.data());
-	DataIn.cbData = data.size() * sizeof(wchar_t);
+	DataIn.cbData = data.size() * sizeof(char);
 
 	BOOL result = CryptUnprotectData(&DataIn, NULL, NULL, NULL, NULL, 0, &dataOut);
 	if (!result) {

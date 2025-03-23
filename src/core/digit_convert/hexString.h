@@ -1,5 +1,5 @@
 #include "common.h"
-
+using namespace std;
 /**
 * @brief to decode the hex String
 * @param in the string to decode

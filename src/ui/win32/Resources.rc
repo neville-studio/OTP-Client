@@ -80,12 +80,12 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,199,89,50,14
     PUSHBUTTON      "取消",IDCANCEL,254,89,50,14
     CONTROL         "始终使用网络时钟",IDC_ALWAYSNETTIME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,16,85,10
-    EDITTEXT        IDC_EDIT2,81,30,170,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT4,81,47,170,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PRIMARYSERVER,81,30,170,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SECONDARYSERVER,81,47,170,14,ES_AUTOHSCROLL
     LTEXT           "主时钟服务器",IDC_STATIC,22,34,52,8
     LTEXT           "辅时钟服务器",IDC_STATIC,23,49,52,8
-    LTEXT           "上次同步：未同步",IDC_STATIC,23,68,182,8
-    PUSHBUTTON      "应用并重新同步",IDC_BUTTON2,104,89,72,14
+    LTEXT           "上次同步：未同步",IDC_STATICSYNC,23,68,182,8
+    PUSHBUTTON      "应用并重新同步",IDC_RESYNC,104,89,72,14
 END
 
 IDD_HOTP DIALOGEX 0, 0, 311, 176
@@ -184,7 +184,8 @@ BEGIN
     IDS_HOTP_INFO   "计次验证密码，双击可查看"
     IDS_CONFIRM_HOTPVIEW   "确定要查看此密钥吗，若查看此密钥，内置计数器会加一"
     IDS_CONFIRM             "提示"
-    IDS_LASTSYNC            "上次同步，%d分钟前"
+    IDS_LASTSYNC            "上次同步：%d分钟前"
+    IDS_LASTSYNCFAILED      "同步失败。"
 END
 
 #endif    // 中文(简体，中国) resources
@@ -236,8 +237,8 @@ BEGIN
     EDITTEXT        IDC_SECONDARYSERVER,121,47,170,14,ES_AUTOHSCROLL
     LTEXT           "Main Clock Server",IDC_STATIC,22,34,60,8
     LTEXT           "Secondary Clock Server",IDC_STATIC,23,49,79,8
-    LTEXT           "Last Sync: Not Sync.",IDC_STATIC,23,68,182,8
-    PUSHBUTTON      "Apply && Resync",IDC_BUTTON1,96,89,87,14
+    LTEXT           "Last Sync: Not Sync.",IDC_STATICSYNC,23,68,182,8
+    PUSHBUTTON      "Apply && Resync",IDC_RESYNC,96,89,87,14
 END
 
 IDD_HOTP DIALOGEX 0, 0, 310, 177
@@ -337,6 +338,7 @@ BEGIN
     IDS_HOTP_INFO           "Counter based password, Dual Click to view."
     IDS_CONFIRM             "Notice"
     IDS_LASTSYNC            "Last sync: %d minutes ago."
+    IDS_LASTSYNCFAILED      "Last sync: Failed."
 END
 
 #endif    // 英语(美国) resources

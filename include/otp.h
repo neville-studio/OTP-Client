@@ -21,11 +21,15 @@ public:
 	* @param secret_type the secret type, 0 for unknown, 1 for base32, 2 for base64, 3 for hex
 	* @param digits the length of the OTP, default is 6
 	* @param addition_param the addition param, for TOTP, it is the time step, for HOTP, it is the counter.
-	* @return the OTP string
+	* @return the OTP string password
 	**/
 	string generateOTP(string secret,int secret_type = 1, int digits = 6, int addition_param = 30);
 
-	void setAlgorithm(AlgorithmName algorithm);
+	/*
+	* @brief this function is to set the algorithm of the OTP
+	* @param algorithm the algorithm name
+	*/
+	void setAlgorithm(int algorithm);
 private :
 	OTP_Type type;
 	AlgorithmName algorithm = SHA_1;

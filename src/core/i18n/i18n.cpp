@@ -1,4 +1,4 @@
-#include "i18n.h"
+ï»¿#include "i18n.h"
 
 
 std::wstring i18nClient::get(std::string key) {
@@ -30,21 +30,23 @@ i18nClient::i18nClient() {
 		{"currentVersion" , L"Current version"},
 		{"oncePassword" , L"Current Password"},
 		{"remainTime" , L"remain Times"},
-		{"remainTimeTip" , L"%llds"}
+		{"remainTimeTip" , L"%llds"},
+		{"copyright", L"Copyright Â© 2025 Neville Studio, all rights reserved."}
 	};
 	zh_cn = {
-		{"add", L"Ìí¼Ó"},
-		{"edit" , L"±à¼­"},
-		{"delete" , L"É¾³ı"},
-		{"import" , L"µ¼Èë"},
-		{"export" , L"µ¼³ö"},
-		{"networkTime" , L"¹ÜÀíÊ±ÖÓ·şÎñ"},
-		{"localTime" , L"Ê¹ÓÃ±¾µØÊ±¼ä"},
-		{"name" , L"Ãû³Æ"},
-		{"windowTitle" , L"µ¥´ÎÃÜÂëÑéÖ¤²é¿´¿Í»§¶Ë"},
-		{"currentVersion" , L"µ±Ç°°æ±¾"},
-		{"oncePassword" , L"µ±Ç°ÃÜÂë"},
-		{"remainTime" , L"¹ıÆÚÊ±¼ä"},
-		{"remainTimeTip" , L"%lldÃë"}
+		{"add", L"æ·»åŠ "},
+		{"edit" , L"ç¼–è¾‘"},
+		{"delete" , L"åˆ é™¤"},
+		{"import" , L"å¯¼å…¥"},
+		{"export" , L"å¯¼å‡º"},
+		{"networkTime" , L"ç®¡ç†æ—¶é’ŸæœåŠ¡"},
+		{"localTime" , L"ä½¿ç”¨æœ¬åœ°æ—¶é—´"},
+		{"name" , L"åç§°"},
+		{"windowTitle" , L"å•æ¬¡å¯†ç éªŒè¯æŸ¥çœ‹å®¢æˆ·ç«¯"},
+		{"currentVersion" , L"å½“å‰ç‰ˆæœ¬"},
+		{"oncePassword" , L"å½“å‰å¯†ç "},
+		{"remainTime" , L"è¿‡æœŸæ—¶é—´"},
+		{"remainTimeTip" , L"%lldç§’"},
+		{"copyright", L"Copyright Â© 2025 Neville Studio, all rights reserved."}
 	};
 }

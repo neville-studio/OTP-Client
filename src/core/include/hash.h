@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+using namespace std;
 //#include "../crypto/sha1.h"
 
 class HashAlgorithmInterfase {

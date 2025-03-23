@@ -1,6 +1,6 @@
 #pragma once
 #include "common.h"
-
+using namespace std;
 
 /** @brief to convert base32 encoding.
 * @param input the string input

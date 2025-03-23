@@ -74,7 +74,7 @@ string OTP::generateOTP(string secret, int secret_type,int digits, int addition_
 
 }
 
-void OTP::setAlgorithm(AlgorithmName algorithm)
+void OTP::setAlgorithm(int algorithm)
 {
-	this->algorithm = algorithm;
+	this->algorithm = AlgorithmName(algorithm);
 }
