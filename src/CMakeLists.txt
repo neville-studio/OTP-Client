@@ -41,9 +41,9 @@ if(WIN32)
     #    find_package(WinUI3 REQUIRED)
     #    target_link_libraries(${PROJECT_NAME} PRIVATE WinUI3::WinUI3)
     #else()
-        message(STATUS "Detected an older version of Windows, using Win32 UI.")
+        #message(STATUS "Detected an older version of Windows, using Win32 UI.")
 
-
+        target_sources(OTP-Client PRIVATE ${MANIFEST})
         #set(UI_SOURCE_FILES ui/win32/MainWinForm.cpp)
         #set(UI_HEADER_FILES ui/win32/MainWinForm.h)
         target_link_libraries(OTP-Client PRIVATE win32form)

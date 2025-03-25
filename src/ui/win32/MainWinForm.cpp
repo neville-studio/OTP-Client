@@ -14,6 +14,8 @@ WCHAR counter[MAX_LOADSTRING];
 WCHAR error[MAX_LOADSTRING];
 WCHAR errorNoSecret[MAX_LOADSTRING];
 WCHAR errorErrorEncodeBase32[MAX_LOADSTRING];
+WCHAR errorErrorEncodeBase64[MAX_LOADSTRING];
+WCHAR errorErrorEncodeHex[MAX_LOADSTRING];
 WCHAR errorTimeEqualsZero[MAX_LOADSTRING];
 WCHAR viewConfirm[MAX_LOADSTRING];
 WCHAR viewTip[MAX_LOADSTRING];
@@ -159,6 +161,8 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	LoadString(hInstance, IDS_ERROR, error, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR_NOSECRET, errorNoSecret, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR_ERRORENCODE_BASE32, errorErrorEncodeBase32, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR_ERRORENCODE_BASE64, errorErrorEncodeBase64, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_ERROR_ERRORENCODE_HEX, errorErrorEncodeHex, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_ERROR_TIMEEQUALS_ZERO, errorTimeEqualsZero, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_CONFIRM_HOTPVIEW, viewConfirm, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_HOTP_INFO, viewTip, MAX_LOADSTRING);
@@ -194,7 +198,7 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	}
 	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
 		| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-		CW_USEDEFAULT, 0, 650, 450, NULL, NULL, hInstance, NULL);
+		CW_USEDEFAULT, 0, 650, 435, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 		return FALSE;
@@ -292,7 +296,7 @@ void addItem(HWND hListView, OTPInfo otpInfo) {
 		OTP otp(HOTP);
 		otp.setAlgorithm(otpInfo.algorithm);
 		int64_t times = getCurrentMillSecond(alwaysUseNetTime) / otpInfo.addition_param / 1000;
-		string password = otp.generateOTP(secret, 1, otpInfo.digits, times);
+		string password = otp.generateOTP(secret, otpInfo.secret_type, otpInfo.digits, times);
 		//lvi.iItem = ListView_GetItemCount(hListView);
 		//lvi.iSubItem = 1;
 		wPassword = padZero(s2ws(password), otpInfo.digits);
@@ -535,7 +539,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				otp.setAlgorithm(o.algorithm);
 				int64_t times = getCurrentMillSecond(alwaysUseNetTime) / o.addition_param / 1000;
 				string guid = o.secret;
-				string password = otp.generateOTP(DecryptData(EncryptedDataMap[guid]), 1, o.digits, times);
+				string password = otp.generateOTP(DecryptData(EncryptedDataMap[guid]), o.secret_type, o.digits, times);
 				wPassword = padZero(s2ws(password), o.digits);
 
 				CurrentKeys[guid] = times;
@@ -756,8 +760,15 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
 		HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
 		HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
+		HWND hEncode = GetDlgItem(hDlg, IDC_ENCODE);
 		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA1");
+		
 		SendMessage(hDigitLength, TBM_SETRANGE, NULL, 0x00080004);
+
+		SendMessage(hEncode, CB_ADDSTRING, 0, (LPARAM)L"BASE32");
+		SendMessage(hEncode, CB_ADDSTRING, 0, (LPARAM)L"BASE64");
+		SendMessage(hEncode, CB_ADDSTRING, 0, (LPARAM)L"HEX");
+		SendMessage(hEncode, CB_SETCURSEL, 0, 0);
 		wchar_t buffer[50];
 		GetWindowText(hAdVancedButton, buffer, 50);
 		wstring str = buffer;
@@ -777,7 +788,8 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			SetWindowText(hAdditionEdit, to_wstring(otpInfos[isOTPDIALOGEDIT].addition_param).c_str());
 			SendMessage(hDigitLength, TBM_SETPOS, TRUE, otpInfos[isOTPDIALOGEDIT].digits);
 
-			SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
+			SendMessage(hAlgorithm, CB_SETCURSEL, otpInfos[isOTPDIALOGEDIT].algorithm - 1, NULL);
+			SendMessage(hEncode, CB_SETCURSEL, otpInfos[isOTPDIALOGEDIT].secret_type - 1, NULL);
 			SendMessage(hIsHOTP, BM_SETCHECK, otpInfos[isOTPDIALOGEDIT].type == HOTP ? BST_CHECKED : BST_UNCHECKED, 0);
 
 			int res = 0x00040008;
@@ -921,6 +933,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			HWND hIsHOTP = GetDlgItem(hDlg, IDC_CHECKISHOTP);
 			HWND hDigitLength = GetDlgItem(hDlg, IDC_DIGITLENGTH);
 			HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
+			HWND hEncode = GetDlgItem(hDlg, IDC_ENCODE);
 
 
 			OTPInfo otpinfo;
@@ -942,6 +955,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 			// 获取 ComboBox 的当前选择项
 			int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0)+1;
+			int encodeIndex = SendMessage(hEncode, CB_GETCURSEL, 0, 0) + 1;
 			//TCHAR comboBoxText[100] = L"";
 			//SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
 
@@ -951,6 +965,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			otpinfo.secret = ws2s(edit2Text);
 			otpinfo.addition_param = _wtoi(edit3Text);
 			otpinfo.type = checkBoxState == BST_CHECKED;
+			otpinfo.secret_type = encodeIndex;
 
 			if (otpinfo.type == 0 && otpinfo.addition_param == 0)
 			{
@@ -964,6 +979,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				return (INT_PTR)TRUE;
 			}
 
+			if(otpinfo.secret_type == 1)
 			for (wchar_t i : otpinfo.secret)
 			{
 				if (!(i >= '2' && i <= '7' || i >= 'A' && i <= 'Z'))
@@ -971,6 +987,28 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 					MessageBox(hDlg, errorErrorEncodeBase32, error, MB_ICONERROR | MB_OK);
 
 					return (INT_PTR)TRUE;
+				}
+			}
+			else if (otpinfo.secret_type == 2)
+			{
+				for (wchar_t i : otpinfo.secret)
+				{
+					if (!(i >= 'A' && i <= 'Z' || i >= 'a' && i <= 'z' || i >= '0' && i <= '9' || i == '+' || i == '/'))
+					{
+						MessageBox(hDlg, errorErrorEncodeBase64, error, MB_ICONERROR | MB_OK);
+						return (INT_PTR)TRUE;
+					}
+				}
+			}
+			else if (otpinfo.secret_type == 3)
+			{
+				for (wchar_t i : otpinfo.secret)
+				{
+					if (!(i >= '0' && i <= '9' || i >= 'A' && i <= 'F'))
+					{
+						MessageBox(hDlg, errorErrorEncodeHex, error, MB_ICONERROR | MB_OK);
+						return (INT_PTR)TRUE;
+					}
 				}
 			}
 
@@ -1036,7 +1074,7 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 		string guidText = otpInfos[isOTPDIALOGEDIT].secret;
 		string currentSecret = DecryptData(EncryptedDataMap[guidText]);
 
-		string digitalPassword = otp.generateOTP(currentSecret, 1, otpInfos[isOTPDIALOGEDIT].digits, otpInfos[isOTPDIALOGEDIT].addition_param);
+		string digitalPassword = otp.generateOTP(currentSecret, otpInfos[isOTPDIALOGEDIT].secret_type, otpInfos[isOTPDIALOGEDIT].digits, otpInfos[isOTPDIALOGEDIT].addition_param);
 
 		wstring convertedStr = padZero(s2ws(digitalPassword), otpInfos[isOTPDIALOGEDIT].digits);
 		convertedStr.insert(convertedStr.begin() + convertedStr.size() / 2, L' ');
@@ -1151,9 +1189,8 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			if (sntpClient.getStatus() > 0 && lastUpdateTime < 1200000) {
 				swprintf_s(buffer, lastSync, lastUpdateTime);
 				SetWindowText(IDCSNTPSTATUS, buffer);
-
 			}
-			else
+			else if(lastUpdateTime)
 			{
 				SetWindowText(IDCSNTPSTATUS, lastSyncFailed);
 			}
@@ -1201,12 +1238,12 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 		HWND reSync = GetDlgItem(hDlg, IDC_RESYNC);
 		WCHAR buffer[256];
 		int8_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
-		if (sntpClient.getStatus() >= 0 && lastUpdateTime < 1200000) {
+		if (sntpClient.getStatus() >= 0 && lastUpdateTime < 1200000 && lastUpdateTime >=0) {
 
 			swprintf_s(buffer, lastSync, lastUpdateTime);
 			SetWindowText(IDCSNTPSTATUS, buffer);
 		}
-		else
+		else if(lastUpdateTime > 0)
 		{
 			SetWindowText(IDCSNTPSTATUS, lastSyncFailed);
 		}
@@ -1217,4 +1254,3 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	}
 	return (INT_PTR)FALSE;
 }
-

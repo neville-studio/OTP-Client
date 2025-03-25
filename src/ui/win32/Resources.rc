@@ -69,7 +69,9 @@ BEGIN
     COMBOBOX        IDC_ALGORITHM,195,103,84,12,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
     CONTROL         "密码是计数的",IDC_CHECKISHOTP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,60,67,10
     LTEXT           "生成密码长度",IDC_STATIC,26,122,52,8
-    CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,86,118,100,15
+    CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,86,122,100,15
+    LTEXT           "密钥编码格式", IDC_STATIC, 195, 122, 52, 8
+    COMBOBOX        IDC_ENCODE, 250, 120, 45, 12, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_SNTP DIALOGEX 0, 0, 311, 110
@@ -180,6 +182,8 @@ BEGIN
     IDS_ERROR               "错误"
 	IDS_ERROR_NOSECRET      "密钥不能为空"
 	IDS_ERROR_ERRORENCODE_BASE32   "错误的编码，仅支持大写字母A-Z、数字2-7"
+    IDS_ERROR_ERRORENCODE_BASE64   "错误的编码，仅支持大小写字母A-Z, a-z, 0-9及+、/"
+    IDS_ERROR_ERRORENCODE_HEX   "错误的编码，仅支持大写字母A-F、0-9"
     IDS_ERROR_TIMEEQUALS_ZERO   "间隔时长等于0，将采用默认设置（30秒）"
     IDS_HOTP_INFO   "计次验证密码，双击可查看"
     IDS_CONFIRM_HOTPVIEW   "确定要查看此密钥吗，若查看此密钥，内置计数器会加一"
@@ -333,6 +337,8 @@ BEGIN
     IDS_ERROR               "Error"
     IDS_ERROR_NOSECRET      "Secrets should not be empty."
     IDS_ERROR_ERRORENCODE_BASE32   "The encoding is Incorrect, please use Upper case A-Z or digit 2-7"
+    IDS_ERROR_ERRORENCODE_BASE64   "The encoding is Incorrect, please use Upper case A-Z, Lower case a-z, digit 0-9 or +, /"
+    IDS_ERROR_ERRORENCODE_HEX   "The encoding is Incorrect, please use Upper case A-F or digit 0-9"
     IDS_ERROR_TIMEEQUALS_ZERO   "The Intervals equals 0, we will use default value (30s)"
     IDS_CONFIRM_HOTPVIEW   "Do you want to view the password? if you view it, the counter will add 1 automatically"
     IDS_HOTP_INFO           "Counter based password, Dual Click to view."

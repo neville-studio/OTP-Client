@@ -16,6 +16,8 @@
 #define IDS_CONFIRM						122
 #define IDS_LASTSYNC					123
 #define IDS_LASTSYNCFAILED				124
+#define IDS_ERROR_ERRORENCODE_HEX		125
+#define IDS_ERROR_ERRORENCODE_BASE64	126
 #define IDC_OPTNAME                     1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT4                       1002
@@ -35,6 +37,7 @@
 #define IDC_SECONDARYSERVER             1026
 #define IDC_RESYNC                      1027
 #define IDC_STATICSYNC				    1028
+#define IDC_ENCODE						1029
 #define IDI_ICONMAIN                    10001
 #define ID_BUTTON2                      40001
 #define IDC_STATIC                      -1

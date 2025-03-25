@@ -5,6 +5,17 @@ using namespace std;
 #ifdef WIN32
 #include <Windows.h>
 #include "ui\win32\MainWinForm.h"
+//#include "ui\winui3\WinUI3Entry.h"
+
+/**
+*  @brief Check if the current Windows version is Windows 10 version 1809 or greater. This function is used to determine whether to use WinUI 3 or WinForm.
+ *
+ * 
+ * @return true if the current Windows version is Windows 10 version 1809 or greater
+ * @return false if the current Windows version is not Windows 10 version 1809 or greater
+ */
+
+
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
 	
@@ -18,9 +29,9 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmd
 int main() {
 	cout << "Hello, CMake" << endl;
 
-	SNTPClient sntp;
-	int64_t timestamp = sntp.getSNTPTimestamp("time.windows.com", 123);
-	cout << "Timestamp: " << timestamp << endl;
+	//SNTPClient sntp;
+	//int64_t timestamp = sntp.getSNTPTimestamp("time.windows.com", 123);
+	//cout << "Timestamp: " << timestamp << endl;
 	//SHA1 sha1;
 	/*sha1.messageByBase32("MFRGGZDFMZTWQ2LK");*/
 
