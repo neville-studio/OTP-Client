@@ -45,7 +45,7 @@ void ReadDataFromFile() {
 	otpInfos = globalConfig->getOTPConfig();
 	sntpServers = globalConfig->getSNTPServers();
 	alwaysUseNetTime = globalConfig->getUseNetworkTime();
-	for (int i = 0; i < otpInfos.size(); i++)
+	for (size_t i = 0; i < otpInfos.size(); i++)
 	{
 
 		//otpInfo.secret = encodeBase64FromBYTE(EncryptData(otpInfo.secret));
@@ -64,7 +64,7 @@ void ReadDataFromFile() {
 void saveDataToFile()
 {
 	vector<OTPInfo> p = otpInfos;
-	for (int i = 0; i < p.size(); i++)
+	for (size_t i = 0; i < p.size(); i++)
 	{
 		p[i].secret = encodeBase64FromBYTE(EncryptedDataMap[p[i].secret]);
 	}
@@ -130,7 +130,7 @@ int64_t getCurrentMillSecond(bool usingNetTime = false) {
 
 
 
-wstring padZero(wstring str, int length) {
+wstring padZero(wstring str, size_t length) {
 	if (str.size() >= length)return str;
 	str = wstring(L"00000000").substr(0, length - str.size()) + str;
 	return str;
@@ -253,7 +253,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 
 			string i = key_value.first;
 			OTPInfo otpInfo;
-			int j = 0;
+			size_t j = 0;
 			for (j = 0; j < otpInfos.size(); j++)
 			{
 				if (otpInfos[j].secret == i)
@@ -351,7 +351,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 				/*OutputDebugString(L"SubItem\n")*/;
 				if (lplvcd->iSubItem == 2) // 假设这是进度条列
 				{
-					int nItem = static_cast<int>(lplvcd->nmcd.dwItemSpec);
+					size_t nItem = static_cast<size_t>(lplvcd->nmcd.dwItemSpec);
 					// 获取或计算当前项目的进度值
 					if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
 						return CDRF_DODEFAULT;
@@ -360,7 +360,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					int64_t now = getCurrentMillSecond(alwaysUseNetTime);
 					int64_t usedTime = (now % (interval * 1000));
 					int64_t remainTime = interval * 1000 - usedTime;
-					int fProgress = usedTime / interval / 10; // 假设进度为50%
+					int64_t fProgress = usedTime / interval / 10; // 假设进度为50%
 
 					RECT rc;
 					RECT progressBarRc = {};
@@ -382,8 +382,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					// 计算并绘制进度条
 					progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left) / 100);
 
-					int g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
-					int r = fProgress < 50 ? fProgress * 255 / 50 : 255;
+					int64_t g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
+					int64_t r = fProgress < 50 ? fProgress * 255 / 50 : 255;
 					HBRUSH hbrush = CreateSolidBrush(RGB(r, g, 0));
 
 					FillRect(lplvcd->nmcd.hdc, &progressBarRc, hbrush);
@@ -528,7 +528,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		//UpdateListViewProgress();
 		break;
 	case WM_USER + 2: {
-		for (int i = 0; i < otpInfos.size(); i++)
+		for (size_t i = 0; i < otpInfos.size(); i++)
 		{
 			OTPInfo o = otpInfos[i];
 			wstring wPassword = L"";
@@ -546,7 +546,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 				//set new generated password to listview
 				LVITEM lvi;
-				lvi.iItem = i;
+				lvi.iItem = (int)i;
 				lvi.iSubItem = 1;
 				std::shared_ptr<WCHAR[]> wPassword_to_show(new WCHAR[32]);
 				wcscpy_s(wPassword_to_show.get(), 32, wPassword.c_str());
@@ -762,6 +762,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
 		HWND hEncode = GetDlgItem(hDlg, IDC_ENCODE);
 		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA1");
+		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA224");
 		
 		SendMessage(hDigitLength, TBM_SETRANGE, NULL, 0x00080004);
 
@@ -831,7 +832,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			//HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
 			//GetWindowRect(hAdVancedButton, &rect);
 
-			RECT OKRect, CancelRect;
+			//RECT OKRect, CancelRect;
 			ShowWindow(hAlgorithm, FALSE);
 			ShowWindow(hDigitLength, FALSE);
 			ShowWindow(hAdditionEdit, FALSE);
@@ -937,7 +938,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 
 			OTPInfo otpinfo;
-			int trackBarValue = SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
+			int trackBarValue = (int)SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
 
 			// 获取 Edit 控件的当前值
 			TCHAR edit1Text[1024];
@@ -954,8 +955,8 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 
 			// 获取 ComboBox 的当前选择项
-			int comboBoxIndex = SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0)+1;
-			int encodeIndex = SendMessage(hEncode, CB_GETCURSEL, 0, 0) + 1;
+			int comboBoxIndex = (int)SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0)+1;
+			int encodeIndex = (int)SendMessage(hEncode, CB_GETCURSEL, 0, 0) + 1;
 			//TCHAR comboBoxText[100] = L"";
 			//SendMessage(hAlgorithm, CB_GETLBTEXT, comboBoxIndex, (LPARAM)comboBoxText);
 
@@ -1185,7 +1186,7 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 			sntpServers[1] = ws2s(buffer);
 			alwaysUseNetTime = IsDlgButtonChecked(hDlg, IDC_ALWAYSNETTIME) == BST_CHECKED;
 
-			int8_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+			int64_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
 			if (sntpClient.getStatus() > 0 && lastUpdateTime < 1200000) {
 				swprintf_s(buffer, lastSync, lastUpdateTime);
 				SetWindowText(IDCSNTPSTATUS, buffer);
@@ -1237,7 +1238,7 @@ INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARA
 	{
 		HWND reSync = GetDlgItem(hDlg, IDC_RESYNC);
 		WCHAR buffer[256];
-		int8_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+		int64_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
 		if (sntpClient.getStatus() >= 0 && lastUpdateTime < 1200000 && lastUpdateTime >=0) {
 
 			swprintf_s(buffer, lastSync, lastUpdateTime);

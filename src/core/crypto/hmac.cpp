@@ -1,6 +1,9 @@
 #include "hmac.h"
 #include "sha1.h"
+#include "sha224.h"
 HMAC::HMAC() {
+	this->key_len = 0;
+	this->message_len = 0;
 	//this->hash_algorithm = NULL;
 }
 
@@ -26,10 +29,10 @@ void HMAC::setHashAlgorithm(AlgorithmName algorithmName) {
 	case SHA_1:
 	{
 		this->hash_algorithm = make_unique<SHA1>();
-		//this->hash_algorithm = make_unique<SHA1>();
-		//this->hash_algorithm = new SHA1();
 		break;
-	}
+	}case SHA_224:
+		this->hash_algorithm = make_unique<SHA224>();
+		break;
 	}
 }
 
@@ -62,12 +65,13 @@ void HMAC::calculate() {
 	for (int i = 0; i < block_len/4; i++) {
 		pads.push_back(this->key[i] ^ ipad);
 	}
-	for (int i = 0; i < this->message.size(); i++) {
+	/*for (size_t i = 0; i < this->message.size(); i++) {
 		pads.push_back(this->message[i]);
-	}
+	}*/
+	pads.insert(pads.end(), this->message.begin(), this->message.end());
 	pads = this->hash_algorithm->getHashMessageByuint32(pads, this->message_len + this->key.size()*32);
 	for (int i = 0; i < block_len/4; i++) {
-		pads.insert(pads.end()-5, this->key[i] ^ opad);
+		pads.insert(pads.begin() + i, this->key[i] ^ opad);
 	}
 	
 	vector<uint32_t> result = this->hash_algorithm->getHashMessageByuint32(pads, pads.size()*32);
@@ -123,7 +127,7 @@ void HMAC::init(string message, int input_type, string key) {
 vector<uint32_t> HMAC::getHashMessage(vector<uint32_t> message, vector<uint32_t>key,size_t key_len) {
 	this->message_len = key_len * 8;
 	this->message = message;
-	int size_of_key_block = this->hash_algorithm->getBlockLength();
+	size_t size_of_key_block = this->hash_algorithm->getBlockLength();
 
 	if (key_len > size_of_key_block) {
 		this->key = this->hash_algorithm->getHashMessageByuint32(key, key_len*8);

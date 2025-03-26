@@ -23,7 +23,7 @@ public:
 	* @param addition_param the addition param, for TOTP, it is the time step, for HOTP, it is the counter.
 	* @return the OTP string password
 	**/
-	string generateOTP(string secret,int secret_type = 1, int digits = 6, int addition_param = 30);
+	string generateOTP(string secret,int secret_type = 1, int digits = 6, int64_t addition_param = 30);
 
 	/*
 	* @brief this function is to set the algorithm of the OTP

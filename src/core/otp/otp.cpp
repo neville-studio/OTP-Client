@@ -3,15 +3,18 @@
 OTP::OTP() {
 	this->type = TOTP;
 	this->algorithm = SHA_1;
+	this->encode_type = 1;
 }
 
 OTP::OTP(OTP_Type type) {
 	this->type = type;
+	this->algorithm = SHA_1;
+	this->encode_type = 1;
 }
 
 OTP::~OTP() {
 }
-string OTP::generateOTP(string secret, int secret_type,int digits, int addition_param) {
+string OTP::generateOTP(string secret, int secret_type,int digits, int64_t addition_param) {
 	if (this->algorithm == UNKNOWN)
 	{
 		return "The OTP is unknown.";

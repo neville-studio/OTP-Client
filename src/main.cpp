@@ -1,5 +1,6 @@
 #include <iostream>
 #include "sntp.h"
+#include "core\crypto\sha224.h"
 //#include "i18n.h"
 using namespace std;
 #ifdef WIN32
@@ -19,6 +20,16 @@ using namespace std;
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
 	
+	SHA224 sha224;
+	//OutputDebugStringA(sha224.getHashMessage("AAAAAAAA", 2, 2).c_str());
+	//OutputDebugStringA(sha224.getHashMessage("AAAAAAAA", 1, 1).c_str());
+	OutputDebugStringA(sha224.getHashMessage("616263", 3, 3).c_str());
+
+
+
+
+
+
 	return mainWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 

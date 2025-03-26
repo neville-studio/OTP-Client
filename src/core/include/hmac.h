@@ -4,7 +4,8 @@
 //#include "sha1.h"
 enum AlgorithmName {
 	UNKNOWN,
-	SHA_1
+	SHA_1,
+	SHA_224,
 };
 class HMAC {
 public:
