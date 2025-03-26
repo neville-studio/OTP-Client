@@ -1,6 +1,7 @@
 #include "hmac.h"
 #include "sha1.h"
 #include "sha224.h"
+#include "sha256.h"
 HMAC::HMAC() {
 	this->key_len = 0;
 	this->message_len = 0;
@@ -9,15 +10,6 @@ HMAC::HMAC() {
 
 HMAC::HMAC(AlgorithmName algorithmName) {
 	setHashAlgorithm(algorithmName);
-	switch (algorithmName)
-	{
-	case SHA_1:
-	{
-		auto sha1 = make_unique<SHA1>();
-		this->hash_algorithm = move(sha1);;
-		break;
-	}
-	}
 }
 
 HMAC::~HMAC() {
@@ -30,9 +22,14 @@ void HMAC::setHashAlgorithm(AlgorithmName algorithmName) {
 	{
 		this->hash_algorithm = make_unique<SHA1>();
 		break;
-	}case SHA_224:
+	}case SHA_224: {
 		this->hash_algorithm = make_unique<SHA224>();
 		break;
+	}case SHA_256:
+	{
+		this->hash_algorithm = make_unique<SHA256>();
+		break;
+	}
 	}
 }
 

@@ -1,10 +1,10 @@
-#include "sha224.h"
+#include "SHA256.h"
 
-SHA224::SHA224() {
+SHA256::SHA256() {
 }
 
 
-vector<uint32_t> SHA224::convert_uint32_t_from_string(string message, int message_type) {
+vector<uint32_t> SHA256::convert_uint32_t_from_string(string message, int message_type) {
 	vector<uint32_t> result;
 	switch (message_type) {
 	case 1:
@@ -23,7 +23,7 @@ vector<uint32_t> SHA224::convert_uint32_t_from_string(string message, int messag
 	return result;
 }
 
-void SHA224::fillMessage() {
+void SHA256::fillMessage() {
 	size_t message_size = this->size;
 	vector<uint32_t> message = this->message;
 
@@ -36,8 +36,8 @@ void SHA224::fillMessage() {
 	{
 		message.push_back(0x80000000);
 	}
-	
-	message.resize(((message_size + 1) / 512+1) * 16 , 0);
+
+	message.resize(((message_size + 1) / 512 + 1) * 16, 0);
 	size_t last = message.size() - 1;
 	message[last - 1] = message_size >> 32;
 	message[last] = message_size & 0xffffffff;
@@ -54,19 +54,19 @@ void SHA224::fillMessage() {
 //}
 
 
-void SHA224::processMessage()
+void SHA256::processMessage()
 {
 	vector<uint32_t> message = this->message;
 	vector<uint32_t> hash = this->hash;
 	vector<uint32_t> w(64);
-	H[0] = 0xC1059ED8;
-	H[1] = 0x367CD507;
-	H[2] = 0x3070DD17;
-	H[3] = 0xF70E5939;
-	H[4] = 0xFFC00B31;
-	H[5] = 0x68581511;
-	H[6] = 0x64F98FA7;
-	H[7] = 0xBEFA4FA4;
+	H[0] = 0x6a09e667;
+	H[1] = 0xbb67ae85;
+	H[2] = 0x3c6ef372;
+	H[3] = 0xa54ff53a;
+	H[4] = 0x510e527f;
+	H[5] = 0x9b05688c;
+	H[6] = 0x1f83d9ab;
+	H[7] = 0x5be0cd19;
 	size_t i = 0;
 	for (i = 0; i < message.size(); i++)
 	{
@@ -77,7 +77,7 @@ void SHA224::processMessage()
 			fill(w.begin(), w.end(), 0);
 		}
 	}
-	if(i % 16!=0)processMessageChunk(w);
+	if (i % 16 != 0)processMessageChunk(w);
 }
 int inline getWord(int i, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4)
 {
@@ -87,15 +87,15 @@ int inline getWord(int i, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4)
 }
 
 
-void SHA224::processMessageChunk(vector<uint32_t>& in)
+void SHA256::processMessageChunk(vector<uint32_t>& in)
 {
 	vector<uint32_t> w(64);
 	// Extend the message
 	for (int i = 0; i < in.size(); i++)
 	{
-		if (i < 16)w[i]=in[i];
+		if (i < 16)w[i] = in[i];
 		else {
-			w[i] = getWord(i, w[i - 15], w[i - 2], w[i-16], w[i-7]);
+			w[i] = getWord(i, w[i - 15], w[i - 2], w[i - 16], w[i - 7]);
 		}
 	}
 
@@ -109,9 +109,9 @@ void SHA224::processMessageChunk(vector<uint32_t>& in)
 		0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,	0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
 		0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,	0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
 		0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,	0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2
-	};uint32_t a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+	}; uint32_t a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
 	for (int i = 0; i < 64; i++) {
-		
+
 		uint32_t s1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
 		uint32_t ch = (e & f) ^ ((~e) & g);
 		uint32_t temp1 = h + s1 + ch + const_k[i] + w[i];
@@ -126,27 +126,27 @@ void SHA224::processMessageChunk(vector<uint32_t>& in)
 		c = b;
 		b = a;
 		a = temp1 + temp2;
-		
+
 	}H[0] += a; H[1] += b; H[2] += c; H[3] += d; H[4] += e; H[5] += f; H[6] += g; H[7] += h;
 }
 
 
 
-vector<uint32_t> SHA224::getHashMessageByuint32(vector<uint32_t> message, size_t message_size) {
-	
+vector<uint32_t> SHA256::getHashMessageByuint32(vector<uint32_t> message, size_t message_size) {
+
 	this->message = message;
 	this->size = message_size;
 	this->fillMessage();
 	this->processMessage();
-	this->hash = vector<uint32_t>(H, H + 7);
+	this->hash = vector<uint32_t>(H, H + 8);
 	//this->extendMessage();
-	//vector<uint32_t> result = sha224.getHashMessageByuint32(sha224.message, message_size);
-	
+	//vector<uint32_t> result = SHA256.getHashMessageByuint32(SHA256.message, message_size);
+
 	return this->hash;
 }
 
 
-string SHA224::getHashMessage(string message, int message_type, int output_type) {
+string SHA256::getHashMessage(string message, int message_type, int output_type) {
 	this->input_type = message_type;
 	this->message = convert_uint32_t_from_string(message, message_type);
 	vector<uint32_t> result = getHashMessageByuint32(this->message, this->size);

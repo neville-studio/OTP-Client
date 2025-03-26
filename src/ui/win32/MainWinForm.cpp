@@ -761,8 +761,12 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		HWND hAdditionEdit = GetDlgItem(hDlg, IDC_ADDITIONEDIT);
 		HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
 		HWND hEncode = GetDlgItem(hDlg, IDC_ENCODE);
-		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA1");
-		SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)L"SHA224");
+
+		vector<wstring> AvailableAlgorithms = HashAlgorithmInterfase::getAvailableHashAlgorithms();
+		for (wstring s : AvailableAlgorithms)
+		{
+			SendMessage(hAlgorithm, CB_ADDSTRING, 0, (LPARAM)s.c_str());
+		}
 		
 		SendMessage(hDigitLength, TBM_SETRANGE, NULL, 0x00080004);
 

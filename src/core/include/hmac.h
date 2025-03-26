@@ -6,6 +6,7 @@ enum AlgorithmName {
 	UNKNOWN,
 	SHA_1,
 	SHA_224,
+	SHA_256,
 };
 class HMAC {
 public:

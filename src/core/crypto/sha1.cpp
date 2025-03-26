@@ -6,12 +6,7 @@
 */
 #include "sha1.h"
 
-inline static uint32_t rotateLeft(uint32_t x, int n) {
-	return  (x << n) | (x >> (32 - n));
-}
-inline static uint32_t rotateRight(uint32_t x, int n) {
-	return x = (x >> n) | (x << (32 - n));
-}
+
 
 SHA1::SHA1() {
 
