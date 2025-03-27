@@ -79,7 +79,7 @@ void SHA256::processMessage()
 	}
 	if (i % 16 != 0)processMessageChunk(w);
 }
-int inline getWord(int i, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4)
+uint32_t inline getWord(int i, uint32_t i1, uint32_t i2, uint32_t i3, uint32_t i4)
 {
 	uint32_t s0 = rotateRight(i1, 7) ^ rotateRight(i1, 18) ^ (i1 >> 3);
 	uint32_t s1 = rotateRight(i2, 17) ^ rotateRight(i2, 19) ^ (i2 >> 10);

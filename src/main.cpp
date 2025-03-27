@@ -1,6 +1,6 @@
 #include <iostream>
 #include "sntp.h"
-#include "core\crypto\sha224.h"
+#include "core\crypto\sha384.h"
 //#include "i18n.h"
 using namespace std;
 #ifdef WIN32
@@ -36,10 +36,10 @@ bool IsWindows10Version17763OrGreater() {
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
 	
-	//SHA224 sha224;
+	SHA384 sha384;
 	////OutputDebugStringA(sha224.getHashMessage("AAAAAAAA", 2, 2).c_str());
 	////OutputDebugStringA(sha224.getHashMessage("AAAAAAAA", 1, 1).c_str());
-	//OutputDebugStringA(sha224.getHashMessage("616263", 3, 3).c_str());
+	OutputDebugStringA(sha384.getHashMessage("616263", 3, 3).c_str());
 
 	//if (IsWindows10Version17763OrGreater())
 	//{
