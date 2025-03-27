@@ -4,6 +4,7 @@
 #include "sha256.h"
 #include "sha384.h"
 #include "sha512.h"
+#include "sm3.h"
 HMAC::HMAC() {
 	this->key_len = 0;
 	this->message_len = 0;
@@ -38,6 +39,10 @@ void HMAC::setHashAlgorithm(AlgorithmName algorithmName) {
 	}case SHA_512:
 	{
 		this->hash_algorithm = make_unique<SHA512>();
+		break;
+	}case SM3_CN:
+	{
+		this->hash_algorithm = make_unique<SM3>();
 		break;
 	}
 	}

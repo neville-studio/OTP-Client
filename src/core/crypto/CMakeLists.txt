@@ -1,7 +1,7 @@
 # add all files in the current directory
 # file(GLOB OTP_SOURCES "*.cpp" "*.h")
 
-add_library(crypto_lib sha1.cpp hmac.cpp "sha224.h" "sha224.cpp" "sha256.cpp" "sha256.h" "sha384.cpp" "sha384.h" "sha512.cpp" "sha512.h")
+add_library(crypto_lib sha1.cpp hmac.cpp  "sha224.cpp" "sha256.cpp"  "sha384.cpp"  "sha512.cpp"  "sm3.cpp")
 
 target_include_directories(crypto_lib 
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
