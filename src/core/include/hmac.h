@@ -9,6 +9,8 @@ enum AlgorithmName {
 	SHA_256,
 	SHA_384,
 	SHA_512,
+	SHA_512_224,
+	SHA_512_256,
 	SM3_CN
 };
 class HMAC {

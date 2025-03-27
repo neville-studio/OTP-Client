@@ -18,7 +18,7 @@ class i18nClient {
 public:
 	static i18nClient *getInstence() {  
 		if (instance == nullptr) {
-			static i18nClient local_instance; // 局部静态实例，在首次调用时初始化
+			static i18nClient local_instance; 
 			instance = &local_instance;
 		}
 		return instance; };

@@ -1,5 +1,5 @@
-/** @file sha384.h
- * @brief SHA-384 implementation.Warning that the algorithm is not fully capable. The algorithm can only process the message with the length less than 2^64 bits.
+/** @file sha512_224.h
+ * @brief SHA 512/224 implementation. Warning that the algorithm is not fully capable. The algorithm can only process the message with the length less than 2^64 bits. refering the standard FIPS PUB 180-4 Secure Hash Standard (SHS).
  * @author Neville Studio <2840772674@qq.com>
  * @version 1.0
  */
@@ -10,19 +10,19 @@
 using namespace std;
 
 /**
- * @class SHA384
- * @brief SHA-384 implementation
+ * @class SHA512
+ * @brief SHA-512 implementation
  */
-class SHA384 : public HashAlgorithmInterfase {
+class SHA512_224 : public HashAlgorithmInterfase {
 public:
 	/**
 	 * @brief Constructor
 	 */
-	SHA384();
+	SHA512_224();
 	/**
 	 * @brief Destructor
 	 */
-	~SHA384() = default;
+	~SHA512_224() = default;
 	/**
 	 * @brief SHA-224 hash
 	 * @param message The message to hash
@@ -49,8 +49,9 @@ private:
 		COMPLETED(2),
 		ERROR(3)
 	};*/
-	uint64_t H[8] = { 0xcbbb9d5dc1059ed8, 0x629a292a367cd507, 0x9159015a3070dd17, 0x152fecd8f70e5939,
-		0x67332667ffc00b31, 0x8eb44a8768581511, 0xdb0c2e0d64f98fa7, 0x47b5481dbefa4fa4 };
+	uint64_t H[8] = { 0x8C3D37C819544DA2, 0x73E1996689DCD4D6, 0x1DFAB7AE32FF9C82,
+	0x679DD514582F9FCF, 0x0F6D2B697BD44DA8, 0x77E36F7304C48942,
+	0x3F9D85A86A1D36C8, 0x1112E6AD91D692A1 };
 	/**
 	 * @brief Fill and Extend the message
 	 * @description Stage 1: Fill the Message to 512 bits minus 64 bits

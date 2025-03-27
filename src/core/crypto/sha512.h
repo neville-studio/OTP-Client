@@ -1,5 +1,5 @@
-/** @file sha224.h
- * @brief SHA-224 implementation
+/** @file sha512.h
+ * @brief SHA-512 implementation. Warning that the algorithm is not fully capable. The algorithm can only process the message with the length less than 2^64 bits.
  * @author Neville Studio <2840772674@qq.com>
  * @version 1.0
  */

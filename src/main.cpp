@@ -1,6 +1,6 @@
 #include <iostream>
 #include "sntp.h"
-#include "core\crypto\sm3.h"
+#include "core\crypto\sha512_256.h"
 using namespace std;
 #ifdef WIN32
 #include <Windows.h>
@@ -33,7 +33,8 @@ bool IsWindows10Version17763OrGreater() {
 
 
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) {
-	
+	/*SHA512_256 sha512_256;
+	OutputDebugStringA(sha512_256.getHashMessage("616263",3,3).c_str());*/
 	return mainWindow(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 }
 

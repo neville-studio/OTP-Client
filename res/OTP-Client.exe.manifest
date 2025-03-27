@@ -7,7 +7,7 @@
         version="0.0.0.1"
         processorArchitecture="AMD64"
     />
-    <description>Net time Sync Tools</description>
+    <description>One-Time Password Viewer</description>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
         <application>
             <!-- Windows 10 and Windows 11 -->
