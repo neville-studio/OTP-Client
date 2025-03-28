@@ -18,8 +18,12 @@ We will using MIT Licence to share the code to the remote.
 
 Unless I have completed the code and applied the Software Copyright License, I will not release the source code.
 
-This project was started on 2025-03-14
+This project was started on 2025-03-14.
 
+# System Requirement
+As the first version, The System will requires Windows XP, at least Service Pack 3.
+
+Without any critical Bug, the first version is the last version which supports Windows XP, Service Pack 3.
 
 # Usage
 The app is only for Windows currently.
