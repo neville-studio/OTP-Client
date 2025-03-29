@@ -6,6 +6,7 @@
 #include "sha512.h"
 #include "sha512_224.h"
 #include "sha512_256.h"
+#include "sha3.h"
 #include "sm3.h"
 HMAC::HMAC() {
 	this->key_len = 0;
@@ -56,6 +57,27 @@ void HMAC::setHashAlgorithm(AlgorithmName algorithmName) {
 		this->hash_algorithm = make_unique<SHA512_256>();
 		break;
 	}
+	case SHA_3_224:
+	{
+		this->hash_algorithm = make_unique<SHA3_224>();
+		break;
+	}
+	case SHA_3_256:
+	{
+		this->hash_algorithm = make_unique<SHA3_256>();
+		break;
+	}
+	case SHA_3_384:
+	{
+		this->hash_algorithm = make_unique<SHA3_384>();
+		break;
+	}
+	case SHA_3_512:
+	{
+		this->hash_algorithm = make_unique<SHA3_512>();
+		break;
+	}
+
 
 	}
 }

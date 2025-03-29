@@ -1,6 +1,6 @@
 /**  
 * @file sm3.h
-* @brief SM3 implementation
+* @brief SM3 implementation, According to GB/T 32905-2016 SM3 cryptographic hash algorithm
 * @ingroup core-crypto
 * @author: Neville Studio <2840772674@qq.com>
 */

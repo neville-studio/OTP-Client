@@ -8,10 +8,25 @@ These algorithms are used to generate OTPs for two-factor authentication. this r
 
 Except RFC 4226 and RFC 6238, this repository also based on [RFC 2104](https://tools.ietf.org/html/rfc2104) for HMAC algorithm and [RFC 3174](https://tools.ietf.org/html/rfc3174) for SHA1 algorithm, you can see the detail in the source code.
 
+Now we have implements the SHA2 algorithm and SM3 algorithm. But we only process less than 2^64 bits data. Due to this issue, The SHA-512/256¡¢SHA-512/224¡¢SHA-512¡¢SHA-384 is not standard algorithm implementation. But for this application, It is enough for us to generate One-Time Password.
+
 This demo client also using SNTP v4 protocal to check whether the time is correct. we are using [RFC 5905](https://tools.ietf.org/html/rfc4226) to implements the SNTP v4 protocal, you can see the detail in the source code. If you will see the demo of the SNTP v4, you can see my other reposities:
   - [NettimesyncTool](https://github.com/neville-studio/nettimesynctool)
   - [NettimesyncTool-winform](https://github.com/neville-studio/nettimesynctool-winform)
 
+This project is developing, the source code will not release yet.
+
+We will using MIT Licence to share the code to the remote.
+
+Unless I have completed the code and applied the Software Copyright License, I will not release the source code.
+
+This project was started on 2025-03-14. 
+
+# System Requirement
+As the first version, The System will requires Windows XP, at least Service Pack 3.
+
+Without any critical Bug, the first version is the last version which supports Windows XP, Service Pack 3.
+ 
 # Usage
 The app is only for Windows currently.
 

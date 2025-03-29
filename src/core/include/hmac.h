@@ -11,6 +11,10 @@ enum AlgorithmName {
 	SHA_512,
 	SHA_512_224,
 	SHA_512_256,
+	SHA_3_224,
+	SHA_3_256,
+	SHA_3_384,
+	SHA_3_512,
 	SM3_CN
 };
 class HMAC {
