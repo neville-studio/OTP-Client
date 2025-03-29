@@ -1070,9 +1070,9 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	case WM_INITDIALOG:
 	{
 		// Create a larger font for the password, it has 6-8 digits, and takes up most of the dialog
-		DWORD dwFontSize = 100;
+		DWORD dwFontSize = 84;
 		HFONT hfont = CreateFont(dwFontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Consolas");
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Courier New");
 		SendMessage(GetDlgItem(hDlg, IDC_PASSWORD), WM_SETFONT, (WPARAM)hfont, TRUE);
 		OTP otp(HOTP);
 		otp.setAlgorithm(otpInfos[isOTPDIALOGEDIT].algorithm);
