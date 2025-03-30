@@ -31,7 +31,8 @@ i18nClient::i18nClient() {
 		{"oncePassword" , L"Current Password"},
 		{"remainTime" , L"remain Times"},
 		{"remainTimeTip" , L"%llds"},
-		{"copyright", L"Copyright © 2025 Neville Studio, all rights reserved."}
+		{"copyright", L"Copyright © 2025 Neville Studio, all rights reserved."},
+		{"xpEol", L"To get support, please update your Operating System."}
 	};
 	zh_cn = {
 		{"add", L"添加"},
@@ -47,6 +48,7 @@ i18nClient::i18nClient() {
 		{"oncePassword" , L"当前密码"},
 		{"remainTime" , L"过期时间"},
 		{"remainTimeTip" , L"%lld秒"},
-		{"copyright", L"Copyright © 2025 Neville Studio, all rights reserved."}
+		{"copyright", L"Copyright © 2025 Neville Studio, all rights reserved."},
+	    {"xpEol", L"要继续获得支持，您的计算机操作系统需要更新"}
 	};
 }

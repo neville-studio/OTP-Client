@@ -204,7 +204,7 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	}*/
 	HWND hWnd = CreateWindowEx(NULL, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
 		,
-		CW_USEDEFAULT, 0, 650, 435, NULL, NULL, hInstance, NULL);
+		CW_USEDEFAULT, 0, 650, 450, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
 		return FALSE;
@@ -606,6 +606,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	return DefWindowProc(hWnd, message, wParam, lParam);;
 }
 
+bool CheckOSVersion(DWORD MAJOR, DWORD MINOR)
+{
+	
+		OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX) };
+		DWORDLONG conditionMask = 0;
+
+		// 设置要检查的版本号
+		osvi.dwMajorVersion = MAJOR;
+		osvi.dwMinorVersion = MINOR;
+
+		// 创建条件掩码
+		VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+		VER_SET_CONDITION(conditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+
+		// 验证版本信息
+		return (VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, conditionMask));
+	
+}
+
 void AddControls(HWND hWnd) {
 	// 创建ListView
 	DWORD dwStyle = //WS_TABSTOP |
@@ -650,6 +669,12 @@ void AddControls(HWND hWnd) {
 
 	HWND CopyrightStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("copyright")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT,
 		30, 360, 450, 25, hWnd, NULL, hInst, NULL);
+
+	if (!CheckOSVersion(6, 0))
+	{
+		HWND EolStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("xpEol")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT, 30, 380, 475, 25, hWnd, NULL, hInst, NULL);
+		SendMessage(EolStatic, WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), MAKELPARAM(TRUE, 0));
+	}
 
 	EnableWindow(buttonEdit, FALSE);
 	EnableWindow(buttonDelete, FALSE);
