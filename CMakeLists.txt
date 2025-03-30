@@ -57,20 +57,20 @@ if(WIN32)
 endif()
 
 # 设置 Windows XP 支持
-if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0501)  # Windows XP 的 NT 版本号
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /static-libgcc")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /static-libstdc++ /static-libgcc")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
+#if(WIN32)
+#    add_definitions(-D_WIN32_WINNT=0x0501)  # Windows XP 的 NT 版本号
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /static-libgcc")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /static-libstdc++ /static-libgcc")
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
+#    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
+#    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS,5.01")
 
-endif()
+#endif()
 
 # 强制使用 v140_xp 工具集
-if(MSVC)
-    set(CMAKE_GENERATOR_TOOLSET "v140_xp" CACHE STRING "Platform Toolset for Windows XP" FORCE)
-endif()
+#if(MSVC)
+#    set(CMAKE_GENERATOR_TOOLSET "v140_xp" CACHE STRING "Platform Toolset for Windows XP" FORCE)
+#endif()
 # Add the executable
 add_subdirectory(src)
 
