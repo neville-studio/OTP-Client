@@ -4,7 +4,7 @@
 #include <commctrl.h>
 #include <string>
 #include <time.h>
-#include <VersionHelpers.h>
+//#include <VersionHelpers.h>
 #include <memory>
 #include "i18n.h"
 #include "resource.h"

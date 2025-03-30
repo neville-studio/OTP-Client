@@ -1,5 +1,5 @@
 #include "otp.h"
-
+#include <ctime>
 OTP::OTP() {
 	this->type = TOTP;
 	this->algorithm = SHA_1;

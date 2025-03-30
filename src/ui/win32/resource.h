@@ -18,6 +18,8 @@
 #define IDS_LASTSYNCFAILED				124
 #define IDS_ERROR_ERRORENCODE_HEX		125
 #define IDS_ERROR_ERRORENCODE_BASE64	126
+#define IDS_DELETEINFO					127
+#define IDS_DELETETITLE					128
 #define IDC_OPTNAME                     1000
 #define IDC_EDIT2                       1001
 #define IDC_EDIT4                       1002

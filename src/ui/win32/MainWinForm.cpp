@@ -1,6 +1,7 @@
 
 #include <windows.h>
 #include "MainWinForm.h"
+#include "CommCtrl.h"
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -22,6 +23,8 @@ WCHAR viewTip[MAX_LOADSTRING];
 WCHAR confirm[MAX_LOADSTRING];
 WCHAR lastSync[MAX_LOADSTRING];
 WCHAR lastSyncFailed[MAX_LOADSTRING];
+WCHAR szDeleteInfo[MAX_LOADSTRING];
+WCHAR szDeleteTitle[MAX_LOADSTRING];
 
 wstring s2ws(const string& s);
 string ws2s(std::wstring s);
@@ -169,6 +172,9 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	LoadString(hInstance, IDS_CONFIRM, confirm, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_LASTSYNC, lastSync, MAX_LOADSTRING);
 	LoadString(hInstance, IDS_LASTSYNCFAILED, lastSyncFailed, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_DELETEINFO, szDeleteInfo, MAX_LOADSTRING);
+	LoadString(hInstance, IDS_DELETETITLE, szDeleteTitle, MAX_LOADSTRING);
+
 
 	INITCOMMONCONTROLSEX icex;
 	icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
@@ -192,12 +198,12 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	RegisterClassEx(&wcex);
 	setLangFromi18n();
 	ReadDataFromFile();
-	if (IsWindowsVistaOrGreater())
+	/*if (IsWindowsVistaOrGreater())
 	{
 		SetProcessDPIAware();
-	}
-	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
-		| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+	}*/
+	HWND hWnd = CreateWindowEx(NULL, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
+		,
 		CW_USEDEFAULT, 0, 650, 435, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
@@ -245,7 +251,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	HWND hListView = (HWND)lpParameter;
 
 	while (true) {
-		Sleep(100);
+		Sleep(250);
 		PostMessage(hListView, WM_USER + 1, NULL, NULL);
 
 		for (auto key_value : CurrentKeys)
@@ -394,7 +400,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					wchar_t szText[64];
 					progressBarRc.left = rc.right - 50;
 					progressBarRc.right = rc.right;
-					swprintf_s(szText, L"%.1f", static_cast<float>((double)remainTime / 1000.0));
+					progressBarRc.top = rc.top;
+					progressBarRc.bottom = rc.bottom;
+					swprintf_s(szText, L"%lld", (remainTime / 1000));
 
 					DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 					return CDRF_SKIPDEFAULT;
@@ -408,6 +416,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			return CDRF_DODEFAULT;
 
 		}
+		
 		else if (pnm->hdr.code == NM_CLICK)
 		{
 			LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE)lParam;
@@ -441,7 +450,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 
 			}
 		}
-
+		return DefWindowProc(hWnd, message, wParam, lParam);
 
 	}
 				  break;
@@ -463,7 +472,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		case IDC_BUTTON_DELETE:
 		{
 			if (isOTPDIALOGEDIT < 0) return FALSE;
-			int MessageResult = MessageBox(hWnd, L"确定删除吗？", L"删除", MB_ICONQUESTION | MB_YESNO);
+			int MessageResult = MessageBox(hWnd, szDeleteInfo, szDeleteTitle, MB_ICONQUESTION | MB_YESNO);
 			if (MessageResult == IDYES)
 			{
 				int i = ListView_GetNextItem(hListView, -1, LVNI_SELECTED);
@@ -487,7 +496,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		}
 	}
 				   break;
-	case WM_DPICHANGED:
+	/*case WM_DPICHANGED:
 	{
 		RECT* const prcNewWindow = (RECT*)lParam;
 		SetWindowPos(hWnd,
@@ -497,7 +506,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			prcNewWindow->right - prcNewWindow->left,
 			prcNewWindow->bottom - prcNewWindow->top,
 			SWP_NOZORDER | SWP_NOACTIVATE);
-	}
+	}*/
 	break;
 	case WM_SIZE:
 		if (wParam == SIZE_RESTORED)
@@ -522,11 +531,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 		return (INT_PTR)GetStockObject(NULL_BRUSH);
 	}
 	case WM_USER + 1:
-		if (!IsIconic(hWnd))
+
+		if (!IsIconic(hWnd)) 
+		{
+			//SendMessage(hListView, WM_SETREDRAW, FALSE, 0);
+			//SendMessage(hListView, WM_SETREDRAW, TRUE, 0);
 			RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+		}
+	//		RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
+	//    The code below which commented is for Windows XP Service Pack 3 Capable
+	//{
+	//	UINT count = ListView_GetItemCount(hListView);
+	//	for (size_t nItem = 0; nItem < count; nItem++) {
+	//		if (otpInfos[nItem].type == HOTP) continue;
+	//		WCHAR szText[64];
+	//		int64_t interval = otpInfos[nItem].addition_param;
+	//		int64_t now = getCurrentMillSecond(alwaysUseNetTime);
+	//		int64_t usedTime = (now % (interval * 1000));
+	//		int64_t remainTime = interval * 1000 - usedTime;
+	//		int64_t fProgress = usedTime / interval / 10; // 假设进度为50%
+	//		swprintf_s(szText, L"%lld", (remainTime / 1000));
+	//		LVITEM lvi;
+	//		lvi.iItem = nItem;
+	//		lvi.iSubItem = 2;
+	//		lvi.mask = LVIF_TEXT;
+	//		lvi.pszText = szText;
+	//		ListView_SetItem(hListView, &lvi);
+	//	}
+	//	
+	// }
 		//InvalidateRect(hListView, NULL, TRUE);
 		//UpdateListViewProgress();
 		break;
+	
+	
 	case WM_USER + 2: {
 		for (size_t i = 0; i < otpInfos.size(); i++)
 		{
@@ -572,16 +610,17 @@ void AddControls(HWND hWnd) {
 	// 创建ListView
 	DWORD dwStyle = //WS_TABSTOP |
 		WS_CHILD | LVS_SINGLESEL |
-		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL  |
 		LVS_REPORT;
 	hListView = CreateWindow(WC_LISTVIEW, L"",
 		dwStyle,
 		10, 10, 600, 300,
 		hWnd, NULL, hInst, NULL);
-	ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
+	//ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
 
 	LVCOLUMN lvc;
-	lvc.mask = LVCF_TEXT | LVCF_WIDTH;
+	lvc.mask = LVCF_TEXT | LVCF_WIDTH ;
+	
 	lvc.cx = 200;
 	lvc.pszText = L"名称";
 	ListView_InsertColumn(hListView, 0, &lvc);
@@ -589,6 +628,13 @@ void AddControls(HWND hWnd) {
 	ListView_InsertColumn(hListView, 1, &lvc);
 	lvc.pszText = L"过期时间";
 	ListView_InsertColumn(hListView, 2, &lvc);
+
+	HWND hHeader = ListView_GetHeader(hListView);
+	if (hHeader) {
+		LONG style = GetWindowLong(hHeader, GWL_STYLE);
+		style ^= HDS_DRAGDROP ^ HDS_HOTTRACK;
+		SetWindowLong(hHeader, GWL_STYLE, style);
+	}
 
 	// 添加按钮
 	buttonAdd = CreateWindow(L"BUTTON", L"新增", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
@@ -617,7 +663,7 @@ void AddControls(HWND hWnd) {
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));
 	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
-	wcscpy_s(lf.lfFaceName, L"Microsoft YaHei");
+	wcscpy_s(lf.lfFaceName, L"Simsun");
 	HFONT font = CreateFontIndirect(&lf);
 	SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
@@ -739,7 +785,10 @@ string ws2s(std::wstring s)
 
 }
 
-
+UINT GetDpiForWindow(HWND hwnd)
+{
+	return GetDeviceCaps(GetDC(hwnd), LOGPIXELSX);
+}
 /**
 * OTP Client Dialog Procedure
 * This Function is for OTP Client Dialog Event Handling
@@ -783,7 +832,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		SendMessage(hAdditionEdit, EM_LIMITTEXT, (WPARAM)3, 0);
 		HWND hDialogOK = GetDlgItem(hDlg, IDOK);
 		HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
-		AlignButtons(hDlg, hAdVancedButton, hDialogOK, hDialogCancel);
+		
 		if (isOTPDIALOGEDIT >= 0)
 		{
 
@@ -846,9 +895,16 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 
 			SendMessage(hAlgorithm, CB_SETCURSEL, 0, 0);
 		}
-
+		
 	}
 	return (INT_PTR)TRUE;
+	case WM_SHOWWINDOW:{
+		HWND hDialogOK = GetDlgItem(hDlg, IDOK);
+		HWND hAdVancedButton = GetDlgItem(hDlg, IDC_ADVANCEDBUTTON);
+		HWND hDialogCancel = GetDlgItem(hDlg, IDCANCEL);
+		AlignButtons(hDlg, hAdVancedButton, hDialogOK, hDialogCancel);
+		return (INT_PTR)TRUE;
+	}
 	case WM_COMMAND:
 		if (LOWORD(wParam) == IDCANCEL)
 		{
@@ -1070,7 +1126,7 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	case WM_INITDIALOG:
 	{
 		// Create a larger font for the password, it has 6-8 digits, and takes up most of the dialog
-		DWORD dwFontSize = 84;
+		DWORD dwFontSize = MulDiv(50,GetDeviceCaps(GetDC(hDlg), LOGPIXELSY), 72);
 		HFONT hfont = CreateFont(dwFontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
 			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Courier New");
 		SendMessage(GetDlgItem(hDlg, IDC_PASSWORD), WM_SETFONT, (WPARAM)hfont, TRUE);
