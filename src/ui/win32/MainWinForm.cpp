@@ -198,12 +198,12 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	RegisterClassEx(&wcex);
 	setLangFromi18n();
 	ReadDataFromFile();
-	/*if (IsWindowsVistaOrGreater())
+	if (IsWindowsVistaOrGreater())
 	{
 		SetProcessDPIAware();
-	}*/
-	HWND hWnd = CreateWindowEx(NULL, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
-		,//| WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+	}
+	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP客户端", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
+		| WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
 		CW_USEDEFAULT, 0, 650, 450, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
@@ -251,7 +251,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	HWND hListView = (HWND)lpParameter;
 
 	while (true) {
-		Sleep(250);
+		Sleep(100);
 		PostMessage(hListView, WM_USER + 1, NULL, NULL);
 
 		for (auto key_value : CurrentKeys)
@@ -402,7 +402,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					progressBarRc.right = rc.right;
 					progressBarRc.top = rc.top;
 					progressBarRc.bottom = rc.bottom;
-					swprintf_s(szText, L"%lld", (remainTime / 1000));
+					swprintf_s(szText, L"%.1f", static_cast<double>((double)remainTime / 1000.0));
 
 					DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 					return CDRF_SKIPDEFAULT;
@@ -508,13 +508,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			SWP_NOZORDER | SWP_NOACTIVATE);
 	}*/
 	break;
-	//case WM_SIZE:
-		/*if (wParam == SIZE_RESTORED)
+	case WM_SIZE:
+		if (wParam == SIZE_RESTORED)
 		{
 			RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
 			RedrawWindow(hWnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-		}*/
-		//return TRUE;
+		}
+		return TRUE;
 	case WM_SETTINGCHANGE: {
 		if (wParam == SPI_SETNONCLIENTMETRICS ||
 			(lParam != NULL && std::wstring((LPCWSTR)lParam) == L"intl")) {
@@ -532,12 +532,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	}
 	case WM_USER + 1:
 
-		/*if (!IsIconic(hWnd)) 
-		{*/
+		if (!IsIconic(hWnd)) 
+		{
 			//SendMessage(hListView, WM_SETREDRAW, FALSE, 0);
 			//SendMessage(hListView, WM_SETREDRAW, TRUE, 0);
 			RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
-		//}
+		}
 	//		RedrawWindow(hListView, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW | RDW_ERASE);
 	//    The code below which commented is for Windows XP Service Pack 3 Capable
 	//{
@@ -630,13 +630,13 @@ void AddControls(HWND hWnd) {
 	DWORD dwStyle = //WS_TABSTOP |
 		WS_CHILD | LVS_SINGLESEL |
 		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL  |
-		//WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_EX_DOUBLEBUFFER |
+		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_EX_DOUBLEBUFFER|
 		LVS_REPORT;
-	hListView = CreateWindowEx(/*LVS_EX_DOUBLEBUFFER*/NULL,WC_LISTVIEW, L"",
+	hListView = CreateWindow(WC_LISTVIEW, L"",
 		dwStyle,
 		10, 10, 600, 300,
 		hWnd, NULL, hInst, NULL);
-	//ListView_SetExtendedListViewStyleEx(hListView, LVS_EX_DOUBLEBUFFER,NULL);
+	ListView_SetExtendedListViewStyle(hListView, LVS_EX_DOUBLEBUFFER);
 
 	LVCOLUMN lvc;
 	lvc.mask = LVCF_TEXT | LVCF_WIDTH ;
@@ -689,7 +689,7 @@ void AddControls(HWND hWnd) {
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));
 	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
-	wcscpy_s(lf.lfFaceName, L"Simsun");
+	wcscpy_s(lf.lfFaceName, L"Microsoft Yahei");
 	HFONT font = CreateFontIndirect(&lf);
 	SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
@@ -1152,9 +1152,9 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	case WM_INITDIALOG:
 	{
 		// Create a larger font for the password, it has 6-8 digits, and takes up most of the dialog
-		DWORD dwFontSize = MulDiv(50,GetDeviceCaps(GetDC(hDlg), LOGPIXELSY), 72);
+		DWORD dwFontSize = MulDiv(60,GetDeviceCaps(GetDC(hDlg), LOGPIXELSY), 72);
 		HFONT hfont = CreateFont(dwFontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Courier New");
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Consolas");
 		SendMessage(GetDlgItem(hDlg, IDC_PASSWORD), WM_SETFONT, (WPARAM)hfont, TRUE);
 		OTP otp(HOTP);
 		otp.setAlgorithm(otpInfos[isOTPDIALOGEDIT].algorithm);
