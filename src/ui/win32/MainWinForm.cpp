@@ -1,4 +1,4 @@
-
+ï»¿
 #include <windows.h>
 #include "MainWinForm.h"
 #include "CommCtrl.h"
@@ -124,7 +124,7 @@ int64_t getCurrentMillSecond(bool usingNetTime = false) {
 		int64_t resultTimeStamp = sntpClient.getResultTimestamp() + std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - sntpClient.getLastUpdate();
 		if (resultTimeStamp < 0)
 		{
-			OutputDebugString(L"»ñÈ¡Ê±ÖÓÊ§°Ü");
+			OutputDebugString(L"è·å–æ—¶é’Ÿå¤±è´¥");
 		}
 		return resultTimeStamp >= 0? resultTimeStamp : std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
@@ -198,12 +198,12 @@ int APIENTRY mainWindow(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpC
 	RegisterClassEx(&wcex);
 	setLangFromi18n();
 	ReadDataFromFile();
-	if (IsWindowsVistaOrGreater())
+	/*if (IsWindowsVistaOrGreater())
 	{
 		SetProcessDPIAware();
-	}
-	HWND hWnd = CreateWindowEx(WS_EX_COMPOSITED, L"MainWinForm", L"OTP¿Í»§¶Ë", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
-		| WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+	}*/
+	HWND hWnd = CreateWindowEx(NULL, L"MainWinForm", L"OTPå®¢æˆ·ç«¯", WS_OVERLAPPEDWINDOW ^ WS_MAXIMIZE ^ WS_MAXIMIZEBOX ^ WS_SIZEBOX
+		,//| WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 		CW_USEDEFAULT, 0, 650, 450, NULL, NULL, hInstance, NULL);
 
 	if (!hWnd)
@@ -251,7 +251,7 @@ DWORD WINAPI ThreadProc(LPVOID lpParameter) {
 	HWND hListView = (HWND)lpParameter;
 
 	while (true) {
-		Sleep(100);
+		Sleep(250);
 		PostMessage(hListView, WM_USER + 1, NULL, NULL);
 
 		for (auto key_value : CurrentKeys)
@@ -345,20 +345,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 			{
 			case CDDS_PREPAINT:
 				//OutputDebugString(L"PrePaint\n");
-				return CDRF_NOTIFYITEMDRAW; // ÇëÇóÃ¿Ïî»æÖÆÇ°µÄÍ¨Öª
+				return CDRF_NOTIFYITEMDRAW; // è¯·æ±‚æ¯é¡¹ç»˜åˆ¶å‰çš„é€šçŸ¥
 			case CDDS_ITEMPREPAINT:
 				//OutputDebugString(L"ItemPrePaint\n");
 			{
 				int a = ListView_GetItemCount(hListView);
 				int b = a;
 			}
-			return CDRF_NOTIFYSUBITEMDRAW; // ÇëÇó×ÓÏî»æÖÆÍ¨Öª
+			return CDRF_NOTIFYSUBITEMDRAW; // è¯·æ±‚å­é¡¹ç»˜åˆ¶é€šçŸ¥
 			case  CDDS_ITEMPREPAINT | CDDS_SUBITEM:
 				/*OutputDebugString(L"SubItem\n")*/;
-				if (lplvcd->iSubItem == 2) // ¼ÙÉèÕâÊÇ½ø¶ÈÌõÁĞ
+				if (lplvcd->iSubItem == 2) // å‡è®¾è¿™æ˜¯è¿›åº¦æ¡åˆ—
 				{
 					size_t nItem = static_cast<size_t>(lplvcd->nmcd.dwItemSpec);
-					// »ñÈ¡»ò¼ÆËãµ±Ç°ÏîÄ¿µÄ½ø¶ÈÖµ
+					// è·å–æˆ–è®¡ç®—å½“å‰é¡¹ç›®çš„è¿›åº¦å€¼
 					if (nItem < 0 || nItem >= otpInfos.size() || otpInfos[nItem].type == HOTP)
 						return CDRF_DODEFAULT;
 
@@ -366,7 +366,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					int64_t now = getCurrentMillSecond(alwaysUseNetTime);
 					int64_t usedTime = (now % (interval * 1000));
 					int64_t remainTime = interval * 1000 - usedTime;
-					int64_t fProgress = usedTime / interval / 10; // ¼ÙÉè½ø¶ÈÎª50%
+					int64_t fProgress = usedTime / interval / 10; // å‡è®¾è¿›åº¦ä¸º50%
 
 					RECT rc;
 					RECT progressBarRc = {};
@@ -385,7 +385,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					FillRect(lplvcd->nmcd.hdc, &progressBarRc, GetSysColorBrush(COLOR_BTNFACE));
 
 
-					// ¼ÆËã²¢»æÖÆ½ø¶ÈÌõ
+					// è®¡ç®—å¹¶ç»˜åˆ¶è¿›åº¦æ¡
 					progressBarRc.right = progressBarRc.left + static_cast<LONG>(fProgress * (progressBarRc.right - progressBarRc.left) / 100);
 
 					int64_t g = fProgress > 50 ? 255 - fProgress * 255 / 50 : 255;
@@ -396,13 +396,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					DeleteObject(hbrush);
 
 
-					// ÔÚ½ø¶ÈÌõÉÏ»æÖÆÎÄ±¾
+					// åœ¨è¿›åº¦æ¡ä¸Šç»˜åˆ¶æ–‡æœ¬
 					wchar_t szText[64];
 					progressBarRc.left = rc.right - 50;
 					progressBarRc.right = rc.right;
 					progressBarRc.top = rc.top;
 					progressBarRc.bottom = rc.bottom;
-					swprintf_s(szText, L"%.1f", static_cast<float>((double)remainTime / 1000.0));
+					swprintf_s(szText, L"%lld", (remainTime / 1000));
 
 					DrawText(lplvcd->nmcd.hdc, szText, -1, &progressBarRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
 					return CDRF_SKIPDEFAULT;
@@ -444,7 +444,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 					if (hresult == IDOK) {
 						DialogBox(hInst, MAKEINTRESOURCE(IDD_HOTP), hWnd, HotpClientViewerProc);
 					}
-					//MessageBox(hWnd, L"¼Æ´ÎÑéÖ¤£¬ÎŞ·¨²é¿´ÃÜÂë", L"ÌáÊ¾", MB_ICONINFORMATION);
+					//MessageBox(hWnd, L"è®¡æ¬¡éªŒè¯ï¼Œæ— æ³•æŸ¥çœ‹å¯†ç ", L"æç¤º", MB_ICONINFORMATION);
 
 				}
 
@@ -549,7 +549,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) 
 	//		int64_t now = getCurrentMillSecond(alwaysUseNetTime);
 	//		int64_t usedTime = (now % (interval * 1000));
 	//		int64_t remainTime = interval * 1000 - usedTime;
-	//		int64_t fProgress = usedTime / interval / 10; // ¼ÙÉè½ø¶ÈÎª50%
+	//		int64_t fProgress = usedTime / interval / 10; // å‡è®¾è¿›åº¦ä¸º50%
 	//		swprintf_s(szText, L"%lld", (remainTime / 1000));
 	//		LVITEM lvi;
 	//		lvi.iItem = nItem;
@@ -612,41 +612,41 @@ bool CheckOSVersion(DWORD MAJOR, DWORD MINOR)
 		OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX) };
 		DWORDLONG conditionMask = 0;
 
-		// ÉèÖÃÒª¼ì²éµÄ°æ±¾ºÅ
+		// è®¾ç½®è¦æ£€æŸ¥çš„ç‰ˆæœ¬å·
 		osvi.dwMajorVersion = MAJOR;
 		osvi.dwMinorVersion = MINOR;
 
-		// ´´½¨Ìõ¼şÑÚÂë
+		// åˆ›å»ºæ¡ä»¶æ©ç 
 		VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
 		VER_SET_CONDITION(conditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
 
-		// ÑéÖ¤°æ±¾ĞÅÏ¢
+		// éªŒè¯ç‰ˆæœ¬ä¿¡æ¯
 		return (VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, conditionMask));
 	
 }
 
 void AddControls(HWND hWnd) {
-	// ´´½¨ListView
+	// åˆ›å»ºListView
 	DWORD dwStyle = //WS_TABSTOP |
 		WS_CHILD | LVS_SINGLESEL |
 		WS_VISIBLE | WS_BORDER | WS_VSCROLL | WS_HSCROLL  |
-		WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_EX_DOUBLEBUFFER |
+		//WS_CLIPCHILDREN | WS_CLIPSIBLINGS | LVS_EX_DOUBLEBUFFER |
 		LVS_REPORT;
-	hListView = CreateWindowEx(LVS_EX_DOUBLEBUFFER,WC_LISTVIEW, L"",
+	hListView = CreateWindowEx(/*LVS_EX_DOUBLEBUFFER*/NULL,WC_LISTVIEW, L"",
 		dwStyle,
 		10, 10, 600, 300,
 		hWnd, NULL, hInst, NULL);
-	ListView_SetExtendedListViewStyleEx(hListView, LVS_EX_DOUBLEBUFFER,NULL);
+	//ListView_SetExtendedListViewStyleEx(hListView, LVS_EX_DOUBLEBUFFER,NULL);
 
 	LVCOLUMN lvc;
 	lvc.mask = LVCF_TEXT | LVCF_WIDTH ;
 	
 	lvc.cx = 200;
-	lvc.pszText = L"Ãû³Æ";
+	lvc.pszText = L"åç§°";
 	ListView_InsertColumn(hListView, 0, &lvc);
-	lvc.pszText = L"Êı×ÖÃÜÔ¿";
+	lvc.pszText = L"æ•°å­—å¯†é’¥";
 	ListView_InsertColumn(hListView, 1, &lvc);
-	lvc.pszText = L"¹ıÆÚÊ±¼ä";
+	lvc.pszText = L"è¿‡æœŸæ—¶é—´";
 	ListView_InsertColumn(hListView, 2, &lvc);
 
 	HWND hHeader = ListView_GetHeader(hListView);
@@ -656,16 +656,16 @@ void AddControls(HWND hWnd) {
 		SetWindowLong(hHeader, GWL_STYLE, style);
 	}
 
-	// Ìí¼Ó°´Å¥
-	buttonAdd = CreateWindow(L"BUTTON", L"ĞÂÔö", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+	// æ·»åŠ æŒ‰é’®
+	buttonAdd = CreateWindow(L"BUTTON", L"æ–°å¢", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		190, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_ADD, hInst, NULL);
-	buttonEdit = CreateWindow(L"BUTTON", L"ĞŞ¸Ä", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+	buttonEdit = CreateWindow(L"BUTTON", L"ä¿®æ”¹", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		280, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_EDIT, hInst, NULL);
 
 
-	buttonDelete = CreateWindow(L"BUTTON", L"É¾³ı", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+	buttonDelete = CreateWindow(L"BUTTON", L"åˆ é™¤", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		370, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_DELETE, hInst, NULL);
-	buttonNetworkTime = CreateWindow(L"BUTTON", L"ÊÇ·ñÊ¹ÓÃÍøÂçÊ±¼ä", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+	buttonNetworkTime = CreateWindow(L"BUTTON", L"æ˜¯å¦ä½¿ç”¨ç½‘ç»œæ—¶é—´", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		460, 320, 150, 30, hWnd, (HMENU)IDC_BUTTON_NETWORK_TIME, hInst, NULL);
 
 	HWND CopyrightStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("copyright")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT,
@@ -685,11 +685,11 @@ void AddControls(HWND hWnd) {
 		addItem(hListView, o);
 	}
 
-	// ÉèÖÃÄ¬ÈÏ×ÖÌåÎªÎ¢ÈíÑÅºÚ
+	// è®¾ç½®é»˜è®¤å­—ä½“ä¸ºå¾®è½¯é›…é»‘
 	LOGFONT lf;
 	memset(&lf, 0, sizeof(LOGFONT));
 	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
-	wcscpy_s(lf.lfFaceName, L"Microsoft Yahei");
+	wcscpy_s(lf.lfFaceName, L"Simsun");
 	HFONT font = CreateFontIndirect(&lf);
 	SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
@@ -702,7 +702,7 @@ void AddControls(HWND hWnd) {
 
 	ListView_SetExtendedListViewStyle(hListView,
 		LVS_EX_FULLROWSELECT | LVS_EX_SUBITEMIMAGES);
-	//// ½â¾öË«»º³åÎÊÌâ
+	//// è§£å†³åŒç¼“å†²é—®é¢˜
 	//SetWindowLong(hWnd, GWL_EXSTYLE, GetWindowLong(hWnd, GWL_EXSTYLE) | WS_EX_COMPOSITED);
 }
 
@@ -716,9 +716,9 @@ wstring s2ws(const string& s)
 {
 	int len;
 	int slength = (int)s.length() + 1;
-	len = MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, 0, 0);
+	len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
 	wchar_t* buf = new wchar_t[len];
-	MultiByteToWideChar(CP_ACP, 0, s.c_str(), slength, buf, len);
+	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, buf, len);
 	wstring r(buf);
 	delete[] buf;
 	return r;
@@ -763,11 +763,11 @@ void AlignButtons(HWND hwnd, HWND hRefButton, HWND hButtonToAlign1, HWND hButton
 
 
 void MoveButtonToBottomOfDialog(HWND hDlg, HWND hButton) {
-	// »ñÈ¡¶Ô»°¿òµÄ¿Í»§Çø¾ØĞÎ
+	// è·å–å¯¹è¯æ¡†çš„å®¢æˆ·åŒºçŸ©å½¢
 	RECT dlgRect;
 	GetClientRect(hDlg, &dlgRect);
 
-	// »ñÈ¡°´Å¥µÄ¾ØĞÎ
+	// è·å–æŒ‰é’®çš„çŸ©å½¢
 	RECT buttonRect;
 	GetWindowRect(hButton, &buttonRect);
 	POINT pt = { buttonRect.left, buttonRect.top };
@@ -788,7 +788,7 @@ void MoveButtonToBottomOfDialog(HWND hDlg, HWND hButton) {
 
 
 	SetWindowPos(hButton, NULL,
-		pt.x, // ±£³ÖÔ­À´µÄ X ×ø±ê
+		pt.x, // ä¿æŒåŸæ¥çš„ X åæ ‡
 		newY,
 		0, 0,
 		SWP_NOZORDER | SWP_NOSIZE);
@@ -802,9 +802,9 @@ string ws2s(std::wstring s)
 	string result;
 	int slength = (int)s.length() + 2;
 	int len;
-	len = WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, 0, 0, 0, 0);
+	len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, 0, 0, 0, 0);
 	char* buf = new char[len];
-	WideCharToMultiByte(CP_ACP, 0, s.c_str(), slength, buf, len, 0, 0);
+	WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, buf, len, 0, 0);
 	result = buf;
 	delete[] buf;
 	return result;
@@ -1026,7 +1026,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			OTPInfo otpinfo;
 			int trackBarValue = (int)SendMessage(hDigitLength, TBM_GETPOS, 0, 0);
 
-			// »ñÈ¡ Edit ¿Ø¼şµÄµ±Ç°Öµ
+			// è·å– Edit æ§ä»¶çš„å½“å‰å€¼
 			TCHAR edit1Text[1024];
 			GetWindowText(hName, edit1Text, sizeof(edit1Text) / sizeof(TCHAR));
 
@@ -1036,11 +1036,11 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			TCHAR edit3Text[1024];
 			GetWindowText(hAdditionEdit, edit3Text, sizeof(edit3Text) / sizeof(TCHAR));
 
-			// »ñÈ¡ CheckBox µÄµ±Ç°×´Ì¬
+			// è·å– CheckBox çš„å½“å‰çŠ¶æ€
 			int checkBoxState = IsDlgButtonChecked(hDlg, IDC_CHECKISHOTP);
 
 
-			// »ñÈ¡ ComboBox µÄµ±Ç°Ñ¡ÔñÏî
+			// è·å– ComboBox çš„å½“å‰é€‰æ‹©é¡¹
 			int comboBoxIndex = (int)SendMessage(hAlgorithm, CB_GETCURSEL, 0, 0)+1;
 			int encodeIndex = (int)SendMessage(hEncode, CB_GETCURSEL, 0, 0) + 1;
 			//TCHAR comboBoxText[100] = L"";
@@ -1152,9 +1152,9 @@ INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LP
 	case WM_INITDIALOG:
 	{
 		// Create a larger font for the password, it has 6-8 digits, and takes up most of the dialog
-		DWORD dwFontSize = MulDiv(60,GetDeviceCaps(GetDC(hDlg), LOGPIXELSY), 72);
+		DWORD dwFontSize = MulDiv(50,GetDeviceCaps(GetDC(hDlg), LOGPIXELSY), 72);
 		HFONT hfont = CreateFont(dwFontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
-			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Consolas");
+			CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Courier New");
 		SendMessage(GetDlgItem(hDlg, IDC_PASSWORD), WM_SETFONT, (WPARAM)hfont, TRUE);
 		OTP otp(HOTP);
 		otp.setAlgorithm(otpInfos[isOTPDIALOGEDIT].algorithm);
