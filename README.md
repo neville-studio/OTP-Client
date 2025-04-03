@@ -37,7 +37,7 @@ The app is only for Windows currently.
 |Windows 7 Service Pack 1|N/A|At least 2026/1/10|
 |Windows 8.1 |N/A|At least 2026/10/13|
 |Windows 10 |N/A|At least 2032/1/13|
-|Windows 10 LTSB 2015 |N/A|At least 2025/1/14|
+|Windows 10 LTSB 2015 |N/A|At least 2026/1/10|
 |Windows 10 LTSB 2016 |N/A|At least 2027/1/12|
 |Windows 10 LTSC 2019 |N/A|At least 2029/1/9|
 |Windows 10 LTSC 2021 |N/A|At least 2021/1/13|
