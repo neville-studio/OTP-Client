@@ -290,8 +290,8 @@ void addItem(HWND hListView, OTPInfo otpInfo) {
 	lvi.mask = LVIF_TEXT | LVIF_PARAM;
 	lvi.iItem = ListView_GetItemCount(hListView);
 	lvi.iSubItem = 0;
-	std::unique_ptr<wchar_t[]> name(new wchar_t[32]);
-	wcscpy_s(name.get(), 32, s2ws(otpInfo.friendly_name).c_str());
+	std::unique_ptr<wchar_t[]> name(new wchar_t[1024]);
+	wcscpy_s(name.get(), 1024, s2ws(otpInfo.friendly_name).c_str());
 	lvi.pszText = name.get();
 	//lvi.lParam = otpInfo;
 
@@ -655,7 +655,12 @@ void AddControls(HWND hWnd) {
 		style ^= HDS_DRAGDROP ^ HDS_HOTTRACK;
 		SetWindowLong(hHeader, GWL_STYLE, style);
 	}
-
+	// 设置默认字体为微软雅黑
+	LOGFONT lf;
+	memset(&lf, 0, sizeof(LOGFONT));
+	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
+	wcscpy_s(lf.lfFaceName, L"Microsoft Yahei");
+	HFONT font = CreateFontIndirect(&lf);
 	// 添加按钮
 	buttonAdd = CreateWindow(L"BUTTON", L"新增", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
 		190, 320, 80, 30, hWnd, (HMENU)IDC_BUTTON_ADD, hInst, NULL);
@@ -671,10 +676,10 @@ void AddControls(HWND hWnd) {
 	HWND CopyrightStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("copyright")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT,
 		30, 360, 450, 25, hWnd, NULL, hInst, NULL);
 
-	if (!CheckOSVersion(6, 0))
+	if (!CheckOSVersion(6, 1))
 	{
 		HWND EolStatic = CreateWindowEx(WS_EX_TRANSPARENT, L"STATIC", (i18nClient::getInstence()->get("xpEol")).c_str(), WS_CHILD | WS_VISIBLE | SS_LEFT, 30, 380, 475, 25, hWnd, NULL, hInst, NULL);
-		SendMessage(EolStatic, WM_SETFONT, (WPARAM)GetStockObject(DEFAULT_GUI_FONT), MAKELPARAM(TRUE, 0));
+		SendMessage(EolStatic, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	}
 
 	EnableWindow(buttonEdit, FALSE);
@@ -685,12 +690,7 @@ void AddControls(HWND hWnd) {
 		addItem(hListView, o);
 	}
 
-	// 设置默认字体为微软雅黑
-	LOGFONT lf;
-	memset(&lf, 0, sizeof(LOGFONT));
-	lf.lfHeight = -MulDiv(9, GetDeviceCaps(GetDC(hWnd), LOGPIXELSY), 72);
-	wcscpy_s(lf.lfFaceName, L"Microsoft Yahei");
-	HFONT font = CreateFontIndirect(&lf);
+	
 	SendMessage(hWnd, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 	SendMessage(hListView, WM_SETFONT, (WPARAM)font, MAKELPARAM(TRUE, 0));
 
@@ -811,7 +811,7 @@ string ws2s(std::wstring s)
 
 }
 
-UINT GetDpiForWindow(HWND hwnd)
+UINT GetDPIForWindow(HWND hwnd)
 {
 	return GetDeviceCaps(GetDC(hwnd), LOGPIXELSX);
 }
@@ -897,7 +897,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				SetWindowText(hStatic, interval);
 			}
 
-			RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(160, GetDpiForWindow(hDlg), 96) };
+			RECT rect = { 0,0,MulDiv(450, GetDPIForWindow(hDlg), 96) ,MulDiv(160, GetDPIForWindow(hDlg), 96) };
 			/*MulDiv(311, GetDpiForWindow(hDlg), 96);*/
 			AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, FALSE);
 
@@ -905,7 +905,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 		}
 		else
 		{
-			RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(160, GetDpiForWindow(hDlg), 96) };
+			RECT rect = { 0,0,MulDiv(450, GetDPIForWindow(hDlg), 96) ,MulDiv(160, GetDPIForWindow(hDlg), 96) };
 			AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, FALSE);
 			SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
 			//HWND hAlgorithm = GetDlgItem(hDlg, IDC_ALGORITHM);
@@ -956,7 +956,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			{
 				str[str.size() - 2] = L'<';
 				str[str.size() - 1] = L'<';
-				RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(250, GetDpiForWindow(hDlg), 96) };
+				RECT rect = { 0,0,MulDiv(450, GetDPIForWindow(hDlg), 96) ,MulDiv(250, GetDPIForWindow(hDlg), 96) };
 				AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, TRUE);
 				SetWindowPos(hDlg, HWND_TOPMOST, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
 
@@ -973,7 +973,7 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 			{
 				str[str.size() - 2] = L'>';
 				str[str.size() - 1] = L'>';
-				RECT rect = { 0,0,MulDiv(450, GetDpiForWindow(hDlg), 96) ,MulDiv(140, GetDpiForWindow(hDlg), 96) };
+				RECT rect = { 0,0,MulDiv(450, GetDPIForWindow(hDlg), 96) ,MulDiv(140, GetDPIForWindow(hDlg), 96) };
 				AdjustWindowRect(&rect, WS_CAPTION | WS_SYSMENU, TRUE);
 
 				AlignButtons(hDlg, hAdvancedButton, hDialogOK, hDialogCancel);
@@ -1109,8 +1109,21 @@ INT_PTR CALLBACK OTP_Client(HWND hDlg, UINT message, WPARAM wParam, LPARAM lPara
 				EncryptedDataMap[guidText] = EncryptData(otpinfo.secret);
 				otpinfo.secret = guidText;
 				otpInfos[isOTPDIALOGEDIT] = otpinfo;
+				
+				//ListView_SetItemText(hListView, isOTPDIALOGEDIT,0,s2ws(otpinfo.friendly_name).c_str());
+				LVITEM lvi;
+				lvi.mask = LVIF_TEXT | LVIF_PARAM;
+				lvi.iItem = isOTPDIALOGEDIT;
+				lvi.iSubItem = 0;
+				std::unique_ptr<wchar_t[]> name(new wchar_t[1024]);
+				wcscpy_s(name.get(), 1024, s2ws(otpinfo.friendly_name).c_str());
+				lvi.pszText = name.get();
+				ListView_SetItem(hListView, &lvi);
+				//ListView_SetItemText(hListView, isOTPDIALOGEDIT, 0, (LPWSTR)s2ws(otpinfo.friendly_name).c_str());
+
 				if (otpinfo.type == 1)
 				{
+					
 					ListView_SetItemText(hListView, isOTPDIALOGEDIT, 1, viewTip);
 				}
 			}

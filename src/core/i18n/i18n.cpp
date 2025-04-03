@@ -23,7 +23,7 @@ i18nClient::i18nClient() {
 		{"delete" , L"Delete"},
 		{"import" , L"Import"},
 		{"export" , L"Export"},
-		{"networkTime" , L"Use NetTime"},
+		{"networkTime" , L"NetTime Manage"},
 		{"localTime" , L"Use LocalTime"},
 		{"name" , L"Name"},
 		{"windowTitle" , L"One-time Password Viewer Client"},

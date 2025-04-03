@@ -264,6 +264,8 @@ BEGIN
     CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,100,119,100,15
     LTEXT           "Generated key length",IDC_STATIC,26,122,70,8
     LTEXT           "Intervals (Sec)",IDC_HOTPTOTPADDSTATIC,25,105,49,8
+    LTEXT           "Secret Encode", IDC_STATIC, 195, 122, 52, 8
+    COMBOBOX        IDC_ENCODE, 250, 120, 45, 12, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_SNTP DIALOGEX 0, 0, 311, 110
@@ -288,7 +290,7 @@ CAPTION "Your Current Password"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,253,156,50,14
-    LTEXT           "******",IDC_PASSWORD,117,71,28,8
+    LTEXT           "******", IDC_PASSWORD, 20, 30, 250, 50, SS_CENTER
     LTEXT           "WARNING!!! After close this dialog, the counter will updated.",-1,22,135,198,8
 END
 
