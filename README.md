@@ -48,7 +48,7 @@ The app is only for Windows currently.
 |Windows 10 LTSB 2015 |N/A|At least 2025/10/14|
 |Windows 10 LTSB 2016 |N/A|At least 2027/1/12|
 |Windows 10 LTSC 2019 |N/A|At least 2029/1/9|
-|Windows 10 LTSC 2021 |N/A|At least 2021/1/13|
+|Windows 10 LTSC 2021 |N/A|At least 2032/1/13|
 |Windows 11 |N/A|Not yet|
 |Windows 11 LTSC 2024|N/A|At lease 2034/10/10|
 
