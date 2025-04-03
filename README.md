@@ -25,6 +25,14 @@ As the first version, The System will requires Windows XP, at least Service Pack
 
 Without any critical Bug, the first version is the last version which supports Windows XP, Service Pack 3.
 
+Software Requirement: 
+- Windows XP Service Pack 3:
+  - Microsoft Visual C++ Redistributable 2019, version 16.7 (released on 2020-08-05)
+- Windows Vista Service Pack 2
+  - Microsoft Visual C++ Redistributable 2015-2019, version 16.11 (released on 2021-8-10)
+- Windows 7 Serice Pack 1 or greater:
+  - Latest version of Microsoft Visual C++ Redistributable 2015-2022
+
 # Usage
 The app is only for Windows currently.
 
@@ -37,7 +45,7 @@ The app is only for Windows currently.
 |Windows 7 Service Pack 1|N/A|At least 2026/1/10|
 |Windows 8.1 |N/A|At least 2026/10/13|
 |Windows 10 |N/A|At least 2032/1/13|
-|Windows 10 LTSB 2015 |N/A|At least 2026/1/10|
+|Windows 10 LTSB 2015 |N/A|At least 2025/10/14|
 |Windows 10 LTSB 2016 |N/A|At least 2027/1/12|
 |Windows 10 LTSC 2019 |N/A|At least 2029/1/9|
 |Windows 10 LTSC 2021 |N/A|At least 2021/1/13|
