@@ -20,6 +20,9 @@ Unless I have completed the code and applied the Software Copyright License, I w
 
 This project was started on 2025-03-14.
 
+# When will release the first version?
+The first version has done on 2025-04-13, but I am getting the something important prosedures, this version cannot release yet. I will release after I have completed the prosedures.
+
 # System Requirement
 As the first version, The System will requires Windows XP, at least Service Pack 3.
 
