@@ -37,7 +37,7 @@ Software Requirement:
   - Latest version of Microsoft Visual C++ Redistributable 2015-2022
 
 P.S. This software is only for Windows yet. 
-- Linux-based OS: Available.
+- Linux-based OS: No support plan.
 - MacOS: No support plan.
 
 # Support Plan
