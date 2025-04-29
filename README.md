@@ -35,9 +35,9 @@ Software Requirement:
   - Microsoft Visual C++ Redistributable 2015-2019, version 16.11 (released on 2021-8-10)
 - Windows 7 Serice Pack 1 or greater:
   - Latest version of Microsoft Visual C++ Redistributable 2015-2022
-
-# Usage
-The app is only for Windows currently.
+P.S. This software is only for Windows yet.
+Linux-based OS: Available.
+MacOS: No support plan.
 
 # Support Plan
 
