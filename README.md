@@ -44,7 +44,7 @@ P.S. This software is only for Windows yet.
 Microsoft has announced some of the OS has end of its life. It would be better for you to upgrade your OS to the latest version. (At OS End of life date column, the information from [Microsoft Product Lifecycle](https://learn.microsoft.com/lifecycle/products/).) But we will provide a support plan for the system requirement.
 
 | Operating System Version | Highest Software version |OS End of life Date | Support Until |
-|:-:|:-:|:-:|
+|:-:|:-:|:-:|:-:|
 |Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8| About 2025(Software has done but not released) |
 |Windows Vista Service Pack 2|N/A|2017/4/11|At least 2026/1/10|
 |Windows 7 Service Pack 1|N/A|2020/1/14, ESU 2023/1/10|At least 2026/1/10|
