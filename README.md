@@ -1,4 +1,4 @@
-# OTP-Client
+﻿# OTP-Client
 
 This is a simple OTP client that can be used to generate OTPs for a given secret key. The client supports both HOTP and TOTP algorithms.
 
@@ -29,18 +29,30 @@ As the first version, The System will requires Windows XP, at least Service Pack
 Without any critical Bug, the first version is the last version which supports Windows XP, Service Pack 3.
 
 Software Requirement: 
-- Windows XP Service Pack 3:
-  - Microsoft Visual C++ Redistributable 2019, version 16.7 (released on 2020-08-05)
-- Windows Vista Service Pack 2
-  - Microsoft Visual C++ Redistributable 2015-2019, version 16.11 (released on 2021-8-10)
-- Windows 7 Serice Pack 1 or greater:
-  - Latest version of Microsoft Visual C++ Redistributable 2015-2022
+
+**Windows XP Service Pack 3**:
+
+|Software|version|Release Date|Link|
+|-|-|-|-|
+|Microsoft Visual C++ Redistributable 2015-2019| 16.7| 2020-08-05|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.7))|
+
+**Windows Vista Service Pack 2**:
+
+|Software|version|Release Date|Link|
+|-|-|-|-|
+|Microsoft Visual C++ Redistributable 2015-2019| 16.11| 2021-08-10|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.11))|
+
+**Windows 7 Serice Pack 1 or greater**:
+
+|Software|version|Release Date|Link|
+|-|-|-|-|
+|Microsoft Visual C++ Redistributable 2015-2022|Latest| N/A|[x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) [arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe)|
 
 P.S. This software is only for Windows yet. 
 - Linux-based OS: No support plan.
 - MacOS: No support plan.
 
-# Support Plan
+# Support Plan && System Requirement
 
 | Operating System Version | Highest Software version | Support Until |
 |:-:|:-:|:-:|
