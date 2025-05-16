@@ -28,45 +28,34 @@ As the first version, The System will requires Windows XP, at least Service Pack
 
 Without any critical Bug, the first version is the last version which supports Windows XP, Service Pack 3.
 
-Software Requirement: 
+Windows Software Requirement: 
 
-**Windows XP Service Pack 3**:
-
-|Software|version|Release Date|Link|
-|-|-|-|-|
-|Microsoft Visual C++ Redistributable 2015-2019| 16.7| 2020-08-05|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.7))|
-
-**Windows Vista Service Pack 2**:
-
-|Software|version|Release Date|Link|
-|-|-|-|-|
-|Microsoft Visual C++ Redistributable 2015-2019| 16.11| 2021-08-10|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.11))|
-
-**Windows 7 Serice Pack 1 or greater**:
-
-|Software|version|Release Date|Link|
-|-|-|-|-|
-|Microsoft Visual C++ Redistributable 2015-2022|Latest| N/A|[x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) [arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe)|
+|OS|Software|version|Release Date|Link|
+|-|-|-|-|-|
+|Windows XP Service Pack 3|Microsoft Visual C++ Redistributable 2015-2019| 16.7| 2020-08-05|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.7))|
+|Windows Vista Service Pack 2|Microsoft Visual C++ Redistributable 2015-2019| 16.11| 2021-08-10|[here](https://my.visualstudio.com/Downloads?q=Visual%20C++%20Redistributable%20for%20Visual%20Studio%202019%20(version%2016.11))|
+|Windows 7 Service Pack 1 or Later|Microsoft Visual C++ Redistributable 2015-2022|Latest| N/A|[x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe) [arm64](https://aka.ms/vs/17/release/vc_redist.arm64.exe)|
 
 P.S. This software is only for Windows yet. 
 - Linux-based OS: No support plan.
 - MacOS: No support plan.
 
 # Support Plan && System Requirement
+Microsoft has announced some of the OS has end of its life. It would be better for you to upgrade your OS to the latest version. (At OS End of life date column, the information from [Microsoft Product Lifecycle](https://learn.microsoft.com/lifecycle/products/).) But we will provide a support plan for the system requirement.
 
-| Operating System Version | Highest Software version | Support Until |
+| Operating System Version | Highest Software version |OS End of life Date | Support Until |
 |:-:|:-:|:-:|
-|Windows XP Service Pack 3|v0.0.0.1-XP| About 2025(Software has done but not released) |
-|Windows Vista Service Pack 2|N/A|At least 2026/1/10|
-|Windows 7 Service Pack 1|N/A|At least 2026/1/10|
-|Windows 8.1 |N/A|At least 2026/10/13|
-|Windows 10 |N/A|At least 2032/1/13|
-|Windows 10 LTSB 2015 |N/A|At least 2025/10/14|
-|Windows 10 LTSB 2016 |N/A|At least 2027/1/12|
-|Windows 10 LTSC 2019 |N/A|At least 2029/1/9|
-|Windows 10 LTSC 2021 |N/A|At least 2032/1/13|
-|Windows 11 |N/A|Not yet|
-|Windows 11 LTSC 2024|N/A|At lease 2034/10/10|
+|Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8| About 2025(Software has done but not released) |
+|Windows Vista Service Pack 2|N/A|2017/4/11|At least 2026/1/10|
+|Windows 7 Service Pack 1|N/A|2020/1/14, ESU 2023/1/10|At least 2026/1/10|
+|Windows 8.1 |N/A|2023/1/10|At least 2026/10/13|
+|Windows 10 |N/A|2025/10/14, ESU 2028/10/11|At least 2032/1/13|
+|Windows 10 LTSB 2015 |N/A|2025/10/14|At least 2025/10/14|
+|Windows 10 LTSB 2016 |N/A|2027/1/12|At least 2027/1/12|
+|Windows 10 LTSC 2019 |N/A|2029/1/9|At least 2029/1/9|
+|Windows 10 LTSC 2021 |N/A|2032/1/13|At least 2032/1/13|
+|Windows 11 |N/A|No|Not yet|
+|Windows 11 LTSC 2024|N/A|2034/10/10|At lease 2034/10/10|
 
 
 # Thanks
