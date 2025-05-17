@@ -8,7 +8,14 @@ HOTP 算法基于 [RFC 4226](https://tools.ietf.org/html/rfc4226)，TOTP 算法�
 
 这些算法常用于两步验证。本仓库用于构建一个用于管理 OTP 密钥和生成 OTP 验证码的演示客户端。
 
-除了 RFC 4226 和 RFC 6238，本仓库还基于 [RFC 2104](https://tools.ietf.org/html/rfc2104) 的 HMAC 算法和 [RFC 3174](https://tools.ietf.org/html/rfc3174) 的 SHA1 算法，详细内容可见源代码。
+除了 RFC 4226 和 RFC 6238，本仓库还基于 [RFC 2104](https://tools.ietf.org/html/rfc2104) 的 HMAC 算法和 [RFC 3174](https://tools.ietf.org/html/rfc3174) 的 SHA1 算法，详细内容可见源代码。所有支持的算法在此表中列出。
+
+| 算法 | 基于标准 | 开始支持版本 | 发行时间 |
+|:---------:|:-----------------:|:-------------:|:------------:|
+|  SHA-1 (默认) (不推荐)| FIPS 180-1, RFC 3174 |  v0.0.0.1-xp  |    不是现在   |
+|  SHA-2 家族(包括 SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| 不是现在      |
+|  SHA-3 家族(包括 SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | 不是现在 |
+|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | 不是现在|
 
 本演示客户端还使用 SNTP v4 协议校准时间，基于 [RFC 5905](https://tools.ietf.org/html/rfc4226) 实现 SNTP v4 协议，具体细节可见源代码。如果你想了解 SNTP v4 的演示，可以参考我的其他仓库：
   - [NettimesyncTool](https://github.com/neville-studio/nettimesynctool)
