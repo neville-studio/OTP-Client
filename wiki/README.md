@@ -7,7 +7,15 @@ The HOTP algorithm is based on [RFC 4226](https://tools.ietf.org/html/rfc4226) a
 
 These algorithms are used to generate OTPs for two-factor authentication. this repository is used to build a demo client for manage OTP secret key and generate OTP code.
 
-Except RFC 4226 and RFC 6238, this repository also based on [RFC 2104](https://tools.ietf.org/html/rfc2104) for HMAC algorithm and [RFC 3174](https://tools.ietf.org/html/rfc3174) for SHA1 algorithm, you can see the detail in the source code.
+Except RFC 4226 and RFC 6238, this repository also based on [RFC 2104](https://tools.ietf.org/html/rfc2104) for HMAC algorithm and [RFC 3174](https://tools.ietf.org/html/rfc3174) for SHA1 algorithm, you can see the detail in the source code. Supported algorithm will listed below.
+
+| Algorithm | Standard based on | Since Version | Release Date |
+|:---------:|:-----------------:|:-------------:|:------------:|
+|  SHA-1(Default)(Not Recommend)| FIPS 180-1 |  v0.0.0.1-xp  |    Not now   |
+|  SHA-2 Family(Include SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| Not now      |
+|  SHA-3 Family(Include SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | Not now |
+|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | Not now|
+
 
 This demo client also using SNTP v4 protocal to check whether the time is correct. we are using [RFC 5905](https://tools.ietf.org/html/rfc4226) to implements the SNTP v4 protocal, you can see the detail in the source code. If you will see the demo of the SNTP v4, you can see my other reposities:
   - [NettimesyncTool](https://github.com/neville-studio/nettimesynctool)
