@@ -23,8 +23,6 @@ This demo client also using SNTP v4 protocal to check whether the time is correc
 
 This project is developing, the source code will not release yet.
 
-We will using MIT Licence to share the code to the remote.
-
 Unless I have completed the code and applied the Software Copyright License, I will not release the source code.
 
 This project was started on 2025-03-14.
