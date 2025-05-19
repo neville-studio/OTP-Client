@@ -1,4 +1,4 @@
-CMakeLists.txt.user
+﻿CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
@@ -125,3 +125,7 @@ $RECYCLE.BIN/
 /out/build/x64-debug/.ninja_deps
 /out/build/x64-debug/.ninja_log
 /out/build/x64-debug/build.ninja
+
+
+out/**
+.vs/**
