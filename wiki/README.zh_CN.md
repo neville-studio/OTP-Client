@@ -67,7 +67,7 @@ P.S. 本软件目前仅支持 Windows。
 # 鸣谢
 
 ## 感谢以下仓库和项目
-- [nlohmann-json](https://github.com/nlohmann/json)，用于处理 JSON 的库，采用 MIT 许可证。[@nlohmann](https://github.com/nlohmann) 本项目使用 3.13.3 版本处理 JSON 数据。
+- [nlohmann-json](https://github.com/nlohmann/json)，用于处理 JSON 的库，采用 MIT 许可证。[@nlohmann](https://github.com/nlohmann) 本项目使用 3.12.0 版本处理 JSON 数据。
 
 ## 感谢 AI 生成器
 - **Github Copilot**，由 *Github* 提供代码建议，本项目使用 AI 代码建议生成代码。
