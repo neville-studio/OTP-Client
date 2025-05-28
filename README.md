@@ -1,4 +1,8 @@
-﻿[Go to Wiki](wiki/README.md)
+﻿![Thanks Downloads](https://img.shields.io/github/downloads/neville-studio/OTP-Client/total?style=flat-square&logo=GitHub)
+![Thanks Stars](https://img.shields.io/github/stars/neville-studio/OTP-Client?style=flat-square&logo=GitHub)
+![Thanks Forks](https://img.shields.io/github/forks/neville-studio/OTP-Client?style=flat-square&logo=GitHub)
+ 
+ [Go to Wiki](wiki/README.md)
 
 # OTP-Client
 
