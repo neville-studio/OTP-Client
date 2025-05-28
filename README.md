@@ -4,6 +4,10 @@
  
  [Go to Wiki](wiki/README.md)
 
+ Chinese Software Registration Number: 2025SR0887254
+ 中国软件著作权登记号：2025SR0887254
+
+
 # OTP-Client
 
 This is a simple OTP client that can be used to generate OTPs for a given secret key. The client supports both HOTP and TOTP algorithms.
