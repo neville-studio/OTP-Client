@@ -4,8 +4,8 @@
  
  [Go to Wiki](wiki/README.md)
 
- Chinese Software Registration Number: 2025SR0887254
- 中国软件著作权登记号：2025SR0887254
+ Chinese Software Registration Number: 2025SR0887254 <br>
+  中国软件著作权登记号：2025SR0887254
 
 
 # OTP-Client
