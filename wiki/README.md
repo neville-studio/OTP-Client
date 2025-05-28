@@ -11,10 +11,10 @@ Except RFC 4226 and RFC 6238, this repository also based on [RFC 2104](https://t
 
 | Algorithm | Standard based on | Since Version | Release Date |
 |:---------:|:-----------------:|:-------------:|:------------:|
-|  SHA-1(Default)(Not Recommend)| FIPS 180-1, RFC 3174 |  v0.0.0.1-xp  |    Not now   |
-|  SHA-2 Family(Include SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| Not now      |
-|  SHA-3 Family(Include SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | Not now |
-|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | Not now|
+|  SHA-1(Default)(Not Recommend)| FIPS 180-1, RFC 3174 |  v0.0.0.1-xp  |    2025-05-28  |
+|  SHA-2 Family(Include SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| 2025-05-28      |
+|  SHA-3 Family(Include SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | 2025-05-28 |
+|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | 2025-05-28 |
 
 
 This demo client also using SNTP v4 protocal to check whether the time is correct. we are using [RFC 5905](https://tools.ietf.org/html/rfc4226) to implements the SNTP v4 protocal, you can see the detail in the source code. If you will see the demo of the SNTP v4, you can see my other reposities:
@@ -52,7 +52,7 @@ Microsoft has announced some of the OS has end of its life. It would be better f
 
 | Operating System Version | Highest Software version |OS End of life Date | Support Until |
 |:-:|:-:|:-:|:-:|
-|Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8| About 2025(Software has done but not released) |
+|Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8| 2025-05-28 |
 |Windows Vista Service Pack 2|N/A|2017/4/11|At least 2026/1/10|
 |Windows 7 Service Pack 1|N/A|2020/1/14, ESU 2023/1/10|At least 2026/1/10|
 |Windows 8.1 |N/A|2023/1/10|At least 2026/10/13|

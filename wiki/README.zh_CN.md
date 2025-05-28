@@ -12,10 +12,10 @@ HOTP 算法基于 [RFC 4226](https://tools.ietf.org/html/rfc4226)，TOTP 算法�
 
 | 算法 | 基于标准 | 开始支持版本 | 发行时间 |
 |:---------:|:-----------------:|:-------------:|:------------:|
-|  SHA-1 (默认) (不推荐)| FIPS 180-1, RFC 3174 |  v0.0.0.1-xp  |    不是现在   |
-|  SHA-2 家族(包括 SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| 不是现在      |
-|  SHA-3 家族(包括 SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | 不是现在 |
-|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | 不是现在|
+|  SHA-1 (默认) (不推荐)| FIPS 180-1, RFC 3174 |  v0.0.0.1-xp  |    2025/05/28   |
+|  SHA-2 家族(包括 SHA256, SHA-224, SHA-384, SHA-512)  |   FIPS 180-4      |    v0.0.0.1-xp| 2025/05/28      |
+|  SHA-3 家族(包括 SHA3-256, SHA3-224, SHA3-384, SHA3-512)| FIPS 202 | v0.0.0.1-xp | 2025/05/28 |
+|  SM3       | GB/T 32905-2016 | v0.0.0.1-xp | 2025/05/28 |
 
 本演示客户端还使用 SNTP v4 协议校准时间，基于 [RFC 5905](https://tools.ietf.org/html/rfc4226) 实现 SNTP v4 协议，具体细节可见源代码。如果你想了解 SNTP v4 的演示，可以参考我的其他仓库：
   - [NettimesyncTool](https://github.com/neville-studio/nettimesynctool)
@@ -52,7 +52,7 @@ P.S. 本软件目前仅支持 Windows。
 
 |操作系统版本|最高支持软件版本|操作系统生命周期结束日期|支持截止日期|
 |:-:|:-:|:-:|:-:|
-|Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8|约 2025（软件已完成但未发布）|
+|Windows XP Service Pack 3|v0.0.0.1-XP|2014/4/8|2025/05/28|
 |Windows Vista Service Pack 2|N/A|2017/4/11|至少 2026/1/10|
 |Windows 7 Service Pack 1|N/A|2020/1/14，ESU 2023/1/10|至少 2026/1/10|
 |Windows 8.1|N/A|2023/1/10|至少 2026/10/13|
