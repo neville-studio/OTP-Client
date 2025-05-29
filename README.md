@@ -17,7 +17,7 @@ For more thing, [Go to Wiki](wiki/README.md)
 # Thanks
 
 ## Thanks the repositorys and projects
-- [nlohmann-json](https://github.com/nlohmann/json), for using JSON Library. this library is used MIT License. [@nlohmann](https://github.com/nlohmann) this project is using version 3.12.0 to process JSON data.
+- [JSON for Modern C++](https://github.com/nlohmann/json), for using JSON Library. this library is used MIT License. [@nlohmann](https://github.com/nlohmann) this project is using version 3.12.0 to process JSON data.
 
 ## Thanks the AI Generator
 - **Github Copilot**, by *Github*, for providing the code suggestion. this project is using the AI code suggestion to generate the code.
