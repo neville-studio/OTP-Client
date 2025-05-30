@@ -1,8 +1,11 @@
-
+ï»¿
 #include "DataHandler.h"
+
+#pragma comment(lib, "advapi32.lib")
+#pragma comment(lib, "crypt32.lib")
 using namespace std;
 bool WriteBytesToFile(const std::string& filePath, const std::vector<BYTE>& byteData) {
-	// ´ò¿ª»ò´´½¨ÎÄ¼ş
+	// æ‰“å¼€æˆ–åˆ›å»ºæ–‡ä»¶
 	HANDLE hFile = CreateFileA(
 		filePath.c_str(),                
 		GENERIC_WRITE,                   
@@ -18,7 +21,7 @@ bool WriteBytesToFile(const std::string& filePath, const std::vector<BYTE>& byte
 		return false;
 	}
 
-	// Ğ´ÈëÊı¾İ
+	// å†™å…¥æ•°æ®
 	DWORD bytesWritten;
 	BOOL result = WriteFile(
 		hFile,                           
@@ -34,14 +37,14 @@ bool WriteBytesToFile(const std::string& filePath, const std::vector<BYTE>& byte
 		return false;
 	}
 
-	// ¹Ø±ÕÎÄ¼ş¾ä±ú
+	// å…³é—­æ–‡ä»¶å¥æŸ„
 	CloseHandle(hFile);
 
 	return true;
 }
 
 std::vector<BYTE> ReadDataFromFile(const std::string& filePath) {
-	// ´ò¿ªÎÄ¼ş
+	// æ‰“å¼€æ–‡ä»¶
 	HANDLE hFile = CreateFileA(
 		filePath.c_str(),                
 		GENERIC_READ,                    
@@ -55,29 +58,29 @@ std::vector<BYTE> ReadDataFromFile(const std::string& filePath) {
 		//std::cerr << "Failed to open file. Error code: " << GetLastError() << std::endl;
 		return std::vector<BYTE>();
 	}
-	// »ñÈ¡ÎÄ¼ş´óĞ¡
+	// è·å–æ–‡ä»¶å¤§å°
 	DWORD fileSize = GetFileSize(hFile, NULL);
 	if (fileSize == INVALID_FILE_SIZE) {
 		//std::cerr << "Failed to get file size. Error code: " << GetLastError() << std::endl;
 		CloseHandle(hFile);
 		return std::vector<BYTE>();
 	}
-	// ¶ÁÈ¡Êı¾İ
+	// è¯»å–æ•°æ®
 	std::vector<BYTE> byteData(fileSize);
 	DWORD bytesRead;
 	BOOL result = ReadFile(
-		hFile,                           // ÎÄ¼ş¾ä±ú
-		byteData.data(),                 // ¶ÁÈ¡Êı¾İµÄ»º³åÇø
-		fileSize,                        // Òª¶ÁÈ¡µÄ×Ö½ÚÊı
-		&bytesRead,                      // Êµ¼Ê¶ÁÈ¡µÄ×Ö½ÚÊı
-		NULL                             // ²»Ê¹ÓÃÖØµş½á¹¹
+		hFile,                           // æ–‡ä»¶å¥æŸ„
+		byteData.data(),                 // è¯»å–æ•°æ®çš„ç¼“å†²åŒº
+		fileSize,                        // è¦è¯»å–çš„å­—èŠ‚æ•°
+		&bytesRead,                      // å®é™…è¯»å–çš„å­—èŠ‚æ•°
+		NULL                             // ä¸ä½¿ç”¨é‡å ç»“æ„
 	);
 	if (!result || bytesRead != fileSize) {
 		//std::cerr << "Failed to read data from file. Error code: " << GetLastError() << std::endl;
 		CloseHandle(hFile);
 		return std::vector<BYTE>();
 	}
-	// ¹Ø±ÕÎÄ¼ş¾ä±ú
+	// å…³é—­æ–‡ä»¶å¥æŸ„
 	CloseHandle(hFile);
 	return byteData;
 }

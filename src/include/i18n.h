@@ -1,4 +1,4 @@
-// Description: i18n class for internationalization.
+﻿// Description: i18n class for internationalization.
 // Date: 2025/03/20
 
 #include <string>
@@ -23,7 +23,7 @@ public:
 		}
 		return instance; };
 	std::wstring get(std::string key);
-	void i18nClient::setLang(i18nLangSupported lang) { this->lang = lang; };
+    void setLang(i18nLangSupported lang) { this->lang = lang; };
 private:
 	static i18nClient* instance;
 	std::map<std::string, std::wstring> zh_cn;

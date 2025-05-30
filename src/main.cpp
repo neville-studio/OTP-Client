@@ -1,8 +1,8 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include "sntp.h"
 #include "core\crypto\sha3.h"
 using namespace std;
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #include "ui\win32\MainWinForm.h"
 
@@ -19,7 +19,7 @@ using namespace std;
 //	DWORDLONG conditionMask = 0;
 //	int op = VER_GREATER_EQUAL;
 //
-//	// ÉèÖÃ²Ù×÷ÏµÍ³°æ±¾ºÅÎª 10.0.17763
+//	// è®¾ç½®æ“ä½œç³»ç»Ÿç‰ˆæœ¬å·ä¸º 10.0.17763
 //	osvi.dwMajorVersion = 10;
 //	osvi.dwMinorVersion = 0;
 //	osvi.dwBuildNumber = 17763;

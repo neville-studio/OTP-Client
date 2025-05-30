@@ -642,11 +642,14 @@ void AddControls(HWND hWnd) {
 	lvc.mask = LVCF_TEXT | LVCF_WIDTH ;
 	
 	lvc.cx = 200;
-	lvc.pszText = L"名称";
+	wchar_t pszNameColumn[] = L"名称";
+	wchar_t pszPasswordColumn[] = L"数字密钥";
+	wchar_t pszExpireTimeColumn[] = L"过期时间";
+	lvc.pszText = pszNameColumn;
 	ListView_InsertColumn(hListView, 0, &lvc);
-	lvc.pszText = L"数字密钥";
+	lvc.pszText = pszPasswordColumn;
 	ListView_InsertColumn(hListView, 1, &lvc);
-	lvc.pszText = L"过期时间";
+	lvc.pszText = pszExpireTimeColumn;
 	ListView_InsertColumn(hListView, 2, &lvc);
 
 	HWND hHeader = ListView_GetHeader(hListView);
