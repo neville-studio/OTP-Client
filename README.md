@@ -14,6 +14,13 @@ This is a simple OTP client that can be used to generate OTPs for a given secret
 
 For more thing, [Go to Wiki](wiki/README.md)
 
+
+# ScreenShot
+![image](https://github.com/user-attachments/assets/308a8431-da04-412f-b52b-7102e02552d1)
+![image](https://github.com/user-attachments/assets/942cf28e-2349-48e5-abb2-cea07956be66)
+
+
+
 # Thanks
 
 ## Thanks the repositorys and projects
