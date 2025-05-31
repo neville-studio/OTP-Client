@@ -1,10 +1,10 @@
-<!-- OTP-Client.exe.manifest -->
+﻿<!-- OTP-Client.exe.manifest -->
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3">
     <assemblyIdentity
         type="win32"
         name="Neville.personal.OtpClient"
-        version="0.0.0.1"
+        version="0.0.0.2"
         processorArchitecture="AMD64"
     />
     <description>One-Time Password Viewer</description>
