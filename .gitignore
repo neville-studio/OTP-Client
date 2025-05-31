@@ -130,3 +130,6 @@ $RECYCLE.BIN/
 out/**
 .vs/**
 /packages
+/src/ui/winui3/ms-winui3/Generated Files
+/src/ui/OTP-Client-WinUI3/OTP-Client-WinUI3/Generated Files
+/src/ui/winui3/OTP-Client-WinUI3/Generated Files
