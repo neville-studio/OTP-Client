@@ -138,6 +138,13 @@
     <ClInclude Include="..\..\..\core\include\encode.h" />
     <ClInclude Include="..\..\..\core\include\hash.h" />
     <ClInclude Include="..\..\..\core\include\hmac.h" />
+    <ClInclude Include="..\..\..\include\common.h" />
+    <ClInclude Include="..\..\..\include\globaldata.h" />
+    <ClInclude Include="..\..\..\include\i18n.h" />
+    <ClInclude Include="..\..\..\include\otp.h" />
+    <ClInclude Include="..\..\..\include\sntp.h" />
+    <ClInclude Include="DataHandler.h" />
+    <ClInclude Include="OTPItem.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="App.xaml.h">
       <DependentUpon>App.xaml</DependentUpon>
@@ -168,6 +175,8 @@
     <ClCompile Include="..\..\..\core\i18n\i18n.cpp" />
     <ClCompile Include="..\..\..\core\otp\otp.cpp" />
     <ClCompile Include="..\..\..\core\sntp\sntp-windows.cpp" />
+    <ClCompile Include="DataHandler.cpp" />
+    <ClCompile Include="OTPItem.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "winrt/base.h"
 void* winrt_make_OTP_Client_WinUI3_MainWindow();
+void* winrt_make_OTP_Client_WinUI3_OTPItem();
 void* winrt_make_OTP_Client_WinUI3_XamlMetaDataProvider();
 
 bool __stdcall winrt_can_unload_now() noexcept
@@ -26,6 +27,11 @@ void* __stdcall winrt_get_activation_factory([[maybe_unused]] std::wstring_view 
     if (requal(name, L"OTP_Client_WinUI3.MainWindow"))
     {
         return winrt_make_OTP_Client_WinUI3_MainWindow();
+    }
+
+    if (requal(name, L"OTP_Client_WinUI3.OTPItem"))
+    {
+        return winrt_make_OTP_Client_WinUI3_OTPItem();
     }
 
     if (requal(name, L"OTP_Client_WinUI3.XamlMetaDataProvider"))

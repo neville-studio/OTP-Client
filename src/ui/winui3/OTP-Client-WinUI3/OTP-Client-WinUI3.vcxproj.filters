@@ -63,6 +63,8 @@
     <ClCompile Include="..\..\..\core\crypto\sm3.cpp">
       <Filter>core</Filter>
     </ClCompile>
+    <ClCompile Include="OTPItem.cpp" />
+    <ClCompile Include="DataHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -111,6 +113,23 @@
     <ClInclude Include="..\..\..\core\crypto\sm3.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="OTPItem.h" />
+    <ClInclude Include="..\..\..\include\common.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\globaldata.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\i18n.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\otp.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\sntp.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="DataHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">

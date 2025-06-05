@@ -1,9 +1,27 @@
-namespace OTP_Client_WinUI3
+﻿namespace OTP_Client_WinUI3
 {
     [default_interface]
     runtimeclass MainWindow : Microsoft.UI.Xaml.Window
     {
         MainWindow();
         Int32 MyProperty;
+        Windows.Foundation.Collections.IObservableVector<OTPItem> OTPItems{ get; };
     }
+    
+    [bindable]
+	[default_interface]
+    runtimeclass OTPItem : Microsoft.UI.Xaml.Data.INotifyPropertyChanged
+    {
+        OTPItem();
+
+        String FriendlyName;
+        String SecretDigits;
+
+        String RemainingTimeText;        // 需要绑定的属性
+        Single Progress;
+        String ProgressColor;
+
+    }
+    
+
 }
