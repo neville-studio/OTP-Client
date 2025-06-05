@@ -3,25 +3,10 @@
 #include "MainWindow.g.h"
 #include "OTPItem.h"
 #include "globaldata.h"
-//namespace OTPListData {
-//	class OTPItemViewModel;
-//    {
-//    public:
-//        winrt::hstring FriendlyName;
-//        winrt::hstring Secret;
-//
-//        winrt::hstring RemainingTimeText;
-//        winrt::hstring currentCode;
-//        float Progress;
-//
-//        int OTPType;
-//        int OTPAlgorithm;
-//        int OTPDigits;
-//        int period;
-//        int counter;
-//        OTPItem() = default;
-//    };
-//};
+#include "hmac.h"
+#include "otp.h"
+#include <string.h>
+
 
 
 
@@ -39,19 +24,35 @@ namespace winrt::OTP_Client_WinUI3::implementation
             ExtendsContentIntoTitleBar(true);
             SetTitleBar(TitleBarMainWindow());
            
-            winrt::OTP_Client_WinUI3::OTPItem otpItem = {}; // Create an instance of OTPItem
-            otpItem.FriendlyName(L"Example OTP Item"); // Example friendly name
-			otpItem.RemainingTimeText(L"30"); // Example remaining time text
-            otpItem.Progress(100.0); // Example remaining time text
-			otpItem.SecretDigits(L"123456"); // Example secret
-            otpItem.ProgressColor(L"");
+			winrt::Microsoft::UI::Xaml::DispatcherTimer timer;
 
-            OTPItems().Append(otpItem);
+            // 设置时间间隔为一秒
+            timer.Interval(std::chrono::milliseconds(100));
+
+            // 注册 Tick 事件处理程序
+            timer.Tick([this](const IInspectable&, const IInspectable&)
+            {
+                    // 更新 TextBlock 文本
+                    UIUpdate();
+            });
+
+            // 开始定时器
+            timer.Start();
+   //         winrt::OTP_Client_WinUI3::OTPItem otpItem = {}; // Create an instance of OTPItem
+   //         otpItem.FriendlyName(L"Example OTP Item"); // Example friendly name
+			//otpItem.RemainingTimeText(L"30"); // Example remaining time text
+   //         otpItem.Progress(100.0); // Example remaining time text
+			//otpItem.SecretDigits(L"123456"); // Example secret
+   //         otpItem.ProgressColor(L"");
+
+   //         OTPItems().Append(otpItem);
 
 
             // Xaml objects should not call InitializeComponent during construction.
             // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
         }
+
+        void UIUpdate();
 
         int32_t MyProperty();
         void MyProperty(int32_t value);

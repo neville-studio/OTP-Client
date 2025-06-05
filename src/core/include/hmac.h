@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "common.h"
 #include "hash.h"
 //#include "sha1.h"

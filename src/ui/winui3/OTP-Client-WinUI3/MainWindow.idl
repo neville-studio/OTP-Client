@@ -19,7 +19,7 @@
 
         String RemainingTimeText;        // 需要绑定的属性
         Single Progress;
-        String ProgressColor;
+        //String ProgressColor;
 
     }
     

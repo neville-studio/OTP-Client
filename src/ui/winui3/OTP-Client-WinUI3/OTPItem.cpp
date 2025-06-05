@@ -33,7 +33,7 @@ namespace winrt::OTP_Client_WinUI3::implementation
             RaisePropertyChanged(L"RemainingTimeText");
         }
     }
-    winrt::hstring OTPItem::ProgressColor() { return m_remainingTimeText; }
+   /* winrt::hstring OTPItem::ProgressColor() { return m_remainingTimeText; }
     void OTPItem::ProgressColor(winrt::hstring const& value)
     {
         if (m_progressColor != value)
@@ -41,7 +41,7 @@ namespace winrt::OTP_Client_WinUI3::implementation
             m_progressColor = value;
             RaisePropertyChanged(L"ProgressColor");
         }
-    }
+    }*/
 
     float OTPItem::Progress() { return m_progress; }
     void OTPItem::Progress(float const& value)

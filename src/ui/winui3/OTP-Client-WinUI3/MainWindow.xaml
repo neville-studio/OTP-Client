@@ -42,7 +42,7 @@
                                     <TextBlock Text="{Binding SecretDigits}" FontSize="12"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                    <ProgressRing Width="32" Height="32" Value="{Binding Progress}" Maximum="100" Margin="10,0" IsIndeterminate="False" Foreground="{Binding ProgressColor}"/>
+                                    <ProgressRing Width="32" Height="32" Value="{Binding Progress}" Maximum="100" Margin="10,0" IsIndeterminate="False" />
                                     <TextBlock Text="{Binding RemainingTimeText}" Width="60" Margin="10,0"/>
                                     <Button Content="编辑" Width="50" Margin="10,0"/>
                                     <Button Content="删除" Width="50" Margin="10,0"/>

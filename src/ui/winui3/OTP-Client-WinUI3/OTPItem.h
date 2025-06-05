@@ -22,8 +22,8 @@ namespace winrt::OTP_Client_WinUI3::implementation
         float Progress();
         void Progress(float const& value);
 
-        winrt::hstring ProgressColor();
-        void ProgressColor(winrt::hstring const& value);
+        //winrt::hstring ProgressColor();
+        //void ProgressColor(winrt::hstring const& value);
 
         winrt::event_token PropertyChanged(
             winrt::Microsoft::UI::Xaml::Data::PropertyChangedEventHandler const& handler);
@@ -36,7 +36,7 @@ namespace winrt::OTP_Client_WinUI3::implementation
         winrt::hstring m_friendlyName;
         winrt::hstring m_secretDigits;
         winrt::hstring m_remainingTimeText;
-		winrt::hstring m_progressColor{ L"" };
+		//winrt::hstring m_progressColor{ L"" };
      
 		float m_progress{ 100.0f };
         //double m_salary{ 0.0 };
