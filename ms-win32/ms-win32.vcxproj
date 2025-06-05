@@ -179,6 +179,7 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\ui\win32\DataHandler.cpp" />
     <ClCompile Include="..\src\ui\win32\MainWinForm.cpp" />
+    <ClCompile Include="..\src\ui\win32\targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\src\ui\win32\client.ico" />

@@ -75,6 +75,9 @@
     <ClCompile Include="..\src\core\sntp\sntp-windows.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\win32\targetver.h">
+      <Filter>头文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ui\win32\resource.h">

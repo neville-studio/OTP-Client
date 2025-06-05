@@ -1,15 +1,28 @@
-// Microsoft Visual C++ generated resource script.
+Ôªø// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
-//#include "afxres.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#define APSTUDIO_HIDDEN_SYMBOLS
 #include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
-LANGUAGE 0x04, 0x02
-#pragma code_page(936)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+// #pragma code_page(936)
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -17,17 +30,23 @@ LANGUAGE 0x04, 0x02
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "\r\n"
     "\0"
@@ -53,51 +72,51 @@ IDI_ICONMAIN            ICON                    "./client.ico"
 
 IDD_OTP DIALOGEX 0, 0, 311, 161
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "≈‰÷√¡Ó≈∆"
+CAPTION "ÈÖçÁΩÆ‰ª§Áâå"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "»∑∂®",IDOK,199,140,50,14
-    PUSHBUTTON      "»°œ˚",IDCANCEL,254,140,50,14
+    DEFPUSHBUTTON   "Á°ÆÂÆö",IDOK,199,140,50,14
+    PUSHBUTTON      "ÂèñÊ∂à",IDCANCEL,254,140,50,14
     EDITTEXT        IDC_OTPNAME,82,23,192,12,ES_AUTOHSCROLL
     EDITTEXT        IDC_OTPSECRET,82,40,192,12,ES_AUTOHSCROLL
-    LTEXT           "¡Ó≈∆√˚≥∆",IDC_STATIC,22,25,35,8
-    LTEXT           "¡Ó≈∆√‹‘ø",IDC_STATIC,22,42,35,8
-    LTEXT           "º‰∏Ù ±º‰£®√Î£©", IDC_HOTPTOTPADDSTATIC,25,105,61,8
+    LTEXT           "‰ª§ÁâåÂêçÁß∞",IDC_STATIC,22,25,35,8
+    LTEXT           "‰ª§ÁâåÂØÜÈí•",IDC_STATIC,22,42,35,8
+    LTEXT           "Èó¥ÈöîÊó∂Èó¥ÔºàÁßíÔºâ", IDC_HOTPTOTPADDSTATIC,25,105,61,8
     EDITTEXT        IDC_ADDITIONEDIT,86,103,62,12,ES_AUTOHSCROLL | ES_NUMBER
-    PUSHBUTTON      "∏ﬂº∂—°œÓ <<",IDC_ADVANCEDBUTTON,18,81,60,14
-    LTEXT           "√‹‘øÀ„∑®",IDC_STATIC,157,105,35,8
+    PUSHBUTTON      "È´òÁ∫ßÈÄâÈ°π <<",IDC_ADVANCEDBUTTON,18,81,60,14
+    LTEXT           "ÂØÜÈí•ÁÆóÊ≥ï",IDC_STATIC,157,105,35,8
     COMBOBOX        IDC_ALGORITHM,195,103,84,12,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "√‹¬Î «º∆ ˝µƒ",IDC_CHECKISHOTP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,60,67,10
-    LTEXT           "…˙≥…√‹¬Î≥§∂»",IDC_STATIC,26,122,52,8
+    CONTROL         "ÂØÜÁ†ÅÊòØËÆ°Êï∞ÁöÑ",IDC_CHECKISHOTP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,60,67,10
+    LTEXT           "ÁîüÊàêÂØÜÁ†ÅÈïøÂ∫¶",IDC_STATIC,26,122,52,8
     CONTROL         "",IDC_DIGITLENGTH,"msctls_trackbar32",TBS_AUTOTICKS | TBS_BOTH | TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_TOOLTIPS | WS_TABSTOP,86,122,100,15
-    LTEXT           "√‹‘ø±‡¬Î∏Ò Ω", IDC_STATIC, 195, 122, 52, 8
+    LTEXT           "ÂØÜÈí•ÁºñÁ†ÅÊ†ºÂºè", IDC_STATIC, 195, 122, 52, 8
     COMBOBOX        IDC_ENCODE, 250, 120, 45, 12, CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
 END
 
 IDD_SNTP DIALOGEX 0, 0, 311, 110
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION " ±÷”Õ¨≤Ω∑˛ŒÒ…Ë÷√"
+CAPTION "Êó∂ÈíüÂêåÊ≠•ÊúçÂä°ËÆæÁΩÆ"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "»∑∂®",IDOK,199,89,50,14
-    PUSHBUTTON      "»°œ˚",IDCANCEL,254,89,50,14
-    CONTROL         " º÷’ π”√Õ¯¬Á ±÷”",IDC_ALWAYSNETTIME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,16,85,10
+    DEFPUSHBUTTON   "Á°ÆÂÆö",IDOK,199,89,50,14
+    PUSHBUTTON      "ÂèñÊ∂à",IDCANCEL,254,89,50,14
+    CONTROL         "ÂßãÁªà‰ΩøÁî®ÁΩëÁªúÊó∂Èíü",IDC_ALWAYSNETTIME,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,16,85,10
     EDITTEXT        IDC_PRIMARYSERVER,81,30,170,14,ES_AUTOHSCROLL
     EDITTEXT        IDC_SECONDARYSERVER,81,47,170,14,ES_AUTOHSCROLL
-    LTEXT           "÷˜ ±÷”∑˛ŒÒ∆˜",IDC_STATIC,22,34,52,8
-    LTEXT           "∏® ±÷”∑˛ŒÒ∆˜",IDC_STATIC,23,49,52,8
-    LTEXT           "…œ¥ŒÕ¨≤Ω£∫Œ¥Õ¨≤Ω",IDC_STATICSYNC,23,68,182,8
-    PUSHBUTTON      "”¶”√≤¢÷ÿ–¬Õ¨≤Ω",IDC_RESYNC,104,89,72,14
+    LTEXT           "‰∏ªÊó∂ÈíüÊúçÂä°Âô®",IDC_STATIC,22,34,52,8
+    LTEXT           "ËæÖÊó∂ÈíüÊúçÂä°Âô®",IDC_STATIC,23,49,52,8
+    LTEXT           "‰∏äÊ¨°ÂêåÊ≠•ÔºöÊú™ÂêåÊ≠•",IDC_STATICSYNC,23,68,182,8
+    PUSHBUTTON      "Â∫îÁî®Âπ∂ÈáçÊñ∞ÂêåÊ≠•",IDC_RESYNC,104,89,72,14
 END
 
 IDD_HOTP DIALOGEX 0, 0, 311, 176
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "ƒ„µ±«∞µƒ√‹¬Î"
+CAPTION "‰Ω†ÂΩìÂâçÁöÑÂØÜÁ†Å"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "»∑∂®",IDOK,253,156,50,14
+    DEFPUSHBUTTON   "Á°ÆÂÆö",IDOK,253,156,50,14
 	LTEXT           "******", IDC_PASSWORD, 20, 30, 250, 50, SS_CENTER
-    LTEXT           "◊¢“‚£¨πÿ±’¥À∂‘ª∞øÚ∫Û£¨ƒ˙µƒHOTPº∆ ˝∆˜ª·∏¸–¬",IDC_STATIC,22,135,182,8
+    LTEXT           "Ê≥®ÊÑèÔºåÂÖ≥Èó≠Ê≠§ÂØπËØùÊ°ÜÂêéÔºåÊÇ®ÁöÑHOTPËÆ°Êï∞Âô®‰ºöÊõ¥Êñ∞",IDC_STATIC,22,135,182,8
 END
 
 
@@ -177,64 +196,64 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_HOTPADDITION        "º∆ ˝∆˜¥Œ ˝"
-    IDS_TOTPADDITION        "º‰∏Ù ±º‰£®√Î£©"
-    IDS_ERROR               "¥ÌŒÛ"
-	IDS_ERROR_NOSECRET      "√‹‘ø≤ªƒ‹Œ™ø’"
-	IDS_ERROR_ERRORENCODE_BASE32   "¥ÌŒÛµƒ±‡¬Î£¨Ωˆ÷ß≥÷¥Û–¥◊÷ƒ∏A-Z°¢ ˝◊÷2-7"
-    IDS_ERROR_ERRORENCODE_BASE64   "¥ÌŒÛµƒ±‡¬Î£¨Ωˆ÷ß≥÷¥Û–°–¥◊÷ƒ∏A-Z, a-z, 0-9º∞+°¢/"
-    IDS_ERROR_ERRORENCODE_HEX   "¥ÌŒÛµƒ±‡¬Î£¨Ωˆ÷ß≥÷¥Û–¥◊÷ƒ∏A-F°¢0-9"
-    IDS_ERROR_TIMEEQUALS_ZERO   "º‰∏Ù ±≥§µ»”⁄0£¨Ω´≤…”√ƒ¨»œ…Ë÷√£®30√Î£©"
-    IDS_HOTP_INFO   "º∆¥Œ—È÷§√‹¬Î£¨À´ª˜ø…≤Èø¥"
-    IDS_CONFIRM_HOTPVIEW   "»∑∂®“™≤Èø¥¥À√‹‘ø¬£¨»Ù≤Èø¥¥À√‹‘ø£¨ƒ⁄÷√º∆ ˝∆˜ª·º”“ª"
-    IDS_CONFIRM             "Ã· æ"
-    IDS_LASTSYNC            "…œ¥ŒÕ¨≤Ω£∫%d∑÷÷”«∞"
-    IDS_LASTSYNCFAILED      "Õ¨≤Ω ß∞‹°£"
-    IDS_DELETEINFO      "»∑∂®“™…æ≥˝¬£ø"
-    IDS_DELETETITLE      "…æ≥˝Ã· æ"
+    IDS_HOTPADDITION        "ËÆ°Êï∞Âô®Ê¨°Êï∞"
+    IDS_TOTPADDITION        "Èó¥ÈöîÊó∂Èó¥ÔºàÁßíÔºâ"
+    IDS_ERROR               "ÈîôËØØ"
+	IDS_ERROR_NOSECRET      "ÂØÜÈí•‰∏çËÉΩ‰∏∫Á©∫"
+	IDS_ERROR_ERRORENCODE_BASE32   "ÈîôËØØÁöÑÁºñÁ†ÅÔºå‰ªÖÊîØÊåÅÂ§ßÂÜôÂ≠óÊØçA-Z„ÄÅÊï∞Â≠ó2-7"
+    IDS_ERROR_ERRORENCODE_BASE64   "ÈîôËØØÁöÑÁºñÁ†ÅÔºå‰ªÖÊîØÊåÅÂ§ßÂ∞èÂÜôÂ≠óÊØçA-Z, a-z, 0-9Âèä+„ÄÅ/"
+    IDS_ERROR_ERRORENCODE_HEX   "ÈîôËØØÁöÑÁºñÁ†ÅÔºå‰ªÖÊîØÊåÅÂ§ßÂÜôÂ≠óÊØçA-F„ÄÅ0-9"
+    IDS_ERROR_TIMEEQUALS_ZERO   "Èó¥ÈöîÊó∂ÈïøÁ≠â‰∫é0ÔºåÂ∞ÜÈááÁî®ÈªòËÆ§ËÆæÁΩÆÔºà30ÁßíÔºâ"
+    IDS_HOTP_INFO   "ËÆ°Ê¨°È™åËØÅÂØÜÁ†ÅÔºåÂèåÂáªÂèØÊü•Áúã"
+    IDS_CONFIRM_HOTPVIEW   "Á°ÆÂÆöË¶ÅÊü•ÁúãÊ≠§ÂØÜÈí•ÂêóÔºåËã•Êü•ÁúãÊ≠§ÂØÜÈí•ÔºåÂÜÖÁΩÆËÆ°Êï∞Âô®‰ºöÂä†‰∏Ä"
+    IDS_CONFIRM             "ÊèêÁ§∫"
+    IDS_LASTSYNC            "‰∏äÊ¨°ÂêåÊ≠•Ôºö%dÂàÜÈíüÂâç"
+    IDS_LASTSYNCFAILED      "ÂêåÊ≠•Â§±Ë¥•„ÄÇ"
+    IDS_DELETEINFO      "Á°ÆÂÆöË¶ÅÂà†Èô§ÂêóÔºü"
+    IDS_DELETETITLE      "Âà†Èô§ÊèêÁ§∫"
 END
 
 
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0, 0, 0, 1
-PRODUCTVERSION 0, 0, 0, 1
-FILEFLAGSMASK 0x3fL
+    FILEVERSION 0, 0, 0, 2
+   PRODUCTVERSION 0, 0, 0, 2
+    FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
-FILEFLAGS 0x1L
+    FILEFLAGS 0x1L
 #else
-FILEFLAGS 0x0L
+    FILEFLAGS 0x0L
 #endif
-FILEOS 0x40004L
-FILETYPE 0x1L
-FILESUBTYPE 0x0L
-BEGIN
-BLOCK "StringFileInfo"
-BEGIN
-BLOCK "080404b0"
-BEGIN
-VALUE "CompanyName", "Neville Studio"
-VALUE "FileDescription", "“ª¥Œ–‘√‹¬Î≤Èø¥∆˜"
-VALUE "FileVersion", "0.0.0.1"
-VALUE "InternalName", "OTPClien.exe"
-VALUE "LegalCopyright", "Copyright (C) 2025 Neville Studio, all rights reserved."
-VALUE "OriginalFilename", "OTPClien.exe"
-VALUE "ProductName", "“ª¥Œ–‘√‹¬Î≤Èø¥∆˜£¨π‹¿Ì—È÷§ƒ„µƒ“ª¥Œ–‘√‹¬Î°£"
-VALUE "ProductVersion", "0.0.0.1"
-END
-END
-BLOCK "VarFileInfo"
-BEGIN
-VALUE "Translation", 0x804, 1200
-END
+    FILEOS 0x40004L
+    FILETYPE 0x1L
+    FILESUBTYPE 0x0L
+    BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName", "Neville Studio"
+            VALUE "FileDescription", "‰∏ÄÊ¨°ÊÄßÂØÜÁ†ÅÊü•ÁúãÂô®"
+            VALUE "FileVersion", "0.0.0.2"
+            VALUE "InternalName", "OTPClien.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2025 Neville Studio, all rights reserved."
+            VALUE "OriginalFilename", "OTPClien.exe"
+            VALUE "ProductName", "‰∏ÄÊ¨°ÊÄßÂØÜÁ†ÅÊü•ÁúãÂô®ÔºåÁÆ°ÁêÜÈ™åËØÅ‰Ω†ÁöÑ‰∏ÄÊ¨°ÊÄßÂØÜÁ†Å„ÄÇ"
+            VALUE "ProductVersion", "0.0.0.2"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
 END
 
-#endif    // ÷–Œƒ(ºÚÃÂ£¨÷–π˙) resources
+#endif    // ‰∏≠Êñá(ÁÆÄ‰ΩìÔºå‰∏≠ÂõΩ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// ”¢”Ô(√¿π˙) resources
+// Ëã±ËØ≠(ÁæéÂõΩ) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -362,8 +381,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0, 0, 0, 1
-PRODUCTVERSION 0, 0, 0, 1
+FILEVERSION 0, 0, 0, 2
+PRODUCTVERSION 0, 0, 0, 2
 FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 FILEFLAGS 0x1L
@@ -380,12 +399,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Neville Studio"
             VALUE "FileDescription", "OTP-Client"
-            VALUE "FileVersion", "0.0.0.1"
+            VALUE "FileVersion", "0.0.0.22"
             VALUE "InternalName", "OTPClien.exe"
             VALUE "LegalCopyright", "Copyright (C) 2025 Neville Studio, All rights reserved."
             VALUE "OriginalFilename", "OTPClien.exe"
             VALUE "ProductName", "OTP-Client, to Manage your OTP Password!"
-            VALUE "ProductVersion", "0.0.0.1"
+            VALUE "ProductVersion", "0.0.0.2"
         END
     END
     BLOCK "VarFileInfo"
@@ -394,7 +413,7 @@ BEGIN
     END
 END
 
-#endif    // ”¢”Ô(√¿π˙) resources
+#endif    // Ëã±ËØ≠(ÁæéÂõΩ) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
