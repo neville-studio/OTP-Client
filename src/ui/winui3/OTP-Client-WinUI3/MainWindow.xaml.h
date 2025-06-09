@@ -8,6 +8,8 @@
 #include <string.h>
 
 
+void calculateThread();
+
 
 
 namespace winrt::OTP_Client_WinUI3::implementation
@@ -25,7 +27,7 @@ namespace winrt::OTP_Client_WinUI3::implementation
             SetTitleBar(TitleBarMainWindow());
            
 			winrt::Microsoft::UI::Xaml::DispatcherTimer timer;
-
+            
             // 设置时间间隔为一秒
             timer.Interval(std::chrono::milliseconds(100));
 
@@ -38,6 +40,12 @@ namespace winrt::OTP_Client_WinUI3::implementation
 
             // 开始定时器
             timer.Start();
+
+            // Build a new Thread
+            std::thread thread1(calculateThread);
+            thread1.detach();
+            
+            //TrySet
    //         winrt::OTP_Client_WinUI3::OTPItem otpItem = {}; // Create an instance of OTPItem
    //         otpItem.FriendlyName(L"Example OTP Item"); // Example friendly name
 			//otpItem.RemainingTimeText(L"30"); // Example remaining time text
@@ -51,8 +59,14 @@ namespace winrt::OTP_Client_WinUI3::implementation
             // Xaml objects should not call InitializeComponent during construction.
             // See https://github.com/microsoft/cppwinrt/tree/master/nuget#initializecomponent
         }
-
+        void updateFormatter();
         void UIUpdate();
+
+        
+        void SNTPThread();
+        //void addProgressAnimation(UIElement const& element, float progress);
+
+        //void winrt::OTP_Client_WinUI3::implementation::MainWindow::OnContainerContentChanging(IInspectable const&, ContainerContentChangingEventArgs const& args);
 
         int32_t MyProperty();
         void MyProperty(int32_t value);
@@ -68,11 +82,9 @@ namespace winrt::OTP_Client_WinUI3::implementation
     private:
         winrt::Windows::Foundation::Collections::IObservableVector<winrt::OTP_Client_WinUI3::OTPItem> m_otpItem{
             winrt::single_threaded_observable_vector<winrt::OTP_Client_WinUI3::OTPItem>() };
-    public:
+    //public:
         
-        GlobalConfiguration* globalConfig = GlobalConfiguration::getInstance();
-        vector<OTPInfo> otpInfos = globalConfig->getOTPConfig();
-        vector<string> sntpServers = globalConfig->getSNTPServers();
+        
     };
     
 }

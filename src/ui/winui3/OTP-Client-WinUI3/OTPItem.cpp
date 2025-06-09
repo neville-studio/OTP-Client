@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "OTPItem.h"
 #include "OTPItem.g.cpp"
+#include <winrt/Windows.UI.h>
 
 namespace winrt::OTP_Client_WinUI3::implementation
 {
@@ -50,6 +51,17 @@ namespace winrt::OTP_Client_WinUI3::implementation
         {
             m_progress = value;
             RaisePropertyChanged(L"Progress");
+            updateProgressColor();
+        }
+    }
+
+    bool OTPItem::IsHOTP() { return m_ishotp; }
+    void OTPItem::IsHOTP(bool const& value)
+    {
+        if (m_ishotp != value)
+        {
+            m_ishotp = value;
+            RaisePropertyChanged(L"IsHOTP");
         }
     }
 
@@ -67,5 +79,47 @@ namespace winrt::OTP_Client_WinUI3::implementation
     void OTPItem::RaisePropertyChanged(winrt::hstring const& propertyName)
     {
         m_propertyChanged(*this, winrt::Microsoft::UI::Xaml::Data::PropertyChangedEventArgs(propertyName));
+    }
+
+    winrt::Windows::UI::Color OTPItem::ProgressColor() {
+        return m_progressColor;
+    }
+    void OTPItem::updateProgressColor() {
+        using namespace winrt::Windows::UI;
+        Color color;
+        color.A = 255; // Alpha is fixed
+
+        if (m_progress <= 50)
+        {
+            // Transition from Red to Gold (0-50 progress mapped to 0-1)
+            float t = m_progress / 50.0f;
+            color.R = static_cast<uint8_t>(255); // Red stays at 255
+            color.G = static_cast<uint8_t>(255 * t); // Green increases with t
+            color.B = static_cast<uint8_t>(0); // Blue stays at 0
+        }
+        else
+        {
+            // Transition from Gold to LimeGreen (51-100 progress mapped to 0-1)
+            float t = (m_progress - 50) / 50.0f;
+            color.R = static_cast<uint8_t>(255 * (1 - t)); // Red decreases with t
+            color.G = static_cast<uint8_t>(255); // Green stays at 255
+            color.B = static_cast<uint8_t>(0 + 164 * t); // Blue increases with t towards LimeGreen's blue component
+        }
+        ProgressColor(color);
+        //if (m_progress < 20) 
+        //    ProgressColor(Colors::Red());
+        //else if (m_progress < 67) 
+        //    ProgressColor(Colors::Gold());
+        //else 
+        //    ProgressColor(Colors::LimeGreen());
+       
+    }
+    void OTPItem::ProgressColor(winrt::Windows::UI::Color const& value) {
+        
+        if (m_progressColor != value)
+        {
+            m_progressColor = value;
+            RaisePropertyChanged(L"ProgressColor");
+        }
     }
 }

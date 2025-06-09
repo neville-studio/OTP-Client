@@ -1,4 +1,4 @@
-#include "base64.h"
+﻿#include "base64.h"
 
 char base64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 vector<byte> base64Decode(string base64String)
@@ -109,3 +109,20 @@ vector<uint32_t> base64Decode2uint32_tVector(string input)
 	return result;
 }
 
+bool isBase64Encode(string s, bool ignoreSpace = true) {
+	for (auto i : s)
+	{
+		if(!(isalpha(i) || isdigit(i) || i == '+' || i == '=' || (isspace(i) && ignoreSpace)))
+			return false;
+	}
+	return true;
+}
+
+bool isBase64Encode(wstring s, bool ignoreSpace = true) {
+	for (auto i : s)
+	{
+		if (!(isalpha(i) || isdigit(i) || i == '+' || i == '=' || (isspace(i) && ignoreSpace)))
+			return false;
+	}
+	return true;
+}

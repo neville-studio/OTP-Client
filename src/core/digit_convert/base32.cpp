@@ -1,4 +1,4 @@
-#include "base32.h"
+ï»¿#include "base32.h"
 
 char base32Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 byte base32CharToValue(char c) {
@@ -59,7 +59,7 @@ string base32Encode(vector<uint8_t>& input) {
 
         while (bitsLeft >= 5) {
             bitsLeft -= 5;
-            size_t index = (buffer >> bitsLeft) & 0x1F; // È¡µÍ5Î»
+            size_t index = (buffer >> bitsLeft) & 0x1F; // å–ä½5ä½
             result.push_back(base32Chars[index]);
         }
     }
@@ -70,7 +70,7 @@ string base32Encode(vector<uint8_t>& input) {
         result.push_back(base32Chars[index]);
     }
 
-    // Ìí¼ÓÌî³ä×Ö·û('=')
+    // æ·»åŠ å¡«å……å­—ç¬¦('=')
     while (result.size() % 8 != 0) {
         result.push_back('=');
     }
@@ -98,4 +98,22 @@ string convert_base32_from_uint32_t(vector<uint32_t> data) {
     
     return  base32Encode(bytes);
 
+}
+
+bool isBase32Encode(string s, bool ignoreSpace = true) {
+    for (auto i : s)
+    {
+        if (!((i >= 'A' && i <= 'Z') || (i >= '2' && i <= '7') || i == '=' || (isspace(i) && ignoreSpace)))
+            return false;
+    }
+    return true;
+}
+
+bool isBase32Encode(wstring s, bool ignoreSpace = true) {
+    for (auto i : s)
+    {
+        if (!((i >= L'A' && i <= L'Z') || (i >= L'2' && i <= L'7') || (i == L'=' || (isspace(i) && ignoreSpace))))
+            return false;
+    }
+    return true;
 }

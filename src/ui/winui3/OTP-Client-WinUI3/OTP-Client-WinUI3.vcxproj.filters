@@ -138,6 +138,9 @@
     <Filter Include="core">
       <UniqueIdentifier>{184046c9-059e-4032-aa53-20bc851ddc59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Converter">
+      <UniqueIdentifier>{025fba61-5352-43b3-b88c-9650e3c6f6c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="readme.txt" />

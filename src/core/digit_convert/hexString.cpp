@@ -1,4 +1,4 @@
-#include "hexString.h"
+﻿#include "hexString.h"
 
 char hexString[] = "0123456789ABCDEF";
 vector<byte> hexStringDecode(string in)
@@ -80,3 +80,20 @@ vector<uint32_t> hexStringDecode2uint32_tVector(string in)
 	}
 	return result;
 }
+
+bool isHexEncode(string s, bool ignoreSpace = true) {
+	for (auto i : s)
+	{
+		if (!(isdigit(i) || (i >= 'A' && i <= 'F')))
+			return false;
+	}
+	return true;
+}
+bool isHexEncode(wstring s, bool ignoreSpace = true) {
+	for (auto i : s)
+	{
+		if (!(isdigit(i) || (i >= 'A' && i <= 'F')))
+			return false;
+	}
+	return true;
+};

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "common.h"
 using namespace std;
 
@@ -24,3 +24,12 @@ string convert_base32_from_uint32_t(vector<uint32_t> data);
 * @param data an array in data
 */
 vector<uint32_t> base32Decode2uint32_tVector(const string& input);
+
+
+/* 
+* @brief to judge if the string is Base 32 Encode.
+* @param s the string to judge
+* @param ignoreSpace the to judgeif the string is to judge;
+*/
+bool isBase32Encode(string s, bool ignoreSpace = true);
+bool isBase32Encode(wstring s, bool ignoreSpace = true);

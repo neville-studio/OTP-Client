@@ -17,8 +17,10 @@
         String FriendlyName;
         String SecretDigits;
 
-        String RemainingTimeText;        // 需要绑定的属性
+        String RemainingTimeText;        
         Single Progress;
+
+        Windows.UI.Color ProgressColor;
         //String ProgressColor;
 
     }
