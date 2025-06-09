@@ -100,7 +100,7 @@ string convert_base32_from_uint32_t(vector<uint32_t> data) {
 
 }
 
-bool isBase32Encode(string s, bool ignoreSpace = true) {
+bool isBase32Encode(string s, bool ignoreSpace) {
     for (auto i : s)
     {
         if (!((i >= 'A' && i <= 'Z') || (i >= '2' && i <= '7') || i == '=' || (isspace(i) && ignoreSpace)))
@@ -109,7 +109,7 @@ bool isBase32Encode(string s, bool ignoreSpace = true) {
     return true;
 }
 
-bool isBase32Encode(wstring s, bool ignoreSpace = true) {
+bool isBase32Encode(wstring s, bool ignoreSpace) {
     for (auto i : s)
     {
         if (!((i >= L'A' && i <= L'Z') || (i >= L'2' && i <= L'7') || (i == L'=' || (isspace(i) && ignoreSpace))))

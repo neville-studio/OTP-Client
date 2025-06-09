@@ -81,7 +81,7 @@ vector<uint32_t> hexStringDecode2uint32_tVector(string in)
 	return result;
 }
 
-bool isHexEncode(string s, bool ignoreSpace = true) {
+bool isHexEncode(string s, bool ignoreSpace) {
 	for (auto i : s)
 	{
 		if (!(isdigit(i) || (i >= 'A' && i <= 'F')))
@@ -89,7 +89,7 @@ bool isHexEncode(string s, bool ignoreSpace = true) {
 	}
 	return true;
 }
-bool isHexEncode(wstring s, bool ignoreSpace = true) {
+bool isHexEncode(wstring s, bool ignoreSpace) {
 	for (auto i : s)
 	{
 		if (!(isdigit(i) || (i >= 'A' && i <= 'F')))

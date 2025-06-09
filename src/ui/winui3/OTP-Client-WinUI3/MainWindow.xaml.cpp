@@ -31,7 +31,17 @@ wstring padZero(wstring s, int count)
 	if (s.size() > count)return s;
 	return wstring(L"00000000").substr(0, count - s.size()) + s;
 }
-
+wstring s2ws(const string& s)
+{
+	int len;
+	int slength = (int)s.length() + 1;
+	len = MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, 0, 0);
+	wchar_t* buf = new wchar_t[len];
+	MultiByteToWideChar(CP_UTF8, 0, s.c_str(), slength, buf, len);
+	wstring r(buf);
+	delete[] buf;
+	return r;
+}
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 int64_t getCurrentMillSecond(bool usingNetTime = false) {
@@ -96,6 +106,7 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::updateFormatter()
 	incrementNumberRounder.RoundingAlgorithm(winrt::Windows::Globalization::NumberFormatting::RoundingAlgorithm::RoundHalfUp);
 	decimalFormatter.IntegerDigits(1);
 	decimalFormatter.FractionDigits(0);
+	EncodingError().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
 	decimalFormatter.NumberRounder(incrementNumberRounder);
 	HotpCounterBox().NumberFormatter(decimalFormatter);
 	TotpStepBox().NumberFormatter(decimalFormatter);
@@ -157,7 +168,37 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
 	int32_t encode = EncodingBox().SelectedIndex() + 1;
 	//if (encode == 0) encode = 1;
     int32_t algorithm = AlgorithmBox().SelectedIndex() + 1;
-
+	bool valid = false;
+	switch (encode)
+	{
+	case 1:
+		valid = isBase32Encode(secret, false);
+		break;
+	case 2:
+		valid = isBase64Encode(secret, false);
+		break;
+	case 3:
+		valid = isHexEncode(secret, false);
+		break;
+	}
+	if (!valid)
+	{
+		EncodingError().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+		SecretBox().Focus(winrt::Microsoft::UI::Xaml::FocusState::Keyboard);
+		return;
+		/*EncodingBox()*/
+		//return;
+		//OTPDialog().Hide();
+		//e.Cancel(true);
+		/*winrt::Microsoft::UI::Xaml::Controls::ContentDialog SimpleDialog;
+		SimpleDialog.Title(box_value(L"错误!!"));
+		SimpleDialog.Content(box_value(L"不合法的编码！"));
+		SimpleDialog.CloseButtonText(L"确定");
+		SimpleDialog.ShowAsync();*/
+		//co_await 
+		//OTPDialog().ShowAsync();
+		//co_return;
+	}
     OTPInfo otpInfo;
 	otpInfo.algorithm = algorithm;
 	otpInfo.secret_type = encode;
@@ -165,7 +206,7 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
 	otpInfo.secret = to_string(secret);
 	otpInfo.type = isHotp;
 	otpInfo.digits = digits;
-	otpInfo.addition_param = !isHotp? interval: digits;
+	otpInfo.addition_param = !isHotp? interval: counter;
 	//guid guid1;
 	//GUID().
 
@@ -193,7 +234,7 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
 		string otpRes = otp.generateOTP(DecryptData(dataCache[wstring(otpInfo.secret.begin(), otpInfo.secret.end())]), otpInfo.secret_type, otpInfo.digits, getCurrentMillSecond() / otpInfo.addition_param / 1000);
 		wstring otpRes_w(otpRes.begin(), otpRes.end());
 		otpItem.SecretDigits(padZero(otpRes_w, otpInfo.digits));
-		 
+		
 		float remain = (interval * 1000 - getCurrentMillSecond() % (interval * 1000)) / 1000.0;
 		wchar_t remainText[51];
 		swprintf_s(remainText, L"%.1fs", remain);
@@ -263,3 +304,35 @@ void calculateThread() {
 }
 void winrt::OTP_Client_WinUI3::implementation::MainWindow::SNTPThread() {}
 
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::OtpListBox_DoubleTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs const& e)
+{
+	int32_t index = OtpListBox().SelectedIndex();
+	if (otpInfos[index].type == HOTP)
+	{
+		ShowHOTPDialog().ShowAsync();
+		HOTPSecretFriendlyNameTextBlock().Text(s2ws(otpInfos[index].friendly_name));
+	}
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::HOTPShowSecret_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	HOTPShowSecret().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
+	
+	int32_t index = OtpListBox().SelectedIndex();
+	OTPInfo otpInfo = otpInfos[index];
+	OTP otp(HOTP);
+	
+	//timesCache[otpInfo.secret] = usingtime;
+	string otpRes = otp.generateOTP(DecryptData(dataCache[wstring(otpInfo.secret.begin(), otpInfo.secret.end())]), otpInfo.secret_type, otpInfo.digits, otpInfo.addition_param);
+	otpInfos[index].addition_param++;
+	
+	CurrentHOTPSecrets().Text(padZero(wstring(otpRes.begin(), otpRes.end()), otpInfo.digits));
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::ShowHOTPDialog_PrimaryButtonClick(winrt::Microsoft::UI::Xaml::Controls::ContentDialog const& sender, winrt::Microsoft::UI::Xaml::Controls::ContentDialogButtonClickEventArgs const& args)
+{
+	HOTPShowSecret().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
+	CurrentHOTPSecrets().Text(L"**********");
+	ShowHOTPDialog().Hide();
+}

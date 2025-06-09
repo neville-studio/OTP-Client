@@ -22,7 +22,7 @@
             <Button x:Name="ManageClockButton" Content="网络时钟服务器管理" Width="150" Click="ManageClockButton_Click"/>
         </StackPanel>
         <!-- OTP 列表 -->
-        <ListView Grid.Row="2" x:Name="OtpListBox" Margin="20" ItemsSource="{x:Bind OTPItems}" ScrollViewer.IsVerticalRailEnabled="True" Height="Auto" VerticalAlignment="Stretch" >
+        <ListView Grid.Row="2" x:Name="OtpListBox" Margin="20" ItemsSource="{x:Bind OTPItems}" ScrollViewer.IsVerticalRailEnabled="True" Height="Auto" VerticalAlignment="Stretch"  IsDoubleTapEnabled="True" DoubleTapped="OtpListBox_DoubleTapped">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -68,7 +68,8 @@
                 <TextBlock Text="令牌名称"/>
                 <TextBox x:Name="FriendlyNameBox" Margin="0,0,0,10"/>
                 <TextBlock Text="令牌密钥"/>
-                <TextBox x:Name="SecretBox" Margin="0,0,0,10"/>
+                <TextBox x:Name="SecretBox" Margin="0,0,0,10" />
+                <TextBlock Text="密钥编码格式错误" Foreground="Red" Visibility="Collapsed" x:Name="EncodingError"/>
                 <CheckBox x:Name="IsHotpBox" Content="密码是计数的" Margin="0,0,0,10" Checked="IsHotpBox_Checked" Unchecked="IsHotpBox_Unchecked"/>
                 <Button x:Name="AdvancedOptionsButton" Content="高级选项 >> " Margin="0,0,0,10" Click="AdvancedOptionsButton_Click"/>
                 <StackPanel x:Name="AdvancedOptionsPanel" Visibility="Collapsed">
@@ -119,6 +120,20 @@
             </StackPanel>
         </ContentDialog>
         
+        <ContentDialog
+            x:Name="ShowHOTPDialog"
+            Title="HOTP 密钥"
+            PrimaryButtonText="关闭"
+            PrimaryButtonClick="ShowHOTPDialog_PrimaryButtonClick"
+            Width="400"
+            Height="250">
+            <StackPanel Margin="20">
+                <TextBlock Text="令牌名称" x:Name="HOTPSecretFriendlyNameTextBlock" FontSize="24"/>
+                <Button Content="显示密钥" x:Name="HOTPShowSecret" Click="HOTPShowSecret_Click"/>
+                <TextBlock Text="注意：当你点击“显示密钥”后，该HOTP计数器会加1." Foreground="Red"/>
+                <TextBlock Text="*********" FontSize="32" x:Name="CurrentHOTPSecrets"/>
+            </StackPanel>
+        </ContentDialog>
     </Grid>
     
 </Window>
