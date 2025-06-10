@@ -2,7 +2,7 @@
 ![Thanks Stars](https://img.shields.io/github/stars/neville-studio/OTP-Client?style=flat-square&logo=GitHub)
 ![Thanks Forks](https://img.shields.io/github/forks/neville-studio/OTP-Client?style=flat-square&logo=GitHub)
  
- [Go to Wiki](wiki/README.md) [Go to Privacy](wiki/Your-Privacy)
+ [Go to Wiki](wiki/README.md) [Your-Privacy（隐私政策）](https://github.com/neville-studio/OTP-Client/wiki/Your-Privacy)
 
  Chinese Software Registration Number: 2025SR0887254 <br>
   中国软件著作权登记号：2025SR0887254
