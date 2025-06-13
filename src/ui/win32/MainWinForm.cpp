@@ -2,6 +2,7 @@
 #include <windows.h>
 #include "MainWinForm.h"
 #include "CommCtrl.h"
+#include <ShlObj.h>
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -40,6 +41,21 @@ bool alwaysUseNetTime = false;
 INT_PTR CALLBACK HotpClientViewerProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 INT_PTR CALLBACK timeServerManager(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 SNTPClient sntpClient;
+
+// 获取可写的文件路径
+std::string getWritableFilename() {
+    std::string filename = "NTPServers.ini";
+#ifdef _WIN32
+    char path[MAX_PATH] = { 0 };
+    if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, path))) {
+        std::string dirPath = std::string(path) + "\\NevilleStudio\\NetTimesyncTool";
+        std::filesystem::create_directories(dirPath);
+        return dirPath + "\\" + filename;
+    }
+#endif // _WIN32
+    return filename;
+}
+
 void ReadDataFromFile() {
 	vector<BYTE> data = ReadDataFromFile("data.dat");
 	if (data.size() == 0) return;

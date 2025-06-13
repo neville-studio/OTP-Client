@@ -5,6 +5,7 @@
   <Import Project="..\..\..\..\packages\Microsoft.WindowsAppSDK.1.7.250513003\build\native\Microsoft.WindowsAppSDK.props" Condition="Exists('..\..\..\..\packages\Microsoft.WindowsAppSDK.1.7.250513003\build\native\Microsoft.WindowsAppSDK.props')" />
   <PropertyGroup Label="Globals">
     <CppWinRTOptimized>true</CppWinRTOptimized>
+    <WindowsPackageType>None</WindowsPackageType>
     <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <MinimalCoreWin>true</MinimalCoreWin>
     <ProjectGuid>{73e0a25c-e1dc-4a76-991e-994202c6d135}</ProjectGuid>
@@ -14,7 +15,7 @@
       $(TargetName) should be same as $(RootNamespace) so that the produced binaries (.exe/.pri/etc.)
       have a name that matches the .winmd
     -->
-    <TargetName>$(RootNamespace)</TargetName>
+    <TargetName>$(RootNamespace)-$(Configuration)-$(Platform)</TargetName>
     <DefaultLanguage>zh-CN</DefaultLanguage>
     <MinimumVisualStudioVersion>16.0</MinimumVisualStudioVersion>
     <AppContainerApplication>false</AppContainerApplication>
@@ -86,15 +87,23 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)out\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>out\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)out\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>out\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>out\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
+    <IntDir>out\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>

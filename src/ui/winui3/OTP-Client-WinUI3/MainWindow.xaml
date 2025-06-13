@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:OTP_Client_WinUI3"
     Title="OTP Client"
+    Closed="Window_Closed"
+    
     >
     <Window.SystemBackdrop>
         <DesktopAcrylicBackdrop/>
@@ -51,8 +53,8 @@
                                     </ProgressRing.Foreground>
                                 </ProgressRing>
                                 <TextBlock Text="{Binding RemainingTimeText}" Width="60" Margin="10,0"/>
-                                <Button Content="编辑" Width="50" Margin="10,0"/>
-                                <Button Content="删除" Width="50" Margin="10,0"/>
+                                <Button Content="编辑" Width="50" Margin="10,0" x:Name="ItemEditButton" Click="ItemEditButton_Click"/>
+                                <Button Content="删除" Width="50" Margin="10,0" x:Name="ItemDeleteButton" Click="ItemDeleteButton_Click"/>
                             </StackPanel>
                         </Grid>
 
@@ -114,8 +116,9 @@
                 <TextBlock Text="同步状态" Margin="0,10,0,0"/>
                 <TextBlock x:Name="SyncStatusText" Margin="0,0,0,10"/>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                    <Button Content="确定" Width="80" Margin="0,0,10,0"/>
-                    <Button Content="取消" Width="80" x:Name="SNTPDialogCancelButton" Click="SNTPDialogCancelButton_Click"/>
+                    <Button Content="应用&amp;重新同步"  Margin="0,0,10,0" x:Name="ApplyOrSyncClockServerButton" Click="ApplyOrSyncClockServerButton_Click"/>
+                    <Button Content="确定"  Margin="0,0,10,0" x:Name="ApplyClockServerButton" Click="ApplyClockServerButton_Click"/>
+                    <Button Content="取消"  x:Name="SNTPDialogCancelButton" Click="SNTPDialogCancelButton_Click"/>
                 </StackPanel>
             </StackPanel>
         </ContentDialog>
@@ -130,7 +133,7 @@
             <StackPanel Margin="20">
                 <TextBlock Text="令牌名称" x:Name="HOTPSecretFriendlyNameTextBlock" FontSize="24"/>
                 <Button Content="显示密钥" x:Name="HOTPShowSecret" Click="HOTPShowSecret_Click"/>
-                <TextBlock Text="注意：当你点击“显示密钥”后，该HOTP计数器会加1." Foreground="Red"/>
+                <TextBlock Text="注意：当你点击“显示密钥”后，存储这个密钥的计数器会自动加1。" Foreground="Red"/>
                 <TextBlock Text="*********" FontSize="32" x:Name="CurrentHOTPSecrets"/>
             </StackPanel>
         </ContentDialog>

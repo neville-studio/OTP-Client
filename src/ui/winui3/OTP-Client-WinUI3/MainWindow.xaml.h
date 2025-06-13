@@ -9,8 +9,8 @@
 
 
 void calculateThread();
-
-
+void SNTPClientUpdateThreadProc();
+void ReadDataFromFile();
 
 namespace winrt::OTP_Client_WinUI3::implementation
 {
@@ -23,6 +23,7 @@ namespace winrt::OTP_Client_WinUI3::implementation
         }
         MainWindow()
         {
+            initData();
             ExtendsContentIntoTitleBar(true);
             SetTitleBar(TitleBarMainWindow());
            
@@ -44,7 +45,8 @@ namespace winrt::OTP_Client_WinUI3::implementation
             // Build a new Thread
             std::thread thread1(calculateThread);
             thread1.detach();
-            
+            std::thread thread2(SNTPClientUpdateThreadProc);
+            thread2.detach();
             //TrySet
    //         winrt::OTP_Client_WinUI3::OTPItem otpItem = {}; // Create an instance of OTPItem
    //         otpItem.FriendlyName(L"Example OTP Item"); // Example friendly name
@@ -70,11 +72,11 @@ namespace winrt::OTP_Client_WinUI3::implementation
 
         int32_t MyProperty();
         void MyProperty(int32_t value);
+        void initData();
         void AddOTPClickHandler(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void AdvancedOptionsButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void IsHotpBox_Checked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void IsHotpBox_Unchecked(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
-        void Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void CancelButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void SNTPDialogCancelButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void ManageClockButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
@@ -89,6 +91,13 @@ namespace winrt::OTP_Client_WinUI3::implementation
         void OtpListBox_DoubleTapped(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::Input::DoubleTappedRoutedEventArgs const& e);
         void HOTPShowSecret_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
         void ShowHOTPDialog_PrimaryButtonClick(winrt::Microsoft::UI::Xaml::Controls::ContentDialog const& sender, winrt::Microsoft::UI::Xaml::Controls::ContentDialogButtonClickEventArgs const& args);
+
+        long long current_edit_index = -1;
+        void ItemEditButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void ItemDeleteButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void ApplyOrSyncClockServerButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void ApplyClockServerButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e);
+        void Window_Closed(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::WindowEventArgs const& args);
     };
     
 }

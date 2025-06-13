@@ -6,10 +6,15 @@
 #include <thread>
 #include <mutex>
 #include "DataHandler.h"
+#include <ShlObj.h>
+
 #include <winrt/Windows.Globalization.NumberFormatting.h>
 //#include <winrt/Windows.UI.Composition.h>
 //#include <winrt/Windows.UI.Xaml.Hosting.h>
 
+
+// 在文件顶部添加
+#pragma comment(lib, "shell32.lib")
 #if __has_include("MainWindow.g.cpp")
 #include "MainWindow.g.cpp"
 #endif
@@ -25,12 +30,8 @@ GlobalConfiguration* globalConfig = GlobalConfiguration::getInstance();
 vector<OTPInfo> otpInfos = globalConfig->getOTPConfig();
 vector<string> sntpServers = globalConfig->getSNTPServers();
 map<string, wstring> digitsCache;
+bool alwaysUsingNetTime = globalConfig->getUseNetworkTime();
 
-wstring padZero(wstring s, int count)
-{
-	if (s.size() > count)return s;
-	return wstring(L"00000000").substr(0, count - s.size()) + s;
-}
 wstring s2ws(const string& s)
 {
 	int len;
@@ -42,6 +43,83 @@ wstring s2ws(const string& s)
 	delete[] buf;
 	return r;
 }
+
+string ws2s(std::wstring s)
+{
+	string result;
+	int slength = (int)s.length() + 2;
+	int len;
+	len = WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, 0, 0, 0, 0);
+	char* buf = new char[len];
+	WideCharToMultiByte(CP_UTF8, 0, s.c_str(), slength, buf, len, 0, 0);
+	result = buf;
+	delete[] buf;
+	return result;
+
+}
+
+std::string getWritableFilename() {
+	std::string filename = "data.dat";
+#ifdef _WIN32
+	wchar_t* path = nullptr;
+	if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &path))) {
+		std::wstring dirPath = std::wstring(path) + L"\\NevilleStudio\\OTP-Client";
+		std::filesystem::create_directories(dirPath);
+		
+		CoTaskMemFree(path);
+		return ws2s(dirPath + L"\\" + s2ws(filename));
+	}
+#endif // _WIN32
+	return filename;
+}
+
+wstring padZero(wstring s, int count)
+{
+	if (s.size() > count)return s;
+	return wstring(L"00000000").substr(0, count - s.size()) + s;
+}
+
+
+void ReadDataFromFile() {
+	vector<BYTE> data = ReadDataFromFile(getWritableFilename());
+	if (data.size() == 0) return;
+	string dataStr = DecryptData(data);
+	globalConfig->setConfig(dataStr);
+	otpInfos = globalConfig->getOTPConfig();
+	sntpServers = globalConfig->getSNTPServers();
+	alwaysUsingNetTime = globalConfig->getUseNetworkTime();
+	for (size_t i = 0; i < otpInfos.size(); i++)
+	{
+
+		//otpInfo.secret = encodeBase64FromBYTE(EncryptData(otpInfo.secret));
+		GUID guid;
+		HRESULT r1 = CoCreateGuid(&guid);
+		TCHAR r[48];
+		r1 = StringFromGUID2(guid, r, 48);
+		string guidStr = ws2s(r);
+
+		dataCache[r] = decodeBase64ToBYTE(otpInfos[i].secret);
+		timesCache[guidStr] = otpInfos[i].addition_param;
+		otpInfos[i].secret = guidStr;
+	}
+}
+
+void saveDataToFile()
+{
+	vector<OTPInfo> p = otpInfos;
+	for (size_t i = 0; i < p.size(); i++)
+	{
+		p[i].secret = encodeBase64FromBYTE(dataCache[s2ws(p[i].secret)]);
+	}
+	globalConfig->setOTPConfig(p);
+	globalConfig->setSNTP_servers(sntpServers);
+	globalConfig->setUseNetworkTime(alwaysUsingNetTime);
+
+	vector<BYTE> writeDATA = EncryptData(globalConfig->getConfig());
+
+	BOOL writeResult = WriteBytesToFile(getWritableFilename(), writeDATA);
+}
+
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 int64_t getCurrentMillSecond(bool usingNetTime = false) {
@@ -71,7 +149,35 @@ namespace winrt::OTP_Client_WinUI3::implementation
         throw hresult_not_implemented();
     }
 }
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::initData()
+{
+	ReadDataFromFile();
+	for (auto otpinfo : otpInfos)
+	{
+		winrt::OTP_Client_WinUI3::OTPItem otpItem;
+		otpItem.FriendlyName(s2ws(otpinfo.friendly_name));
+		if (otpinfo.type == 0) {
+			OTP otp(HOTP);
+			timesCache[otpinfo.secret] = getCurrentMillSecond(alwaysUsingNetTime) / otpinfo.addition_param;
+			string otpRes = otp.generateOTP(DecryptData(dataCache[wstring(otpinfo.secret.begin(), otpinfo.secret.end())]), otpinfo.secret_type, otpinfo.digits, getCurrentMillSecond() / otpinfo.addition_param / 1000);
+			wstring otpRes_w(otpRes.begin(), otpRes.end());
+			otpItem.SecretDigits(padZero(otpRes_w, otpinfo.digits));
 
+			float remain = (otpinfo.addition_param * 1000 - getCurrentMillSecond(alwaysUsingNetTime) % (otpinfo.addition_param * 1000)) / 1000.0;
+			wchar_t remainText[51];
+			swprintf_s(remainText, L"%.1fs", remain);
+			wstring remainingTime = remainText;
+			otpItem.RemainingTimeText(remainingTime);
+			otpItem.Progress(remain / otpinfo.addition_param * 100);
+		}
+		else
+		{
+			otpItem.SecretDigits(L"计次密钥，请双击查看");
+		}
+		OTPItems().Append(otpItem);
+		
+	}
+}
 void winrt::OTP_Client_WinUI3::implementation::MainWindow::AddOTPClickHandler(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
     OTPDialog().ShowAsync();
@@ -133,14 +239,9 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::IsHotpBox_Unchecked(w
     Interval().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
     Counter().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Collapsed);
 }
-
-void winrt::OTP_Client_WinUI3::implementation::MainWindow::Button_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
-{
-
-}
-
 void winrt::OTP_Client_WinUI3::implementation::MainWindow::CancelButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
+	current_edit_index = -1;
     OTPDialog().Hide();
 }
 
@@ -152,6 +253,47 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::SNTPDialogCancelButto
 void winrt::OTP_Client_WinUI3::implementation::MainWindow::ManageClockButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
 {
     SNTPDialog().ShowAsync();
+	if(sntpServers.size() < 2)
+	sntpServers.resize(2);
+	ClockServer1Box().Text(s2ws(sntpServers[0]));
+	ClockServer2Box().Text(s2ws(sntpServers[1]));
+	ForceNetworkClockBox().IsChecked(alwaysUsingNetTime);
+	int64_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+	if (sntpClient.getStatus() >= 0 &&  lastUpdateTime >= 0 && lastUpdateTime < 3600000) {
+		wstring updatestatus = L"上次同步：" + to_wstring(lastUpdateTime) + L"分钟前";
+		ApplyOrSyncClockServerButton().IsEnabled(true);
+		SyncStatusText().Text(updatestatus);
+	}
+	else if (sntpClient.getStatus() >= 0)
+	{
+		SyncStatusText().Text(L"未同步");
+	}
+	else
+		SyncStatusText().Text(L"同步失败");
+}
+
+
+void SNTPClientUpdateThreadProc()
+{
+	while (true)
+	{
+
+		if (getCurrentMillSecond() - sntpClient.getLastUpdate() > 600000)
+		{
+
+			if (sntpServers.size() > 0)
+				if (sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, false) < 0 && sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, true) < 0)
+				{
+					if (sntpServers.size() > 1)
+					{
+						if (sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, false) < 0 && sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, true) < 0)
+						{
+						}
+					}
+				}
+		}
+		Sleep(60000);
+	}
 }
 
 void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
@@ -220,8 +362,14 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
 	otpInfo.secret = to_string(guidStr); // Store the GUID instead of the actual secret
 	/*GUID tpGuid = winrt::guid();
 	wstring guidStr = to_wstring(tpGuid.Data4);*/
-
-	otpInfos.push_back(otpInfo);
+	dataCacheMutex.lock();
+	if (current_edit_index < 0) {
+		otpInfos.push_back(otpInfo);
+	}
+	else {
+		otpInfos[current_edit_index] = otpInfo;
+	}
+	dataCacheMutex.unlock();
 
 	OTP otp(HOTP);
 	otp.setAlgorithm(otpInfo.algorithm);
@@ -230,12 +378,12 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
     winrt::OTP_Client_WinUI3::OTPItem otpItem;
 	otpItem.FriendlyName(friendlyname);
 	if (otpInfo.type == 0) {
-		timesCache[otpInfo.secret] = getCurrentMillSecond() / otpInfo.addition_param;
+		timesCache[otpInfo.secret] = getCurrentMillSecond(alwaysUsingNetTime) / otpInfo.addition_param;
 		string otpRes = otp.generateOTP(DecryptData(dataCache[wstring(otpInfo.secret.begin(), otpInfo.secret.end())]), otpInfo.secret_type, otpInfo.digits, getCurrentMillSecond() / otpInfo.addition_param / 1000);
 		wstring otpRes_w(otpRes.begin(), otpRes.end());
 		otpItem.SecretDigits(padZero(otpRes_w, otpInfo.digits));
 		
-		float remain = (interval * 1000 - getCurrentMillSecond() % (interval * 1000)) / 1000.0;
+		float remain = (interval * 1000 - getCurrentMillSecond(alwaysUsingNetTime) % (interval * 1000)) / 1000.0;
 		wchar_t remainText[51];
 		swprintf_s(remainText, L"%.1fs", remain);
 		wstring remainingTime = remainText;
@@ -247,12 +395,17 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::OTPDialogOK_Click(win
 		otpItem.SecretDigits(L"计次密钥，请双击查看");
 	}
 	//otpItem.ProgressColor(L"#FF0000");
-	OTPItems().Append(otpItem);
 	
-
+	
+	if (current_edit_index < 0) {
+		OTPItems().Append(otpItem);
+	}
+	else {
+		OTPItems().SetAt(current_edit_index, otpItem);
+	}
 
 	//otpItem.IsHotp(isHotp);
-
+	current_edit_index = -1;
 	OTPDialog().Hide();
 
     //SNTPDialog().ShowAsync();
@@ -287,6 +440,7 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::UIUpdate()
 void calculateThread() {
 	while (1)
 	{
+		dataCacheMutex.lock();
 		for (OTPInfo otpInfo: otpInfos)
 		{
 			if (otpInfo.type == 1)continue;
@@ -298,6 +452,7 @@ void calculateThread() {
 			digitsCache[otpInfo.secret] = padZero(wstring(otpRes.begin(), otpRes.end()), otpInfo.digits);
 			//wstring otpRes_w(otpRes.begin(), otpRes.end());
 		}
+		dataCacheMutex.unlock();
 		std::this_thread::sleep_for(std::chrono::microseconds(100));
 		/*std::thread:(1000);*/
 	}
@@ -335,4 +490,180 @@ void winrt::OTP_Client_WinUI3::implementation::MainWindow::ShowHOTPDialog_Primar
 	HOTPShowSecret().Visibility(winrt::Microsoft::UI::Xaml::Visibility::Visible);
 	CurrentHOTPSecrets().Text(L"**********");
 	ShowHOTPDialog().Hide();
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::ItemEditButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	auto button = sender.as<winrt::Microsoft::UI::Xaml::Controls::Button>();
+	if (button)
+	{
+		auto dataItem = button.DataContext();
+		auto listViewItem = OtpListBox().ContainerFromItem(dataItem).as<winrt::Microsoft::UI::Xaml::Controls::ListViewItem>();
+		if (listViewItem)
+		{
+			// 获取数据项
+			
+			int index = OtpListBox().IndexFromContainer(listViewItem);
+			//auto item = OtpListBox().Items().GetAt(index).as<YourDataType>();
+			// 处理逻辑...
+			if (index >= 0 && index < otpInfos.size())
+			{
+				OTPInfo& otpInfo = otpInfos[index];
+				FriendlyNameBox().Text(s2ws(otpInfo.friendly_name));
+				SecretBox().Text(s2ws(DecryptData(dataCache[s2ws(otpInfo.secret)])));
+				IsHotpBox().IsChecked(otpInfo.type == HOTP);
+				SecretLengthBox().Value(otpInfo.digits);
+				TotpStepBox().Value(otpInfo.addition_param);
+				HotpCounterBox().Value(otpInfo.addition_param);
+				EncodingBox().SelectedIndex(otpInfo.secret_type - 1);
+				AlgorithmBox().SelectedIndex(otpInfo.algorithm - 1);
+				updateFormatter();
+				current_edit_index = index;
+				OTPDialog().ShowAsync();
+				
+			}
+			else
+			{
+				OutputDebugString(L"索引越界！");
+			}
+		}
+		
+	}
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::ItemDeleteButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+    auto button = sender.as<winrt::Microsoft::UI::Xaml::Controls::Button>();
+    if (button)
+    {
+        auto dataItem = button.DataContext();
+        auto listViewItem = OtpListBox().ContainerFromItem(dataItem).as<winrt::Microsoft::UI::Xaml::Controls::ListViewItem>();
+        if (listViewItem)
+        {
+            uint32_t index = OtpListBox().IndexFromContainer(listViewItem);
+            if (index >= 0 && index < otpInfos.size())
+            {
+                winrt::Microsoft::UI::Xaml::Controls::ContentDialog confirmDialog;
+                confirmDialog.Title(box_value(L"确认删除"));
+                confirmDialog.Content(box_value(L"确定要删除此条目吗？此操作无法撤销。"));
+                confirmDialog.PrimaryButtonText(L"删除");
+                confirmDialog.CloseButtonText(L"取消");
+                confirmDialog.DefaultButton(winrt::Microsoft::UI::Xaml::Controls::ContentDialogButton::Close);
+
+                // 修复：设置 XamlRoot，避免弹窗异常
+                if (auto xamlRoot =button.XamlRoot())
+                {
+                    confirmDialog.XamlRoot(xamlRoot);
+                }
+                else if (auto window = winrt::Microsoft::UI::Xaml::Window::Current())
+                {
+                    confirmDialog.XamlRoot(window.Content().as<winrt::Microsoft::UI::Xaml::FrameworkElement>().XamlRoot());
+                }
+
+                auto asyncOp = confirmDialog.ShowAsync();
+                asyncOp.Completed([this, index](auto&& asyncInfo, auto&&)
+                {
+                    auto result = asyncInfo.GetResults();
+                    if (result == winrt::Microsoft::UI::Xaml::Controls::ContentDialogResult::Primary)
+                    {
+                        std::lock_guard<std::mutex> lock(dataCacheMutex);
+                        // 删除数据
+                        if (index >= 0 && index < otpInfos.size())
+                        {
+                            auto guidStr = s2ws(otpInfos[index].secret);
+                            
+                            if (index < this->OTPItems().Size())
+                                this->OTPItems().RemoveAt(index);
+                            timesCache.erase(otpInfos[index].secret);
+                            digitsCache.erase(otpInfos[index].secret);
+                            dataCache.erase(guidStr);
+							otpInfos.erase(otpInfos.begin() + index);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                OutputDebugString(L"索引越界！");
+            }
+        }
+    }
+}
+
+void sntpResyncProc()
+{
+	/*HWND hWnd = (HWND)lpParameter;
+	stopThisResyncThread = 0;*/
+	if (sntpServers.size() > 0)
+		if (sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, false) >= 0 || sntpClient.updateSNTPTimeStamp(sntpServers[0].c_str(), 123, true) >= 0)
+		{
+			return;
+			/*if (hWnd != NULL && !stopThisResyncThread)
+				PostMessage(hWnd, WM_USER, NULL, NULL);
+			return 0;*/
+		}
+		else if (sntpServers.size() > 1)
+		{
+			if (sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, false) >= 0 || sntpClient.updateSNTPTimeStamp(sntpServers[1].c_str(), 123, true) >= 0)
+			{
+				/*if (hWnd != NULL && !stopThisResyncThread)
+					PostMessage(hWnd, WM_USER, NULL, NULL);*/
+				return;
+			}
+		}
+	return ;
+}
+
+
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::ApplyOrSyncClockServerButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	ApplyOrSyncClockServerButton().IsEnabled(false);
+
+	if (sntpServers.size() < 2)
+	{
+		sntpServers.resize(2);
+	}
+	sntpServers[0] = ws2s(ClockServer1Box().Text().c_str());
+	sntpServers[1] = ws2s(ClockServer2Box().Text().c_str());
+	alwaysUsingNetTime = ForceNetworkClockBox().IsChecked().GetBoolean();
+
+	// 启动线程执行 SNTP 同步
+	std::thread([this]() {
+		sntpResyncProc();
+		// 回到UI线程更新UI
+		DispatcherQueue().TryEnqueue([this]() {
+			int64_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+			wstring updatestatus;
+			if (sntpClient.getStatus() >= 0 && lastUpdateTime >= 0 && lastUpdateTime <= 3600000) {
+				wstring updatestatus = L"上次同步：" + to_wstring(lastUpdateTime) + L"分钟前";
+				ApplyOrSyncClockServerButton().IsEnabled(true);
+				SyncStatusText().Text(updatestatus);
+			}
+			else
+				SyncStatusText().Text(L"同步失败");
+			
+			ApplyOrSyncClockServerButton().IsEnabled(true);
+			//SyncStatusText().Text(updatestatus);
+			// 可根据需要添加UI提示
+		});
+	}).detach();
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::ApplyClockServerButton_Click(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::RoutedEventArgs const& e)
+{
+	sntpServers[0] = ws2s(ClockServer1Box().Text().c_str());
+	sntpServers[1] = ws2s(ClockServer2Box().Text().c_str());
+	alwaysUsingNetTime = ForceNetworkClockBox().IsChecked().GetBoolean();
+	int64_t lastUpdateTime = (getCurrentMillSecond() - sntpClient.getLastUpdate()) / 60000;
+	if (lastUpdateTime > 10) {
+		std::thread thread3(sntpResyncProc);
+		thread3.detach();
+	}
+	SNTPDialog().Hide();
+}
+
+void winrt::OTP_Client_WinUI3::implementation::MainWindow::Window_Closed(winrt::Windows::Foundation::IInspectable const& sender, winrt::Microsoft::UI::Xaml::WindowEventArgs const& args)
+{
+	saveDataToFile();
 }

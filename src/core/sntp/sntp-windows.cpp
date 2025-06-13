@@ -1,4 +1,4 @@
-/**
+﻿/**
 * @file sntp.cpp
 * @brief SNTP client implementation
 *	
@@ -136,7 +136,7 @@ int64_t SNTPClient::updateSNTPTimeStamp(const char* server, uint16_t port, bool 
 	if (iResult > 0) {
 		// calculate the time difference between the time the packet was sent and the time the packet was received
 		transformNTPPackage(recvBuf, recvBufLen, std::chrono::duration_cast<std::chrono::milliseconds>(send_time.time_since_epoch()).count(), std::chrono::duration_cast<std::chrono::milliseconds>(recv_time.time_since_epoch()).count());
-
+		status = 0;
 		timestamp = resultTimestamp;
 
 	}
