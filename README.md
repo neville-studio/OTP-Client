@@ -16,8 +16,11 @@ For more thing, [Go to Wiki](wiki/README.md)
 
 
 # ScreenShot
+1. Legacy UI
 ![image](https://github.com/user-attachments/assets/308a8431-da04-412f-b52b-7102e02552d1)
-![image](https://github.com/user-attachments/assets/942cf28e-2349-48e5-abb2-cea07956be66)
+2. new UI (WinUI3)
+![image](https://github.com/user-attachments/assets/2bde491b-6447-4d49-9d0a-60e2e9cb530e)
+
 
 
 
