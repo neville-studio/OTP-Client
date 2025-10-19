@@ -72,27 +72,27 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ExternalIncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>$(SolutionDir)out\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)out\$(Configuration)\</IntDir>
-    <TargetName>OTP-Client-Win32UI</TargetName>
+    <OutDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\final\</OutDir>
+    <IntDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\middle\</IntDir>
+    <TargetName>OTP-Client-Win32UI-$(Platform)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ExternalIncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>$(SolutionDir)out\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)out\$(Configuration)\</IntDir>
-    <TargetName>OTP-Client-Win32UI</TargetName>
+    <OutDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\final\</OutDir>
+    <IntDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\middle\</IntDir>
+    <TargetName>OTP-Client-Win32UI-$(Platform)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>OTP-Client-Win32UI</TargetName>
+    <OutDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\final\</OutDir>
+    <IntDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\middle\</IntDir>
+    <TargetName>OTP-Client-Win32UI-$(Platform)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExternalIncludePath>$(SolutionDir)\src\core\include;$(SolutionDir)\src\include;$(SolutionDir)\include;$(WindowsSDK_IncludePath);$(ExternalIncludePath)</ExternalIncludePath>
-    <OutDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)out\$(Platform)\$(Configuration)\</IntDir>
-    <TargetName>OTP-Client-Win32UI</TargetName>
+    <OutDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\final\</OutDir>
+    <IntDir>$(SolutionDir)out\win32ui\$(Platform)\$(Configuration)\middle\</IntDir>
+    <TargetName>OTP-Client-Win32UI-$(Platform)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -130,6 +130,7 @@
       <Filter>core</Filter>
     </ClInclude>
     <ClInclude Include="DataHandler.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Assets">
@@ -154,5 +155,11 @@
   <ItemGroup>
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
     <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natstepfilter" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="OTP-Client-WinUI3.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\win32\client.ico" />
   </ItemGroup>
 </Project>
