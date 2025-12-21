@@ -1,0 +1,143 @@
+﻿<Window
+    x:Class="OTP_Client_WinUI3.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OTP_Client_WinUI3"
+    Title="OTP Client"
+    Closed="Window_Closed"
+    
+    >
+    <Window.SystemBackdrop>
+        <DesktopAcrylicBackdrop/>
+    </Window.SystemBackdrop>
+    <!--<StackPanel VerticalAlignment="Top" Margin="10" Spacing="10">-->
+    <Grid  Margin="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TitleBar Title="一次性密码查看器" x:Name="TitleBarMainWindow"></TitleBar>
+        <!-- 顶部按钮 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="20">
+            <Button x:Name="AddOtpButton" Content="添加" Width="80" Margin="0,0,10,0" Click="AddOTPClickHandler"/>
+            <Button x:Name="ManageClockButton" Content="网络时钟服务器管理" Width="150" Click="ManageClockButton_Click"/>
+        </StackPanel>
+        <!-- OTP 列表 -->
+        <ListView Grid.Row="2" x:Name="OtpListBox" Margin="20" ItemsSource="{x:Bind OTPItems}" ScrollViewer.IsVerticalRailEnabled="True" Height="Auto" VerticalAlignment="Stretch"  IsDoubleTapEnabled="True" DoubleTapped="OtpListBox_DoubleTapped">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="local:OTPItem">
+                <Border Padding="8"  BorderThickness="1" Background="#107F7F7F">
+                        <Grid  Width="Auto" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding FriendlyName}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding SecretDigits}" Visibility="{Binding }"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <ProgressRing Width="32" Height="32" Value="{Binding Progress}" Maximum="100" Margin="10,0" IsIndeterminate="False" >
+                                    <ProgressRing.Foreground>
+                                        <SolidColorBrush Color="{x:Bind ProgressColor, Mode=OneWay}"/>
+                                    </ProgressRing.Foreground>
+                                </ProgressRing>
+                                <TextBlock Text="{Binding RemainingTimeText}" Width="60" Margin="10,0"/>
+                                <Button Content="编辑" Width="50" Margin="10,0" x:Name="ItemEditButton" Click="ItemEditButton_Click"/>
+                                <Button Content="删除" Width="50" Margin="10,0" x:Name="ItemDeleteButton" Click="ItemDeleteButton_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                    </Border>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        
+        <ContentDialog x:Name="OTPDialog"
+    Title="添加OTP" Height="400" Width="600">
+            <ScrollView>
+            <StackPanel Margin="20" ScrollViewer.IsVerticalRailEnabled="True">
+                <TextBlock Text="令牌名称"/>
+                <TextBox x:Name="FriendlyNameBox" Margin="0,0,0,10"/>
+                <TextBlock Text="令牌密钥"/>
+                <TextBox x:Name="SecretBox" Margin="0,0,0,10" />
+                <TextBlock Text="密钥编码格式错误" Foreground="Red" Visibility="Collapsed" x:Name="EncodingError"/>
+                <CheckBox x:Name="IsHotpBox" Content="密码是计数的" Margin="0,0,0,10" Checked="IsHotpBox_Checked" Unchecked="IsHotpBox_Unchecked"/>
+                <Button x:Name="AdvancedOptionsButton" Content="高级选项 >> " Margin="0,0,0,10" Click="AdvancedOptionsButton_Click"/>
+                <StackPanel x:Name="AdvancedOptionsPanel" Visibility="Collapsed">
+                    <TextBlock Text="密钥长度"/>
+                    <Slider x:Name="SecretLengthBox" Margin="0,0,0,10" Minimum="4" Maximum="8" Value="6"/>
+                    <StackPanel Orientation="Horizontal" x:Name="Interval">
+                        <TextBlock Text="时间间隔"/>
+                        <NumberBox x:Name="TotpStepBox" Text="30" Minimum="1"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" x:Name="Counter" Visibility="Collapsed">
+                        <TextBlock Text="计数器"/>
+                            <NumberBox x:Name="HotpCounterBox" Text="0" Minimum="0" />
+                        </StackPanel>
+                    <TextBlock Text="密钥编码格式"/>
+                    <ComboBox x:Name="EncodingBox" SelectedIndex="0">
+                        <ComboBoxItem Content="BASE32"/>
+                        <ComboBoxItem Content="BASE64"/>
+                        <ComboBoxItem Content="Hex"/>
+                    </ComboBox>
+                    <TextBlock Text="算法"/>
+                    <ComboBox x:Name="AlgorithmBox" SelectedIndex="0">
+                        <ComboBoxItem Content="SHA-1"/>
+                        <ComboBoxItem Content="SHA256"/>
+                        <ComboBoxItem Content="SHA512"/>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="确定" Width="80" Margin="0,0,10,0" x:Name="OKButton" Click="OTPDialogOK_Click" />
+                    <Button x:Name="CancelButton" Content="取消" Width="80" Click="CancelButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+            </ScrollView>
+        </ContentDialog>
+        <ContentDialog x:Name="SNTPDialog"
+    Title="时钟管理" Height="300" Width="350">
+            <StackPanel Margin="20">
+                <CheckBox x:Name="ForceNetworkClockBox" Content="强制使用网络时钟" Margin="0,0,0,10"/>
+                <TextBlock Text="时钟服务器1"/>
+                <TextBox x:Name="ClockServer1Box" Margin="0,0,0,10"/>
+                <TextBlock Text="时钟服务器2"/>
+                <TextBox x:Name="ClockServer2Box" Margin="0,0,0,10"/>
+                <TextBlock Text="同步状态" Margin="0,10,0,0"/>
+                <TextBlock x:Name="SyncStatusText" Margin="0,0,0,10"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                    <Button Content="应用&amp;重新同步"  Margin="0,0,10,0" x:Name="ApplyOrSyncClockServerButton" Click="ApplyOrSyncClockServerButton_Click"/>
+                    <Button Content="确定"  Margin="0,0,10,0" x:Name="ApplyClockServerButton" Click="ApplyClockServerButton_Click"/>
+                    <Button Content="取消"  x:Name="SNTPDialogCancelButton" Click="SNTPDialogCancelButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </ContentDialog>
+        
+        <ContentDialog
+            x:Name="ShowHOTPDialog"
+            Title="HOTP 密钥"
+            PrimaryButtonText="关闭"
+            PrimaryButtonClick="ShowHOTPDialog_PrimaryButtonClick"
+            Width="400"
+            Height="250">
+            <StackPanel Margin="20">
+                <TextBlock Text="令牌名称" x:Name="HOTPSecretFriendlyNameTextBlock" FontSize="24"/>
+                <Button Content="显示密钥" x:Name="HOTPShowSecret" Click="HOTPShowSecret_Click"/>
+                <TextBlock Text="注意：当你点击“显示密钥”后，存储这个密钥的计数器会自动加1。" Foreground="Red"/>
+                <TextBlock Text="*********" FontSize="32" x:Name="CurrentHOTPSecrets"/>
+            </StackPanel>
+        </ContentDialog>
+    </Grid>
+    
+</Window>
+
